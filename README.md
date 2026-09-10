@@ -1,92 +1,124 @@
-# NEXORA — Developer/Team Collaboration & Agency Platform
+<div align="center">
 
-> **"Build Together. Ship Together."**
+  # ⚡ NEXORA
+  ### *The Next-Gen Developer Collaboration & Software Agency Platform*
 
-NEXORA is a 2026-level, ultra-polished developer collaboration and software development agency platform. It combines the sleek micro-interactions of Linear, code-stream telemetry of GitHub, visual elegance of Vercel, workspace organization of Notion, and the client portal capabilities of top-tier software studios into a single unified full-stack ecosystem.
+  [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+  [![Express](https://img.shields.io/badge/Express.js-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+  [![Socket.io](https://img.shields.io/badge/Socket.IO-Realtime-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://socket.io/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
----
+  <p align="center">
+    <strong>Build Together. Ship Together. Scale Faster.</strong><br/>
+    A full-stack, enterprise-grade collaboration workspace combining the precision of <b>Linear</b>, telemetry of <b>GitHub</b>, visual aesthetics of <b>Vercel</b>, and studio client management into one seamless ecosystem.
+  </p>
 
-## 🌟 Key Product Features
+  [🌐 Live Demo](#-quick-start-guide) • [✨ Key Features](#-key-features-showcase) • [🏗️ Architecture](#-system-architecture) • [🛠️ Tech Stack](#%EF%B8%8F-tech-stack--ecosystem) • [👨‍💻 Author](#-developer--author-portfolio)
 
-### 1. Cinematic Public Platform & Portfolio
-- **Cinematic Landing Page**: Floating glassmorphic navbar, hero video mockups, dynamic workflow breakdown, team showcase grid, interactive live demo sandbox concept, and agency vision section.
-- **Agency Portfolio Hub (`/projects`)**: Agency-grade showcase gallery with category filtering (`Healthcare SaaS`, `Developer Tool / AI`, `FinTech Platform`), cover visuals, status badges, tech stack pills, team avatars, and direct demo links.
-- **Case Study Pages (`/projects/:slug`)**: Premium agency case study layout featuring sticky section navigation, executive overview, problem vs. solution narrative, system architecture specs box, interface screenshot gallery, team roster, and live demo sandbox launcher.
-- **SEO & Social Telemetry**: Dynamic document titles, meta descriptions, OpenGraph tags, and Twitter/X card metadata.
-
-### 2. Authentication, RBAC & User Profiles
-- **Secure Authentication**: JWT session handling, bcrypt password salt hashing (12 rounds), protected route guards (`ProtectedRoute.tsx`), and persistent local sessions.
-- **Role-Based Access Control (RBAC)**: Backend-enforced permissions for `OWNER`, `ADMIN`, `MEMBER`, and `CLIENT` roles.
-- **User Profile Management**: Bio, avatar uploading, technical skills pills, GitHub, and LinkedIn link editing.
-
-### 3. Workspace & Team Management
-- **Workspace Dashboard (`/dashboard`)**: Linear-style metrics grid displaying active projects, team size, pending sprint tasks, recent activity telemetry feed, and command palette integration (`Cmd+K` / `Ctrl+K`).
-- **Team Roster & Role Elevation (`/workspace/team`)**: Invite member modal with 1-click token link generation (`/invite/:token`), role promotion dropdowns (`MEMBER` -> `ADMIN` -> `OWNER`), and active online presence indicators.
-
-### 4. Project & Kanban Task Management
-- **Project Workspaces (`/projects/:id`)**: Project overview with build progress indicators, custom cover images, visibility controls (`PRIVATE`, `TEAM_ONLY`, `PUBLIC`), and sub-route navigation.
-- **Linear-Style Kanban PM Board (`/projects/:id/tasks`)**: 5-column Kanban board (`BACKLOG`, `TODO`, `IN_PROGRESS`, `REVIEW`, `DONE`), task priority badges (`LOW`, `MEDIUM`, `HIGH`, `URGENT`), assignment dropdowns, and create task modal.
-- **Project File Hub (`/projects/:id/files`)**: Categorized file storage (`PDF`, `DOCX`, `ZIP`, `PNG`, `MP4`, `APK`), file size formatting, uploader avatars, and instant preview modal.
-
-### 5. Real-Time Collaboration Gateway (Socket.IO)
-- **Live Room Broadcasting**: Socket.IO room subscriptions (`join_workspace`, `join_project`) broadcasting real-time task updates, activity feeds, and presence pings without page refresh.
-- **Task Comments & `@mentions`**: Real-time task discussion drawer supporting `@mention` auto-complete suggestions (`@Sahil`, `@Elena`, `@Marcus`), author avatars, and live notification alerts.
-- **Notification Dropdown Center**: Topbar notification bell dropdown showing unread counter badge (`2`), mark-all-read triggers, and direct deep-links.
-
-### 6. GitHub Code Stream Integration
-- **GitHub OAuth Gateway**: Secure authorization flow storing connections without exposing client secrets.
-- **Developer Code Stream (`/projects/:id/code`)**:
-  - **Connected Repo Banner**: Repository header showing `nexora/nexora-core-platform`, connection badge, active branch dropdown (`main`, `dev`, `feature/realtime-sync`), stars, forks, and open PR count.
-  - **Commits Stream**: Hash copy button (`8f9a2b1`), message, author avatar, additions/deletions stats (`+142 -18`), and timestamp.
-  - **Pull Requests View**: PR numbers, branch targets (`feature/kanban-dnd → main`), status badges (`OPEN`, `MERGED`), and comment counters.
-  - **Issues & Contributors**: Issue tracker with label pills (`bug`, `priority: high`) and team contribution leaderboard.
-
-### 7. Shareable Client Demo Portals
-- **Client Demo Links (`/demo/:token`)**: Owner/Admin modal generating shareable client links with optional passcode protection, expiration date (7, 30, 90 days, Never), and 1-click link copying.
-- **Client Presentation Portal**: Distraction-free public portal displaying project overview, key features, screenshot gallery, tech stack, and live demo launcher while strictly hiding internal developer controls.
-
-### 8. Client Portal & Agency Studio Platform
-- **Client Portal (`/client`)**: Stakeholder dashboard displaying active client projects, overall build progress (`85%`), sprint milestones, latest deployed release (`v1.4.2-rc3`), and feedback timeline.
-- **Client Feedback Gateway (`/client/projects/:id/feedback`)**: Client feedback submission form auto-dispatching team notifications.
-- **Agency Studio Hub (`/agency`)**: High-end software studio command center displaying active client accounts, revenue run-rate ($113,000), lead request count, and service catalog (`Web Development`, `Mobile Development`, `AI Solutions`, `SaaS Development`, `UI/UX`, `Automation`).
-- **Inbound Lead Pipeline (`/agency/requests`)**: Project lead intake management (`NEW` -> `REVIEWING` -> `PROPOSAL` -> `IN_PROGRESS` -> `COMPLETED`).
-- **Proposals & Milestones (`/agency/proposals`)**: Approved proposal contracts, contract deliverables checklist, and milestone roadmaps.
+</div>
 
 ---
 
-## 🏗️ Technology Architecture
+## 🌟 Overview & Highlights
+
+**NEXORA** is engineered for high-performing software development teams and agency studios. It bridges the gap between internal developer workflows (Kanban PM, code telemetry, real-time sync) and client-facing portals (project showcases, proposal tracking, and live feedback).
 
 ```
-NEXORA SYSTEM ARCHITECTURE
-│
-├── client/ (Vite + React 18 + TypeScript + Tailwind CSS)
-│   ├── src/components/ (UI Design System, Modals, Navigation)
-│   ├── src/pages/      (Public, Workspace, Client Portal, Agency)
-│   ├── src/store/      (Zustand Stores: Auth, Workspace, Projects, GitHub, Notifications, Public, Agency)
-│   ├── src/services/   (REST API Fetch Client & Socket.IO Client Gateway)
-│   └── src/styles/     (Glassmorphic CSS Tokens & Tailwind Config)
-│
-└── server/ (Node.js + Express + TypeScript + MongoDB + Socket.IO)
-    ├── src/config/     (Environment Variables & Database Connection)
-    ├── src/models/     (Mongoose Schemas: User, Workspace, Project, Task, File, Activity, Notification, ClientLink, Feedback, Request)
-    ├── src/controllers/(Controller Logic with MongoDB + Fallback In-Memory Engine)
-    ├── src/middleware/ (Auth JWT Guard, RBAC Authorization, Helmet Security, Global Error Handler)
-    ├── src/routes/     (Express Router Matrix mounted under /api/v1)
-    └── src/sockets/    (Socket.IO Room Gateway & Telemetry Broadcasts)
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          ⚡ NEXORA ECOSYSTEM ⚡                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  [ Public Platform ]   ⟶   [ Team Workspace ]   ⟶   [ Client Portal ]   ║
+║   • Studio Portfolio        • Linear PM Board        • Progress Metrics   ║
+║   • Case Study Gallery      • GitHub Code Stream     • Interactive Demos  ║
+║   • Interactive Showcase    • Socket.IO Live Sync    • Milestone Approvals║
+╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
+## ✨ Key Features Showcase
 
-- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, Lucide React Icons, Zustand, React Router DOM v6, TanStack Query v5.
-- **Backend**: Node.js, Express, TypeScript, Mongoose (MongoDB Atlas), Socket.IO, bcryptjs, jsonwebtoken, Helmet, CORS, Morgan, Zod.
+### 🎨 1. Cinematic Portfolio & Public Platform
+* **Glassmorphic Hero & Navigation**: Smooth micro-interactions, dark mode aesthetics, dynamic hero workflow breakdown, and team showcase grid.
+* **Agency Portfolio Hub (`/projects`)**: Agency-grade project gallery with category filtering (`Healthcare SaaS`, `Developer Tool / AI`, `FinTech Platform`), cover visuals, status badges, tech stack pills, and live demo links.
+* **Case Study Engine (`/projects/:slug`)**: In-depth client case study layout with sticky section navigation, executive summary, problem-vs-solution narrative, system architecture breakdown, and screenshot galleries.
+
+### 📊 2. Workspace & Linear-Style PM
+* **Workspace Dashboard (`/dashboard`)**: Linear-style metrics overview displaying active projects, team size, pending sprint tasks, and real-time telemetry feed.
+* **Kanban PM Board (`/projects/:id/tasks`)**: 5-column Kanban board (`BACKLOG`, `TODO`, `IN_PROGRESS`, `REVIEW`, `DONE`), task priority badges (`LOW`, `MEDIUM`, `HIGH`, `URGENT`), assignment dropdowns, and modal controls.
+* **Command Palette (`Cmd+K` / `Ctrl+K`)**: Quick jump navigation across workspaces, projects, tasks, and system actions.
+
+### ⚡ 3. Real-Time Collaboration (Socket.IO)
+* **Live Workspace Telemetry**: Socket.IO room broadcasting for task updates, member presence, and activity feeds without manual refresh.
+* **Task Comments & `@mentions`**: Live discussion drawers with `@mention` auto-completion, author avatars, and push notifications.
+* **Notification Center**: Interactive topbar notification drawer with unread counters and deep-links.
+
+### 🐙 4. GitHub Code Stream Integration
+* **Developer Code Telemetry (`/projects/:id/code`)**: Connected repository header showing stars, forks, active branches (`main`, `dev`, `feature/*`), commit hashes (`+142 -18` diffs), pull requests (`OPEN`, `MERGED`), and issue leaderboards.
+
+### 🏢 5. Client Portal & Agency Studio Gateway
+* **Client Dashboard (`/client`)**: Dedicated stakeholder portal showing project build progress (`85%`), milestone timelines, latest deployments (`v1.4.2-rc3`), and feedback submission.
+* **Shareable Client Demos (`/demo/:token`)**: Passcode-protected, expiration-enabled public demo links for external stakeholders.
+* **Agency Command Center (`/agency`)**: Agency lead intake pipeline (`NEW` ➔ `REVIEWING` ➔ `PROPOSAL` ➔ `IN_PROGRESS`), revenue metrics, and proposal contract checklists.
 
 ---
 
-## ⚙️ Environment Variables
+## 🏗️ System Architecture
 
-### Server (`server/.env`)
+```
+NEXORA FULL-STACK ARCHITECTURE
+├── client/ (Frontend - React 18 + Vite + TypeScript + Tailwind CSS)
+│   ├── src/components/   # UI Design System, Modals, Linear-style Controls
+│   ├── src/pages/        # Public Showcase, Workspaces, Client & Agency Hubs
+│   ├── src/store/        # Zustand Stores (Auth, Projects, GitHub, Realtime Sync)
+│   ├── src/services/     # Axios REST Client & Socket.IO Gateway Connections
+│   └── src/styles/       # Tailwind Config & Glassmorphic CSS System
+│
+└── server/ (Backend - Node.js + Express + TypeScript + MongoDB + Socket.IO)
+    ├── src/config/       # MongoDB Atlas & Environment Configuration
+    ├── src/models/       # Mongoose Schemas (User, Project, Task, File, Activity, Leads)
+    ├── src/controllers/  # Business Logic & Database Controllers
+    ├── src/middleware/   # JWT Auth Guard, RBAC Enforcement & Helmet Security
+    └── src/sockets/      # Socket.IO Event Handlers & Room Telemetry
+```
+
+---
+
+## 🛠️ Tech Stack & Ecosystem
+
+### **Frontend**
+| Technology | Description |
+|---|---|
+| **React 18** | UI Library with concurrent rendering |
+| **TypeScript** | Type-safe architecture |
+| **Vite** | Lightning-fast build tool & dev server |
+| **Tailwind CSS** | Custom glassmorphic styling & utility design system |
+| **Framer Motion** | Micro-animations & layout transitions |
+| **Zustand** | Lightweight, predictable state management |
+| **Lucide Icons** | Modern icon set |
+
+### **Backend**
+| Technology | Description |
+|---|---|
+| **Node.js & Express** | Scalable event-driven REST API server |
+| **TypeScript** | Strict end-to-end backend typing |
+| **MongoDB & Mongoose** | NoSQL Document database for workspaces & projects |
+| **Socket.IO** | Bi-directional real-time WebSocket communication |
+| **JWT & Bcrypt** | Token authentication & password hashing (12 rounds) |
+| **Helmet & CORS** | Production-ready HTTP security headers |
+
+---
+
+## ⚙️ Environment Configuration
+
+<details>
+<summary><b>Click to expand environment file templates</b></summary>
+
+### Backend Setup (`server/.env`)
 ```env
 PORT=5000
 NODE_ENV=development
@@ -95,58 +127,64 @@ APP_URL=http://localhost:5173
 MONGO_URI=mongodb://127.0.0.1:27017/nexora
 JWT_SECRET=nexora_jwt_super_secret_key_2026
 JWT_EXPIRES_IN=7d
-GITHUB_CLIENT_ID=mock_github_client_id
-GITHUB_CLIENT_SECRET=mock_github_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
 ```
 
-### Client (`client/.env`)
+### Frontend Setup (`client/.env`)
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 VITE_SOCKET_URL=http://localhost:5000
 VITE_APP_NAME=NEXORA
 ```
+</details>
 
 ---
 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Node.js >= 18.0.0
-- npm >= 9.0.0
+* **Node.js** >= 18.0.0
+* **npm** >= 9.0.0
+* **MongoDB** (Local or MongoDB Atlas)
 
-### Installation & Development
+### Step-by-Step Installation
 
 ```bash
-# 1. Install Dependencies in Server
+# 1. Clone the repository
+git clone https://github.com/mdzavedakhtar/ZANSTA.git
+cd ZANSTA
+
+# 2. Install Server Dependencies
 cd server
 npm install
 
-# 2. Install Dependencies in Client
+# 3. Install Client Dependencies
 cd ../client
 npm install
 
-# 3. Start Backend Server (Terminal 1)
+# 4. Run Backend Development Server (Terminal 1)
 cd ../server
 npm run dev
 
-# 4. Start Frontend Client (Terminal 2)
+# 5. Run Frontend Client (Terminal 2)
 cd ../client
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser to experience NEXORA!
+Visit `http://localhost:5173` to explore **NEXORA** locally!
 
 ---
 
-## 🧪 Build & Production Verification
+## 🧪 Build & Quality Verification
 
 ```bash
-# Verify Client Production Build
+# Verify Frontend Type-Check & Production Build
 cd client
 npx tsc --noEmit
 npm run build
 
-# Verify Server Production Build
+# Verify Backend Type-Check & Production Build
 cd ../server
 npx tsc --noEmit
 npm run build
@@ -154,6 +192,23 @@ npm run build
 
 ---
 
-## 📄 License & Attribution
+## 👨‍💻 Developer / Author Portfolio
 
-Designed and engineered by the **NEXORA Engineering Team**. All rights reserved.
+<div align="center">
+
+  ### **Md Zaved Akhtar**
+  *Full-Stack Engineer & Software Architect*
+
+  [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mdzavedakhtar)
+  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
+  [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/mdzavedakhtar)
+
+  *Crafted with passion, clean code principles, and modern web aesthetics.*
+
+</div>
+
+---
+
+## 📄 License
+
+This project is open-source under the [MIT License](LICENSE). Built for developers and agencies worldwide.
