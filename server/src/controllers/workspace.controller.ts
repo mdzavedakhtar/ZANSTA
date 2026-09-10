@@ -9,7 +9,7 @@ import { AuthenticatedRequest } from '../middleware/auth.middleware.js';
 
 // Decoupled Mock Roster
 let mockMembersDatabase = [
-  { id: '1', name: 'MD Zaved Akhtar', email: 'mdzavedakhtar620@gmail.com', role: 'OWNER', status: 'Active', skills: ['React', 'Next.js', 'Node.js', 'Python', 'Generative AI', 'RAG'], joinedAt: new Date().toISOString() },
+  { id: '1', name: 'MD Zaved Akhtar', email: 'mdzavedakhtar62@gmail.com', role: 'OWNER', status: 'Active', skills: ['React', 'Next.js', 'Node.js', 'Python', 'Generative AI', 'RAG'], joinedAt: new Date().toISOString() },
   { id: '2', name: 'Rahul Sharma', email: 'rahul@zansta.dev', role: 'ADMIN', status: 'Active', skills: ['React', 'Framer Motion', 'Tailwind'], joinedAt: new Date().toISOString() },
   { id: '3', name: 'Aman Deep', email: 'aman@zansta.dev', role: 'MEMBER', status: 'Active', skills: ['Node.js', 'Socket.IO', 'Express'], joinedAt: new Date().toISOString() },
   { id: '4', name: 'Acme Client User', email: 'client@acme.com', role: 'CLIENT', status: 'Invited', skills: ['Client Review'], joinedAt: new Date().toISOString() },

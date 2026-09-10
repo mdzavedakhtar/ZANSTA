@@ -15,7 +15,7 @@ export const ProjectTeamPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
-          { name: 'MD Zaved Akhtar', email: 'mdzavedakhtar620@gmail.com', role: 'Project Lead', status: 'Active' },
+          { name: 'MD Zaved Akhtar', email: 'mdzavedakhtar62@gmail.com', role: 'Project Lead', status: 'Active' },
           { name: 'Rahul Sharma', email: 'rahul@nexora.dev', role: 'Frontend Engineer', status: 'Active' },
           { name: 'Aman Deep', email: 'aman@nexora.dev', role: 'Backend Engineer', status: 'Active' },
         ].map((m) => (

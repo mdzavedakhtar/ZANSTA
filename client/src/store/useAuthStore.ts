@@ -11,15 +11,16 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role?: string) => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   logout: () => void;
 }
 
 // Known mock accounts for decoupled fallback authentication
 const knownMockUsers: Record<string, User> = {
-  'mdzavedakhtar620@gmail.com': {
+  'mdzavedakhtar62@gmail.com': {
     id: 'user_mock_zaved',
     name: 'MD Zaved Akhtar',
-    email: 'mdzavedakhtar620@gmail.com',
+    email: 'mdzavedakhtar62@gmail.com',
     role: 'OWNER',
     avatar: '/zaved.jpg',
     bio: 'Lead Architect & Full-Stack Systems Engineer',
@@ -73,7 +74,7 @@ const getInitialUser = (): User | null => {
   } catch (e) {
     console.error('Failed to parse saved user', e);
   }
-  return knownMockUsers['mdzavedakhtar620@gmail.com'];
+  return knownMockUsers['mdzavedakhtar62@gmail.com'];
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -110,6 +111,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     const cleanEmail = email.trim().toLowerCase();
 
+    // Check custom password if set by owner or user
+    const storedPw = localStorage.getItem(`zansta_pw_${cleanEmail}`);
+    if (storedPw && password !== storedPw) {
+      set({ isLoading: false });
+      throw new Error('Incorrect password. Please enter your valid account password.');
+    }
+
     try {
       const res = await apiRequest<AuthResponse>('/auth/login', {
         method: 'POST',
@@ -119,6 +127,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.success && res.token && res.user) {
         localStorage.setItem('zansta_token', res.token);
         localStorage.setItem('zansta_user', JSON.stringify(res.user));
+        if (!storedPw && password) {
+          localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
+        }
         set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
         return;
       }
@@ -129,7 +140,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         id: `user_${Date.now()}`,
         name: cleanEmail.split('@')[0].toUpperCase(),
         email: cleanEmail,
-        role: cleanEmail === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : 'MEMBER',
+        role: cleanEmail === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : 'MEMBER',
         avatar: '',
         bio: 'Workspace Member',
         skills: ['Developer'],
@@ -141,6 +152,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const token = `mock_jwt_${matchedUser.id}`;
       localStorage.setItem('zansta_token', token);
       localStorage.setItem('zansta_user', JSON.stringify(matchedUser));
+      if (!storedPw && password) {
+        localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
+      }
 
       set({ user: matchedUser, token, isAuthenticated: true, isLoading: false });
     }
@@ -150,8 +164,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     const cleanEmail = email.trim().toLowerCase();
     
-    // Prevent registering as OWNER unless authorized email
-    const assignedRole: UserRole = cleanEmail === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : (role === 'OWNER' ? 'MEMBER' : (role as UserRole || 'MEMBER'));
+    // Prevent registering as OWNER unless authorized owner email
+    const assignedRole: UserRole = cleanEmail === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role === 'OWNER' ? 'MEMBER' : (role as UserRole || 'MEMBER'));
 
     try {
       const res = await apiRequest<AuthResponse>('/auth/register', {
@@ -162,6 +176,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.success && res.token && res.user) {
         localStorage.setItem('zansta_token', res.token);
         localStorage.setItem('zansta_user', JSON.stringify(res.user));
+        localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
         set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
       }
     } catch (error: any) {
@@ -181,6 +196,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const token = `mock_jwt_${newUser.id}`;
       localStorage.setItem('zansta_token', token);
       localStorage.setItem('zansta_user', JSON.stringify(newUser));
+      localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
 
       set({ user: newUser, token, isAuthenticated: true, isLoading: false });
     }
@@ -208,6 +224,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ isLoading: false });
       }
     }
+  },
+
+  updatePassword: async (currentPassword, newPassword) => {
+    set({ isLoading: true });
+    const user = get().user;
+    if (!user) {
+      set({ isLoading: false });
+      throw new Error('User session not found');
+    }
+
+    const cleanEmail = user.email.trim().toLowerCase();
+    const existingPw = localStorage.getItem(`zansta_pw_${cleanEmail}`);
+
+    if (existingPw && currentPassword && currentPassword !== existingPw) {
+      set({ isLoading: false });
+      throw new Error('Current password does not match.');
+    }
+
+    try {
+      await apiRequest('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ password: newPassword }),
+      });
+    } catch {
+      // Handled in local state
+    }
+
+    localStorage.setItem(`zansta_pw_${cleanEmail}`, newPassword);
+    set({ isLoading: false });
   },
 
   logout: () => {

@@ -22,7 +22,7 @@ const mockUsersDatabase: any[] = [
   {
     _id: 'user_mock_zaved',
     name: 'MD Zaved Akhtar',
-    email: 'mdzavedakhtar620@gmail.com',
+    email: 'mdzavedakhtar62@gmail.com',
     role: 'OWNER',
     avatar: '/zaved.jpg',
     bio: 'Lead Architect & Full Stack Engineer',
@@ -77,7 +77,7 @@ export const register = async (req: Request, res: Response) => {
       name,
       email: email.toLowerCase(),
       password,
-      role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
+      role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
     });
 
     const token = user.generateJWTToken();
@@ -94,7 +94,7 @@ export const register = async (req: Request, res: Response) => {
       _id: `user_mock_${Date.now()}`,
       name,
       email: email.toLowerCase(),
-      role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
+      role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
       avatar: '',
       bio: 'Developer Workspace Member',
       skills: ['TypeScript', 'React'],
@@ -146,7 +146,7 @@ export const login = async (req: Request, res: Response) => {
         _id: `user_mock_${Date.now()}`,
         name: email.split('@')[0].toUpperCase(),
         email: email.toLowerCase(),
-        role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : 'MEMBER',
+        role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : 'MEMBER',
         avatar: '',
         bio: 'Workspace Member',
         skills: ['TypeScript', 'React', 'Node.js'],

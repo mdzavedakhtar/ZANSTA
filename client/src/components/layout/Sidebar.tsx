@@ -197,7 +197,7 @@ export const Sidebar: React.FC = () => {
             {!collapsed && (
               <div className="overflow-hidden">
                 <p className="text-xs font-semibold text-[#F5F2ED]/90 truncate">{user?.name || 'MD Zaved Akhtar'}</p>
-                <p className="text-[10px] text-[#F5F2ED]/40 truncate">{user?.email || 'mdzavedakhtar620@gmail.com'}</p>
+                <p className="text-[10px] text-[#F5F2ED]/40 truncate">{user?.email || 'mdzavedakhtar62@gmail.com'}</p>
               </div>
             )}
           </div>

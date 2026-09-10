@@ -16,7 +16,7 @@ const defaultTeamMembers: CMSTeamMember[] = [
     experienceYears: '3+',
     experienceSummary: 'Full-stack, Generative AI & Data Analytics Engineer specializing in RAG document intelligence, business intelligence dashboards, and scalable web platforms.',
     location: 'Bhilai / Delhi NCR, India',
-    email: 'mdzavedakhtar620@gmail.com',
+    email: 'mdzavedakhtar62@gmail.com',
     github: 'https://github.com/mdzavedakhtar',
     linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
     portfolio: 'https://github.com/mdzavedakhtar',

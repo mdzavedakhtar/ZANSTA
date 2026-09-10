@@ -7,20 +7,26 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Tabs } from '@/components/ui/Tabs';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToast } from '@/components/ui/Toast';
-import { Save, User, Shield, Github, Linkedin, Sparkles } from 'lucide-react';
+import { Save, User, Shield, Github, Linkedin, Lock, KeyRound } from 'lucide-react';
 
 export const WorkspaceSettingsPage: React.FC = () => {
-  const { user, updateProfile, isLoading } = useAuthStore();
+  const { user, updateProfile, updatePassword, isLoading } = useAuthStore();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
 
-  // Form state
+  // Profile Form state
   const [name, setName] = useState(user?.name || 'MD Zaved Akhtar');
   const [bio, setBio] = useState(user?.bio || 'Full-Stack, AI & Data Analytics Engineer');
   const [avatar, setAvatar] = useState(user?.avatar || '/zaved.jpg');
   const [skills, setSkills] = useState(user?.skills?.join(', ') || 'React, Next.js, Node.js, Python, SQL, Power BI, Generative AI, RAG');
   const [github, setGithub] = useState(user?.github || 'https://github.com/mdzavedakhtar');
   const [linkedin, setLinkedin] = useState(user?.linkedin || 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b');
+
+  // Password Form state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +46,32 @@ export const WorkspaceSettingsPage: React.FC = () => {
     }
   };
 
+  const handleSavePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      toast('New password must be at least 6 characters long.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast('New password and confirmation do not match.', 'error');
+      return;
+    }
+
+    try {
+      setIsUpdatingPassword(true);
+      await updatePassword(currentPassword, newPassword);
+      toast('Custom password updated successfully! Use your new password on next login.', 'success');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      toast(error.message || 'Failed to update password', 'error');
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between pb-6 border-b border-white/10">
@@ -47,7 +79,7 @@ export const WorkspaceSettingsPage: React.FC = () => {
           <h1 className="text-2xl font-extrabold text-[#F5F2ED] tracking-tight font-display">
             USER PROFILE & SETTINGS
           </h1>
-          <p className="text-xs text-[#F5F2ED]/55">Manage profile identity, security, and workspace preferences</p>
+          <p className="text-xs text-[#F5F2ED]/55">Manage profile identity, security, and custom workspace password</p>
         </div>
         <Badge variant="crimson" size="md">
           {user?.role || 'OWNER'} ROLE
@@ -59,7 +91,7 @@ export const WorkspaceSettingsPage: React.FC = () => {
         onChange={setActiveTab}
         tabs={[
           { id: 'profile', label: 'My Profile', icon: <User className="w-3.5 h-3.5" /> },
-          { id: 'security', label: 'Security & Auth', icon: <Shield className="w-3.5 h-3.5" /> },
+          { id: 'security', label: 'Security & Password', icon: <Shield className="w-3.5 h-3.5" /> },
         ]}
       />
 
@@ -140,18 +172,62 @@ export const WorkspaceSettingsPage: React.FC = () => {
 
       {activeTab === 'security' && (
         <Card surfaceTier="200" className="p-8 space-y-6">
-          <h3 className="text-base font-bold text-[#F5F2ED]">Security & Authentication Standards</h3>
-          <p className="text-xs text-[#F5F2ED]/55">
-            NEXORA uses bcrypt salted hashing and 7-day JWT Bearer tokens to protect your session.
-          </p>
-
-          <div className="space-y-4 pt-2">
-            <Input label="Current Password" type="password" placeholder="••••••••••••" />
-            <Input label="New Password" type="password" placeholder="••••••••••••" />
-            <Button size="md" variant="secondary" leftIcon={<Shield className="w-4 h-4 text-[#8B0D1A]" />}>
-              Update Password
-            </Button>
+          <div className="flex items-center gap-3 pb-4 border-b border-white/05">
+            <div className="w-10 h-10 rounded-xl bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+              <KeyRound className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-[#F5F2ED]">Set Custom Password</h3>
+              <p className="text-xs text-[#F5F2ED]/55">
+                Create or update your personal account password for {user?.email}.
+              </p>
+            </div>
           </div>
+
+          <form onSubmit={handleSavePassword} className="space-y-4 pt-2">
+            <Input
+              label="Current Password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password (if set)"
+              leftIcon={<Lock className="w-4 h-4 text-[#F5F2ED]/35" />}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="New Custom Password *"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter your new custom password"
+                leftIcon={<KeyRound className="w-4 h-4 text-[#F5F2ED]/35" />}
+                required
+              />
+
+              <Input
+                label="Confirm New Password *"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new custom password"
+                leftIcon={<KeyRound className="w-4 h-4 text-[#F5F2ED]/35" />}
+                required
+              />
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                size="md"
+                variant="glow"
+                isLoading={isUpdatingPassword}
+                leftIcon={<Shield className="w-4 h-4" />}
+              >
+                Save Custom Password
+              </Button>
+            </div>
+          </form>
         </Card>
       )}
     </div>

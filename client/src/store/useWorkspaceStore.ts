@@ -39,7 +39,7 @@ interface WorkspaceState {
 }
 
 const defaultMembers: MemberItem[] = [
-  { id: '1', name: 'MD Zaved Akhtar', email: 'mdzavedakhtar620@gmail.com', role: 'OWNER', status: 'Active', skills: ['React', 'Next.js', 'Node.js', 'Generative AI', 'Python', 'Java', 'RAG'], joinedAt: '2026-01-01' },
+  { id: '1', name: 'MD Zaved Akhtar', email: 'mdzavedakhtar62@gmail.com', role: 'OWNER', status: 'Active', skills: ['React', 'Next.js', 'Node.js', 'Generative AI', 'Python', 'Java', 'RAG'], joinedAt: '2026-01-01' },
   { id: '2', name: 'Rahul Sharma', email: 'rahul@zansta.dev', role: 'ADMIN', status: 'Active', skills: ['React 18', 'Framer Motion', 'Tailwind'], joinedAt: '2026-01-05' },
   { id: '3', name: 'Aman Deep', email: 'aman@zansta.dev', role: 'MEMBER', status: 'Active', skills: ['Node.js', 'Socket.IO', 'Express'], joinedAt: '2026-01-10' },
   { id: '4', name: 'Acme Client User', email: 'client@acme.com', role: 'CLIENT', status: 'Invited', skills: ['Client Review'], joinedAt: '2026-02-01' },

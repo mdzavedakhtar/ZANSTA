@@ -60,7 +60,7 @@ export const RegisterPage: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="mdzavedakhtar620@gmail.com"
+              placeholder="mdzavedakhtar62@gmail.com"
               leftIcon={<Mail className="w-4 h-4 text-[#F5F2ED]/35" />}
               required
             />
