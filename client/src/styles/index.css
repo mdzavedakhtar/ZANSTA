@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════
+   ZANSTA OFFICIAL DESIGN TOKENS
+   Three-Color Identity: Black · Crimson · Off-White
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Core Brand Identity */
+  --nexora-black:    #0B0B0B;
+  --nexora-crimson:  #8B0D1A;
+  --nexora-offwhite: #F5F2ED;
+
+  /* Surface Tiers (opacity-only black depth) */
+  --bg-main:      #0B0B0B;
+  --bg-secondary: #0D0D0D;
+  --bg-tertiary:  #101010;
+
+  --surface-1: #0B0B0B;
+  --surface-2: #0E0E0E;
+  --surface-3: #111111;
+  --surface-4: #141414;
+
+  /* Off-White Text Hierarchy */
+  --text-primary:   #F5F2ED;
+  --text-secondary: rgba(245, 242, 237, 0.70);
+  --text-muted:     rgba(245, 242, 237, 0.45);
+
+  /* Border System */
+  --border-subtle:  rgba(245, 242, 237, 0.06);
+  --border-default: rgba(245, 242, 237, 0.10);
+  --border-hover:   rgba(245, 242, 237, 0.18);
+  --border-crimson: rgba(139, 13, 26, 0.35);
+
+  /* Crimson Glow System */
+  --crimson-glow-soft:   rgba(139, 13, 26, 0.20);
+  --crimson-glow-mid:    rgba(139, 13, 26, 0.35);
+  --crimson-glow-strong: rgba(139, 13, 26, 0.55);
+
+  /* Override Tailwind slate palette → off-white tiers
+     This ensures all existing slate-* utility classes render
+     within the NEXORA off-white identity automatically */
+  --tw-prose-body:          rgba(245, 242, 237, 0.70);
+}
+
+/* Re-map Tailwind slate variables to off-white system */
+@layer base {
+  .text-slate-100, .text-slate-200 { color: #F5F2ED; }
+  .text-slate-300                  { color: rgba(245, 242, 237, 0.85); }
+  .text-slate-400                  { color: rgba(245, 242, 237, 0.65); }
+  .text-slate-500, .text-slate-600 { color: rgba(245, 242, 237, 0.45); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CUSTOM SLEEK SCROLLBAR — Crimson Identity
+   ══════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0B0B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 13, 26, 0.40);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 13, 26, 0.70);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BASE RESETS & SMOOTH RENDERING
+   ══════════════════════════════════════════════════════════════ */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BACKGROUND PATTERNS
+   ══════════════════════════════════════════════════════════════ */
+/* Subtle architectural grid */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right,  rgba(245, 242, 237, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 242, 237, 0.025) 1px, transparent 1px);
+}
+
+/* Crimson ambient radial — hero focal glow */
+.bg-radial-gradient {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(139, 13, 26, 0.10) 0%,
+    rgba(139, 13, 26, 0.04) 40%,
+    transparent 70%
+  );
+}
+
+/* Cinematic bottom-center vignette for sections */
+.bg-vignette {
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(139, 13, 26, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GLASSMORPHISM UTILITIES — Crimson System
+   ══════════════════════════════════════════════════════════════ */
+.glass-panel {
+  background: rgba(11, 11, 11, 0.80);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 242, 237, 0.08);
+}
+
+.glass-nav {
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(245, 242, 237, 0.06);
+}
+
+.glass-crimson {
+  background: rgba(11, 11, 11, 0.80);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 13, 26, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FOCUS STYLES — Crimson Accessibility
+   ══════════════════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--nexora-crimson);
+  outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════════════════════════════ */
+.tracking-cinematic {
+  letter-spacing: -0.04em;
+}
+
+/* Crimson keyword accent — for strategic editorial emphasis */
+.text-accent {
+  color: var(--nexora-crimson);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BORDER HOVER ANIMATIONS — Crimson Glow
+   ══════════════════════════════════════════════════════════════ */
+.border-glow-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.border-glow-hover:hover {
+  border-color: rgba(139, 13, 26, 0.45);
+  box-shadow: 0 0 20px -5px rgba(139, 13, 26, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CRIMSON GLOW UTILITIES
+   ══════════════════════════════════════════════════════════════ */
+.shadow-glow-crimson {
+  box-shadow: 0 0 25px -5px rgba(139, 13, 26, 0.35);
+}
+
+.shadow-glow-crimson-soft {
+  box-shadow: 0 0 20px -8px rgba(139, 13, 26, 0.20);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SKELETON LOADER — Off-White System
+   ══════════════════════════════════════════════════════════════ */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 242, 237, 0.04) 25%,
+    rgba(245, 242, 237, 0.08) 50%,
+    rgba(245, 242, 237, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CRIMSON PROGRESS LINE
+   ══════════════════════════════════════════════════════════════ */
+.progress-crimson {
+  background: linear-gradient(90deg, #8B0D1A, rgba(139, 13, 26, 0.6));
+  box-shadow: 0 0 12px rgba(139, 13, 26, 0.40);
+}
