@@ -20,15 +20,39 @@ const sanitizeUser = (user: any) => ({
 // Fallback Mock Users for Decoupled DB Testing
 const mockUsersDatabase: any[] = [
   {
-    _id: 'user_mock_sahil',
+    _id: 'user_mock_zaved',
     name: 'MD Zaved Akhtar',
     email: 'mdzavedakhtar620@gmail.com',
     role: 'OWNER',
-    avatar: '',
+    avatar: '/zaved.jpg',
     bio: 'Lead Architect & Full Stack Engineer',
-    skills: ['TypeScript', 'Node.js', 'React', 'MongoDB'],
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
+    skills: ['TypeScript', 'Node.js', 'React', 'MongoDB', 'Python', 'AI'],
+    github: 'https://github.com/mdzavedakhtar',
+    linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
+    isVerified: true,
+  },
+  {
+    _id: 'user_mock_rahul',
+    name: 'Rahul Sharma',
+    email: 'rahul@zansta.dev',
+    role: 'ADMIN',
+    avatar: '',
+    bio: 'Frontend Specialist',
+    skills: ['React', 'Tailwind'],
+    github: '',
+    linkedin: '',
+    isVerified: true,
+  },
+  {
+    _id: 'user_mock_aman',
+    name: 'Aman Deep',
+    email: 'aman@zansta.dev',
+    role: 'MEMBER',
+    avatar: '',
+    bio: 'Backend Engineer',
+    skills: ['Node.js', 'Express'],
+    github: '',
+    linkedin: '',
     isVerified: true,
   },
 ];
@@ -53,7 +77,7 @@ export const register = async (req: Request, res: Response) => {
       name,
       email: email.toLowerCase(),
       password,
-      role: role || 'MEMBER',
+      role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
     });
 
     const token = user.generateJWTToken();
@@ -70,7 +94,7 @@ export const register = async (req: Request, res: Response) => {
       _id: `user_mock_${Date.now()}`,
       name,
       email: email.toLowerCase(),
-      role: role || 'MEMBER',
+      role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
       avatar: '',
       bio: 'Developer Workspace Member',
       skills: ['TypeScript', 'React'],
@@ -116,18 +140,22 @@ export const login = async (req: Request, res: Response) => {
     });
   } else {
     // Decoupled Mode Mock Match
-    const mockUser = mockUsersDatabase.find((u) => u.email === email.toLowerCase()) || {
-      _id: 'user_mock_sahil',
-      name: email.split('@')[0].toUpperCase(),
-      email: email.toLowerCase(),
-      role: 'OWNER',
-      avatar: '',
-      bio: 'Lead Engineer',
-      skills: ['TypeScript', 'React', 'Node.js'],
-      github: '',
-      linkedin: '',
-      isVerified: true,
-    };
+    let mockUser = mockUsersDatabase.find((u) => u.email === email.toLowerCase());
+    if (!mockUser) {
+      mockUser = {
+        _id: `user_mock_${Date.now()}`,
+        name: email.split('@')[0].toUpperCase(),
+        email: email.toLowerCase(),
+        role: email.toLowerCase() === 'mdzavedakhtar620@gmail.com' ? 'OWNER' : 'MEMBER',
+        avatar: '',
+        bio: 'Workspace Member',
+        skills: ['TypeScript', 'React', 'Node.js'],
+        github: '',
+        linkedin: '',
+        isVerified: true,
+      };
+      mockUsersDatabase.push(mockUser);
+    }
 
     return res.status(200).json({
       success: true,

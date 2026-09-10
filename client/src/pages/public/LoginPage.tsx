@@ -45,24 +45,7 @@ export const LoginPage: React.FC = () => {
             <p className="text-xs text-[#F5F2ED]/55">Sign in to your ZANSTA workspace</p>
           </div>
 
-          <button
-            type="button"
-            onClick={async () => {
-              await login('mdzavedakhtar620@gmail.com', 'password123');
-              toast('Signed in as MD Zaved Akhtar (Owner)', 'success');
-              navigate('/dashboard');
-            }}
-            className="w-full flex items-center justify-center gap-3 bg-[#121212] border border-white/10 hover:border-[#8B0D1A]/40 py-2.5 rounded-xl text-xs font-semibold text-[#F5F2ED] transition-all cursor-pointer"
-          >
-            <Github className="w-4 h-4 text-[#8B0D1A]" />
-            Sign in as Demo Owner (MD Zaved Akhtar)
-          </button>
 
-          <div className="flex items-center my-4">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="px-3 text-[10px] text-[#F5F2ED]/35 font-mono">OR EMAIL</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
