@@ -10,7 +10,7 @@ import { useWorkspaceStore, MemberItem } from '@/store/useWorkspaceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToast } from '@/components/ui/Toast';
 import { UserRole } from '@/types/auth';
-import { UserPlus, Search, Copy, Trash2, Edit, Mail, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { UserPlus, Search, Copy, Trash2, Edit, Mail, CheckCircle2, ShieldAlert, Lock } from 'lucide-react';
 
 export const WorkspaceTeamPage: React.FC = () => {
   const { members, fetchMembers, createInvitation, updateRole, updateMember, removeMember } = useWorkspaceStore();
@@ -37,7 +37,8 @@ export const WorkspaceTeamPage: React.FC = () => {
     fetchMembers();
   }, []);
 
-  const isOwnerOrAdmin = currentUser?.role === 'OWNER' || currentUser?.role === 'ADMIN';
+  const isOwner = currentUser?.role === 'OWNER';
+  const isOwnerOrAdmin = isOwner || currentUser?.role === 'ADMIN';
 
   const filteredMembers = members.filter(
     (m) =>
@@ -80,10 +81,13 @@ export const WorkspaceTeamPage: React.FC = () => {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
+      // Enforce: only OWNER can change role
+      const finalRole = isOwner ? editRole : editingMember.role;
+
       await updateMember(editingMember.id, {
         name: editName,
         email: editEmail,
-        role: editRole,
+        role: finalRole,
         status: editStatus,
         skills: parsedSkills,
       });
@@ -100,7 +104,7 @@ export const WorkspaceTeamPage: React.FC = () => {
 
     try {
       await removeMember(deleteTarget.id);
-      toast(`${deleteTarget.name} has been removed from team`, 'success');
+      toast(`${deleteTarget.name} has been removed`, 'success');
       setDeleteTarget(null);
     } catch (error: any) {
       toast(error.message || 'Failed to remove team member', 'error');
@@ -151,86 +155,93 @@ export const WorkspaceTeamPage: React.FC = () => {
 
       {/* Members Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredMembers.map((m) => (
-          <Card key={m.id} surfaceTier="100" className="flex items-center justify-between p-4 space-x-4">
-            <div className="flex items-center gap-3.5 overflow-hidden">
-              <Avatar name={m.name} size="md" status={m.status === 'Active' ? 'online' : 'offline'} />
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-[#F5F2ED] truncate">{m.name}</h3>
-                  {m.email === currentUser?.email && (
-                    <span className="text-[10px] bg-[#8B0D1A]/15 text-[#8B0D1A] px-1.5 py-0.5 rounded font-mono">YOU</span>
-                  )}
-                </div>
-                <p className="text-xs text-[#F5F2ED]/55 font-mono truncate">{m.email}</p>
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {m.skills?.slice(0, 3).map((s) => (
-                    <span key={s} className="text-[9px] font-mono text-[#F5F2ED]/45 bg-white/5 px-1.5 py-0.5 rounded border border-white/05">
-                      {s}
-                    </span>
-                  ))}
-                  {(m.skills?.length || 0) > 3 && (
-                    <span className="text-[9px] font-mono text-[#F5F2ED]/30">
-                      +{(m.skills?.length || 0) - 3}
-                    </span>
-                  )}
+        {filteredMembers.map((m) => {
+          const isSelf = currentUser?.email?.toLowerCase() === m.email?.toLowerCase();
+          const canEditOrRemove = isOwner || isSelf;
+
+          return (
+            <Card key={m.id} surfaceTier="100" className="flex items-center justify-between p-4 space-x-4">
+              <div className="flex items-center gap-3.5 overflow-hidden">
+                <Avatar name={m.name} size="md" status={m.status === 'Active' ? 'online' : 'offline'} />
+                <div className="overflow-hidden">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#F5F2ED] truncate">{m.name}</h3>
+                    {isSelf && (
+                      <span className="text-[10px] bg-[#8B0D1A]/15 text-[#8B0D1A] px-1.5 py-0.5 rounded font-mono">YOU</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#F5F2ED]/55 font-mono truncate">{m.email}</p>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {m.skills?.slice(0, 3).map((s) => (
+                      <span key={s} className="text-[9px] font-mono text-[#F5F2ED]/45 bg-white/5 px-1.5 py-0.5 rounded border border-white/05">
+                        {s}
+                      </span>
+                    ))}
+                    {(m.skills?.length || 0) > 3 && (
+                      <span className="text-[9px] font-mono text-[#F5F2ED]/30">
+                        +{(m.skills?.length || 0) - 3}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 shrink-0">
-              {isOwnerOrAdmin && m.email !== currentUser?.email ? (
-                <Select
-                  value={m.role}
-                  onChange={(e) => updateRole(m.id, e.target.value as UserRole)}
-                  options={[
-                    { value: 'OWNER', label: 'OWNER' },
-                    { value: 'ADMIN', label: 'ADMIN' },
-                    { value: 'MEMBER', label: 'MEMBER' },
-                    { value: 'CLIENT', label: 'CLIENT' },
-                  ]}
-                  className="py-1 text-xs font-mono"
-                />
-              ) : (
-                <Badge
-                  variant={
-                    m.role === 'OWNER'
-                      ? 'crimson'
-                      : m.role === 'ADMIN'
-                      ? 'crimson'
-                      : m.role === 'CLIENT'
-                      ? 'neutral'
-                      : 'neutral'
-                  }
-                  size="sm"
-                >
-                  {m.role}
-                </Badge>
-              )}
+              {/* Actions */}
+              <div className="flex items-center gap-2 shrink-0">
+                {isOwner && !isSelf ? (
+                  <Select
+                    value={m.role}
+                    onChange={(e) => updateRole(m.id, e.target.value as UserRole)}
+                    options={[
+                      { value: 'OWNER', label: 'OWNER' },
+                      { value: 'ADMIN', label: 'ADMIN' },
+                      { value: 'MEMBER', label: 'MEMBER' },
+                      { value: 'CLIENT', label: 'CLIENT' },
+                    ]}
+                    className="py-1 text-xs font-mono"
+                  />
+                ) : (
+                  <Badge
+                    variant={
+                      m.role === 'OWNER'
+                        ? 'crimson'
+                        : m.role === 'ADMIN'
+                        ? 'crimson'
+                        : m.role === 'CLIENT'
+                        ? 'neutral'
+                        : 'neutral'
+                    }
+                    size="sm"
+                  >
+                    {m.role}
+                  </Badge>
+                )}
 
-              {/* Edit Profile Button */}
-              <button
-                onClick={() => handleOpenEdit(m)}
-                className="p-1.5 text-[#F5F2ED]/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                title="Edit Member Profile"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
+                {/* Edit Profile Button - Only OWNER or Account Owner */}
+                {canEditOrRemove && (
+                  <button
+                    onClick={() => handleOpenEdit(m)}
+                    className="p-1.5 text-[#F5F2ED]/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                    title={isSelf ? 'Edit My Profile' : 'Edit Member Profile'}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                )}
 
-              {/* Remove Member Button */}
-              {m.email !== currentUser?.email && (
-                <button
-                  onClick={() => setDeleteTarget(m)}
-                  className="p-1.5 text-[#F5F2ED]/35 hover:text-[#8B0D1A] hover:bg-[#8B0D1A]/10 rounded-lg transition-colors cursor-pointer"
-                  title="Remove Member"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </Card>
-        ))}
+                {/* Remove Member Button - Only OWNER or Account Owner */}
+                {canEditOrRemove && (
+                  <button
+                    onClick={() => setDeleteTarget(m)}
+                    className="p-1.5 text-[#F5F2ED]/35 hover:text-[#8B0D1A] hover:bg-[#8B0D1A]/10 rounded-lg transition-colors cursor-pointer"
+                    title={isSelf ? 'Leave Workspace / Remove My Account' : 'Remove Member'}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Edit Member Profile Modal */}
@@ -238,7 +249,7 @@ export const WorkspaceTeamPage: React.FC = () => {
         isOpen={!!editingMember}
         onClose={() => setEditingMember(null)}
         title="Edit Team Member Profile"
-        description={`Update information, role, status, and skills for ${editingMember?.name}`}
+        description={`Update information, status, and skills for ${editingMember?.name}`}
       >
         <form onSubmit={handleSaveEdit} className="space-y-4 pt-2">
           <Input
@@ -259,17 +270,33 @@ export const WorkspaceTeamPage: React.FC = () => {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Role Permission"
-              value={editRole}
-              onChange={(e) => setEditRole(e.target.value as UserRole)}
-              options={[
-                { value: 'OWNER', label: 'OWNER (Full workspace access)' },
-                { value: 'ADMIN', label: 'ADMIN (Manage projects & team)' },
-                { value: 'MEMBER', label: 'MEMBER (Contribute code & tasks)' },
-                { value: 'CLIENT', label: 'CLIENT (View live demos & feedback)' },
-              ]}
-            />
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80 flex items-center justify-between">
+                <span>Role Permission</span>
+                {!isOwner && (
+                  <span className="text-[10px] text-[#F5F2ED]/40 flex items-center gap-1 font-sans">
+                    <Lock className="w-3 h-3 text-[#8B0D1A]" /> Only OWNER can change role
+                  </span>
+                )}
+              </label>
+              {isOwner ? (
+                <Select
+                  value={editRole}
+                  onChange={(e) => setEditRole(e.target.value as UserRole)}
+                  options={[
+                    { value: 'OWNER', label: 'OWNER (Full workspace access)' },
+                    { value: 'ADMIN', label: 'ADMIN (Manage projects & team)' },
+                    { value: 'MEMBER', label: 'MEMBER (Contribute code & tasks)' },
+                    { value: 'CLIENT', label: 'CLIENT (View live demos & feedback)' },
+                  ]}
+                />
+              ) : (
+                <div className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs font-mono text-[#F5F2ED]/60 flex items-center justify-between">
+                  <span>{editingMember?.role}</span>
+                  <Badge variant="neutral" size="sm">LOCKED</Badge>
+                </div>
+              )}
+            </div>
 
             <Select
               label="Account Status"
@@ -310,8 +337,16 @@ export const WorkspaceTeamPage: React.FC = () => {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Remove Team Member?"
-        description={`Are you sure you want to remove ${deleteTarget?.name} (${deleteTarget?.email}) from this workspace?`}
+        title={
+          deleteTarget?.email?.toLowerCase() === currentUser?.email?.toLowerCase()
+            ? 'Remove My Account / Leave Workspace?'
+            : 'Remove Team Member?'
+        }
+        description={
+          deleteTarget?.email?.toLowerCase() === currentUser?.email?.toLowerCase()
+            ? 'Are you sure you want to remove your account from this workspace?'
+            : `Are you sure you want to remove ${deleteTarget?.name} (${deleteTarget?.email}) from this workspace?`
+        }
       >
         <div className="space-y-4 pt-2">
           <div className="p-4 bg-[#8B0D1A]/10 border border-[#8B0D1A]/30 rounded-xl flex items-start gap-3 text-xs text-[#F5F2ED]/90">
@@ -319,7 +354,9 @@ export const WorkspaceTeamPage: React.FC = () => {
             <div>
               <p className="font-bold text-[#F5F2ED]">This action cannot be undone.</p>
               <p className="mt-1 text-[#F5F2ED]/70">
-                The member will lose access to workspace tasks, code repositories, and project updates immediately.
+                {deleteTarget?.email?.toLowerCase() === currentUser?.email?.toLowerCase()
+                  ? 'You will lose access to workspace tasks, code repositories, and project updates.'
+                  : 'The member will lose access to workspace tasks, code repositories, and project updates immediately.'}
               </p>
             </div>
           </div>
@@ -329,7 +366,9 @@ export const WorkspaceTeamPage: React.FC = () => {
               Cancel
             </Button>
             <Button size="md" variant="glow" onClick={handleConfirmDelete} className="bg-[#8B0D1A] hover:bg-[#8B0D1A]/80 text-white">
-              Remove Member
+              {deleteTarget?.email?.toLowerCase() === currentUser?.email?.toLowerCase()
+                ? 'Remove My Account'
+                : 'Remove Member'}
             </Button>
           </div>
         </div>

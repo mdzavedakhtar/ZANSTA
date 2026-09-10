@@ -102,6 +102,24 @@ export const updateMemberRole = async (req: AuthenticatedRequest, res: Response)
   });
 };
 
+// @desc    Update Member Profile Details
+// @route   PUT /api/v1/workspaces/current/members/:id
+export const updateMember = async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  const member = mockMembersDatabase.find((m) => m.id === id || m.email === id);
+  if (member) {
+    Object.assign(member, updates);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: 'Member profile updated successfully',
+    members: mockMembersDatabase,
+  });
+};
+
 // @desc    Remove Member from Workspace
 // @route   DELETE /api/v1/workspaces/current/members/:id
 export const removeMember = async (req: AuthenticatedRequest, res: Response) => {
