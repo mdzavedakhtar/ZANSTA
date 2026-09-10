@@ -49,7 +49,7 @@ export const ContactPage: React.FC = () => {
             <Card surfaceTier="200" className="p-8">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input label="Your Full Name" placeholder="MD Zaved Akhtar" required />
-                <Input label="Work Email" type="email" placeholder="mdzavedakhtar62@gmail.com" required />
+                <Input label="Work Email" type="email" placeholder="name@company.com" required />
                 <Select
                   label="Project Type"
                   options={[
