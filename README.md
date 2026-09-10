@@ -1,6 +1,6 @@
 <div align="center">
 
-  # ⚡ NEXORA
+  # ⚡ ZANSTA
   ### *The Next-Gen Developer Collaboration & Software Agency Platform*
 
   [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
@@ -25,11 +25,11 @@
 
 ## 🌟 Overview & Highlights
 
-**NEXORA** is engineered for high-performing software development teams and agency studios. It bridges the gap between internal developer workflows (Kanban PM, code telemetry, real-time sync) and client-facing portals (project showcases, proposal tracking, and live feedback).
+**ZANSTA** is engineered for high-performing software development teams and agency studios. It bridges the gap between internal developer workflows (Kanban PM, code telemetry, real-time sync) and client-facing portals (project showcases, proposal tracking, and live feedback).
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                          ⚡ NEXORA ECOSYSTEM ⚡                              ║
+║                          ⚡ ZANSTA ECOSYSTEM ⚡                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  [ Public Platform ]   ⟶   [ Team Workspace ]   ⟶   [ Client Portal ]   ║
 ║   • Studio Portfolio        • Linear PM Board        • Progress Metrics   ║
@@ -70,7 +70,7 @@
 ## 🏗️ System Architecture
 
 ```
-NEXORA FULL-STACK ARCHITECTURE
+ZANSTA FULL-STACK ARCHITECTURE
 ├── client/ (Frontend - React 18 + Vite + TypeScript + Tailwind CSS)
 │   ├── src/components/   # UI Design System, Modals, Linear-style Controls
 │   ├── src/pages/        # Public Showcase, Workspaces, Client & Agency Hubs
@@ -124,8 +124,8 @@ PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 APP_URL=http://localhost:5173
-MONGO_URI=mongodb://127.0.0.1:27017/nexora
-JWT_SECRET=nexora_jwt_super_secret_key_2026
+MONGO_URI=mongodb://127.0.0.1:27017/zansta
+JWT_SECRET=zansta_jwt_super_secret_key_2026
 JWT_EXPIRES_IN=7d
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
@@ -135,7 +135,7 @@ GITHUB_CLIENT_SECRET=your_github_client_secret
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 VITE_SOCKET_URL=http://localhost:5000
-VITE_APP_NAME=NEXORA
+VITE_APP_NAME=ZANSTA
 ```
 </details>
 
@@ -172,7 +172,7 @@ cd ../client
 npm run dev
 ```
 
-Visit `http://localhost:5173` to explore **NEXORA** locally!
+Visit `http://localhost:5173` to explore **ZANSTA** locally!
 
 ---
 
