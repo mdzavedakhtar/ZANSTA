@@ -34,6 +34,7 @@ interface WorkspaceState {
   fetchMembers: () => Promise<void>;
   createInvitation: (email: string, role: UserRole) => Promise<{ inviteUrl: string; token: string }>;
   updateRole: (memberId: string, role: UserRole) => Promise<void>;
+  updateMember: (memberId: string, updates: Partial<MemberItem>) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
 }
 
@@ -124,6 +125,26 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     } catch {
       set({
         members: get().members.map((m) => (m.id === memberId ? { ...m, role } : m)),
+      });
+    }
+  },
+
+  updateMember: async (memberId, updates) => {
+    try {
+      const res = await apiRequest(`/workspaces/current/members/${memberId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+      if (res.success && res.members) {
+        set({ members: res.members });
+      } else {
+        set({
+          members: get().members.map((m) => (m.id === memberId ? { ...m, ...updates } : m)),
+        });
+      }
+    } catch {
+      set({
+        members: get().members.map((m) => (m.id === memberId ? { ...m, ...updates } : m)),
       });
     }
   },
