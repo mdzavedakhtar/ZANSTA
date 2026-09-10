@@ -200,7 +200,7 @@ npm run build
   *Full-Stack Engineer & Software Architect*
 
   [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mdzavedakhtar)
-  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
+  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/md-zaved-akhtar-22013828b)
   [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/mdzavedakhtar)
 
   *Crafted with passion, clean code principles, and modern web aesthetics.*
