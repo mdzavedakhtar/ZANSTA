@@ -34,9 +34,8 @@ export const ProblemStorySection: React.FC = () => {
 
           {/* Supporting paragraph */}
           <p className="text-[#F5F2ED]/55 text-sm sm:text-base leading-relaxed max-w-xl">
-            Most teams run on 6 disconnected tools. NEXORA replaces the chaos with one
-            workspace where code, tasks, files, and client delivery live together —
-            so your team stays focused on building.
+            Most teams run on 6 disconnected tools. ZANSTA replaces the chaos with one
+            integrated workspace designed for modern digital product teams.
           </p>
         </ScrollReveal>
 
@@ -98,7 +97,7 @@ export const ProblemStorySection: React.FC = () => {
             </motion.div>
           </ScrollReveal>
 
-          {/* After: NEXORA Unified Workspace */}
+          {/* After: ZANSTA Unified Workspace */}
           <ScrollReveal delay={0.25} direction="spatialDepth" scale={0.9}>
             <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.3 }} className="h-full">
               <Card
@@ -108,7 +107,7 @@ export const ProblemStorySection: React.FC = () => {
                 <div className="flex items-center justify-between pb-4 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-[#8B0D1A]" />
-                    <h3 className="text-lg font-bold text-[#F5F2ED] font-display">NEXORA Unified Workspace</h3>
+                    <h3 className="text-lg font-bold text-[#F5F2ED] font-display">ZANSTA Unified Workspace</h3>
                   </div>
                   <Badge variant="crimson" size="sm">ZERO FRICTION</Badge>
                 </div>

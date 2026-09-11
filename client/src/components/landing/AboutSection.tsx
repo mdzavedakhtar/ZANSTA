@@ -41,15 +41,15 @@ export const AboutSection: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/05">
                 <div className="space-y-1">
                   <div className="text-xl font-extrabold text-[#F5F2ED] font-mono">100%</div>
-                  <div className="text-xs text-[#F5F2ED]/45 font-mono">Custom Architecture</div>
+                  <div className="text-xs text-[#F5F2ED]/60 font-mono">Custom Architecture</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xl font-extrabold text-[#8B0D1A] font-mono">Sub-100ms</div>
-                  <div className="text-xs text-[#F5F2ED]/45 font-mono">Real-time Latency</div>
+                  <div className="text-xs text-[#F5F2ED]/60 font-mono">Real-time Latency</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xl font-extrabold text-[#F5F2ED] font-mono">AI-Native</div>
-                  <div className="text-xs text-[#F5F2ED]/45 font-mono">Agent Workflows</div>
+                  <div className="text-xs text-[#F5F2ED]/60 font-mono">Agent Workflows</div>
                 </div>
               </div>
             </ScrollReveal>

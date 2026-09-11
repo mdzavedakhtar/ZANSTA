@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
@@ -86,7 +86,7 @@ export const ProjectCodePage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-black text-[#F5F2ED] font-display tracking-tight">
-                  {repo?.full_name || 'nexora/nexora-core-platform'}
+                  {repo?.full_name || 'zansta/zansta-core-platform'}
                 </h2>
                 <Badge variant="crimson" size="sm" className="gap-1">
                   <CheckCircle2 className="w-3 h-3 text-[#8B0D1A]" /> Connected
@@ -167,7 +167,7 @@ export const ProjectCodePage: React.FC = () => {
           onClick={() => setActiveSubTab('commits')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
             activeSubTab === 'commits'
-              ? 'bg-[#8B0D1A]/10 text-[#8B0D1A] border border-[#8B0D1A]/30 shadow-[0_0_15px_rgba(0,240,255,0.15)]'
+              ? 'bg-[#8B0D1A]/10 text-[#8B0D1A] border border-[#8B0D1A]/30 shadow-[0_0_15px_rgba(139,13,26,0.25)]'
               : 'text-[#F5F2ED]/55 hover:text-[#F5F2ED] hover:bg-white/5'
           }`}
         >

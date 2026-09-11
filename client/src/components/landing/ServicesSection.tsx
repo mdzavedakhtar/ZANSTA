@@ -137,7 +137,7 @@ export const ServicesSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-white/05 flex items-center justify-between text-xs font-mono text-[#F5F2ED]/40 group-hover:text-[#8B0D1A] transition-colors mt-6">
+                  <div className="pt-4 border-t border-white/05 flex items-center justify-between text-xs font-mono text-[#F5F2ED]/60 group-hover:text-[#8B0D1A] transition-colors mt-6">
                     <span>Explore Capability</span>
                     <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                   </div>

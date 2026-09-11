@@ -50,7 +50,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Centralized Team Workspace</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Centralized Team Workspace</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Manage member roles (`OWNER`, `ADMIN`, `MEMBER`, `CLIENT`), invites, and active presence.
                   </p>
@@ -80,7 +80,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Linear-Style Project Hub</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Linear-Style Project Hub</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Fast Kanban and List views with optimistic UI updates and custom workflow labels.
                   </p>
@@ -111,7 +111,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">GitHub API Integration</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">GitHub API Integration</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Stream commits, pull requests, issues, and contributor graphs directly into projects.
                   </p>
@@ -137,7 +137,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Project File Storage</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Project File Storage</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Upload, preview, and download specs, ZIPs, PDFs, APKs, and wireframe assets.
                   </p>
@@ -167,7 +167,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Live Project URL Sandbox</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Live Project URL Sandbox</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Display deployed project URLs safely inside an embedded interactive viewport.
                   </p>
@@ -193,7 +193,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Real-Time Audit Trail</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Real-Time Audit Trail</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Automatic event logs for task updates, commits, file uploads, and member joins.
                   </p>
@@ -218,7 +218,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Lightweight PM Engine</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Lightweight PM Engine</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Assignees, priorities, labels, due dates, and inline comment threads.
                   </p>
@@ -241,7 +241,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Public Case Study Hub</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Public Case Study Hub</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Turn completed team projects into high-converting public portfolio showcases.
                   </p>
@@ -267,7 +267,7 @@ export const FeaturesGridSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-[#F5F2ED]">Client Presentation Links</h3>
+                  <h3 className="text-base font-bold text-[#F5F2ED] font-display">Client Presentation Links</h3>
                   <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
                     Generate secure <code className="text-[#8B0D1A]">/demo/:token</code> links with password protection &amp; analytics.
                   </p>
@@ -286,7 +286,7 @@ export const FeaturesGridSection: React.FC = () => {
               <Card
                 surfaceTier="200"
                 glowOnHover
-                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-[#8B0D1A]/5 via-indigo-500/5 to-transparent border-[#8B0D1A]/20 shadow-[0_10px_35px_rgba(139,13,26,0.08)]"
+                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-[#8B0D1A]/5 via-[#8B0D1A]/2 to-transparent border-[#8B0D1A]/20 shadow-[0_10px_35px_rgba(139,13,26,0.08)]"
               >
                 <div className="space-y-2 max-w-xl">
                   <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ export const FeaturesGridSection: React.FC = () => {
                   <h3 className="text-xl font-bold text-[#F5F2ED] font-display">From Team Workspace to Software Agency</h3>
                   <p className="text-xs text-[#F5F2ED]/80 leading-relaxed">
                     Receive inbound project requests, issue proposals, manage client milestones, and present
-                    agency work directly inside NEXORA.
+                    agency work directly inside ZANSTA.
                   </p>
                 </div>
 

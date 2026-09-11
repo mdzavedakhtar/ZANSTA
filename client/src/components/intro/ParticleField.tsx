@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { INTRO_CONFIG } from './introConfig';
 
 interface ParticleFieldProps {
-  progress: number;
+  progress: number | React.RefObject<number>;
   isMobile?: boolean;
 }
 
@@ -18,7 +18,7 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({ progress, isMobile
     const targetPos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
 
-    // NEXORA palette: crimson as primary, off-white as subtle highlights
+    // ZANSTA palette: crimson as primary, off-white as subtle highlights
     const crimsonColor  = new THREE.Color(INTRO_CONFIG.colors.crimsonAccent);
     const offwhiteColor = new THREE.Color(INTRO_CONFIG.colors.offwhiteAccent);
 
@@ -51,6 +51,8 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({ progress, isMobile
   useFrame((state, delta) => {
     if (!pointsRef.current) return;
 
+    const currentProgress = typeof progress === 'number' ? progress : (progress.current ?? 0);
+
     // Slow rotational drift
     pointsRef.current.rotation.y += delta * 0.15;
     pointsRef.current.rotation.x += delta * 0.05;
@@ -63,8 +65,8 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({ progress, isMobile
     const currentArray = posAttr.array as Float32Array;
 
     // Convergence ratio based on timeline progress (0 -> 1)
-    const factor          = Math.min(1, Math.max(0, (progress - 0.1) / 0.8));
-    const expansionFactor = progress > 0.8 ? (progress - 0.8) * 5 : 0;
+    const factor          = Math.min(1, Math.max(0, (currentProgress - 0.1) / 0.8));
+    const expansionFactor = currentProgress > 0.8 ? (currentProgress - 0.8) * 5 : 0;
 
     for (let i = 0; i < count; i++) {
       const idx    = i * 3;

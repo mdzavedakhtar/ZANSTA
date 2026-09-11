@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -45,7 +45,7 @@ export const ClientProjectFeedbackPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-black text-[#F5F2ED] font-display">SUBMIT CLIENT FEEDBACK</h1>
             <p className="text-xs text-[#F5F2ED]/55 font-sans mt-1">
-              Send comments, feature requests, or build approvals directly to the NEXORA engineering leads.
+              Send comments, feature requests, or build approvals directly to the ZANSTA engineering leads.
             </p>
           </div>
           <Badge variant="crimson" size="md" className="gap-1">

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -14,7 +14,7 @@ export const ProjectSettingsPage: React.FC = () => {
   const [name, setName] = useState(currentProject?.name || 'CareSprint');
   const [status, setStatus] = useState<ProjectStatus>(currentProject?.status || 'DEVELOPMENT');
   const [visibility, setVisibility] = useState<ProjectVisibility>(currentProject?.visibility || 'PUBLIC');
-  const [repoUrl, setRepoUrl] = useState(currentProject?.repoUrl || 'https://github.com/nexora/caresprint');
+  const [repoUrl, setRepoUrl] = useState(currentProject?.repoUrl || 'https://github.com/zansta/caresprint');
   const [demoUrl, setDemoUrl] = useState(currentProject?.demoUrl || 'https://caresprint.example.com');
 
   const handleSave = (e: React.FormEvent) => {

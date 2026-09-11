@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export const CustomCursor: React.FC = () => {
@@ -73,7 +73,7 @@ export const CustomCursor: React.FC = () => {
 
       {/* Expanding Ring / Badge Cursor */}
       <motion.div
-        className="fixed top-0 left-0 rounded-full pointer-events-none z-50 flex items-center justify-center border border-[#8B0D1A]/60 bg-[#8B0D1A]/10 backdrop-blur-xs font-mono text-[10px] font-bold text-[#8B0D1A] uppercase tracking-wider shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+        className="fixed top-0 left-0 rounded-full pointer-events-none z-50 flex items-center justify-center border border-[#8B0D1A]/60 bg-[#8B0D1A]/10 backdrop-blur-xs font-mono text-[10px] font-bold text-[#8B0D1A] uppercase tracking-wider shadow-[0_0_15px_rgba(139,13,26,0.35)]"
         animate={{
           x: position.x - (cursorText ? 32 : 18),
           y: position.y - (cursorText ? 32 : 18),

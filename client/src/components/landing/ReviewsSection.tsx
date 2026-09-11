@@ -97,7 +97,7 @@ export const ReviewsSection: React.FC = () => {
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs font-mono text-[#F5F2ED]/40">
+                    <span className="text-xs font-mono text-[#F5F2ED]/60">
                       {activeIndex + 1} / {reviews.length}
                     </span>
                     <button

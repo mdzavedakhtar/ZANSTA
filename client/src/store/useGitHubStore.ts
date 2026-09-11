@@ -110,7 +110,7 @@ interface GitHubStore {
 
 export const useGitHubStore = create<GitHubStore>((set, get) => ({
   isConnected: true,
-  githubUsername: 'nexora-developer',
+  githubUsername: 'zansta-developer',
   repositories: [],
   repoData: {
     repo: null,
@@ -141,14 +141,14 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
     } catch (err: any) {
       set({
         isConnected: true,
-        githubUsername: 'nexora-dev',
+        githubUsername: 'zansta-dev',
         repositories: [
           {
             id: 1001,
-            name: 'nexora-core-platform',
-            full_name: 'nexora/nexora-core-platform',
+            name: 'zansta-core-platform',
+            full_name: 'zansta/zansta-core-platform',
             private: true,
-            html_url: 'https://github.com/nexora/nexora-core-platform',
+            html_url: 'https://github.com/zansta/zansta-core-platform',
             description: 'Next-gen developer collaboration & software agency platform.',
             default_branch: 'main',
             stargazers_count: 142,
@@ -158,10 +158,10 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
           },
           {
             id: 1002,
-            name: 'nexora-design-system',
-            full_name: 'nexora/nexora-design-system',
+            name: 'zansta-design-system',
+            full_name: 'zansta/zansta-design-system',
             private: false,
-            html_url: 'https://github.com/nexora/nexora-design-system',
+            html_url: 'https://github.com/zansta/zansta-design-system',
             description: 'Glassmorphic component library with custom Framer Motion animations.',
             default_branch: 'main',
             stargazers_count: 89,
@@ -217,9 +217,9 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
       set({
         repoData: {
           repo: {
-            name: 'nexora-core-platform',
-            full_name: 'nexora/nexora-core-platform',
-            url: 'https://github.com/nexora/nexora-core-platform',
+            name: 'zansta-core-platform',
+            full_name: 'zansta/zansta-core-platform',
+            url: 'https://github.com/zansta/zansta-core-platform',
             default_branch: 'main',
             branches: ['main', 'dev', 'feature/realtime-sync', 'fix/auth-tokens'],
             active_branch: branch,
@@ -235,7 +235,7 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
               sha: '8f9a2b1c4e5d6f7a8b9c0d1e2f3a4b5c6d7e8f9a',
               commit: {
                 message: 'feat(core): implement real-time WebSocket sync and activity telemetry stream',
-                author: { name: 'Alex Rivera', email: 'alex@nexora.dev', date: new Date(Date.now() - 1000 * 60 * 42).toISOString() }
+                author: { name: 'Alex Rivera', email: 'alex@zansta.dev', date: new Date(Date.now() - 1000 * 60 * 42).toISOString() }
               },
               author: { login: 'arivera', avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
               stats: { additions: 142, deletions: 18 }
@@ -244,7 +244,7 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
               sha: '3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d',
               commit: {
                 message: 'fix(auth): secure JWT token storage and add role-based permission validation',
-                author: { name: 'Elena Rostova', email: 'elena@nexora.dev', date: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() }
+                author: { name: 'Elena Rostova', email: 'elena@zansta.dev', date: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() }
               },
               author: { login: 'erostova', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
               stats: { additions: 65, deletions: 12 }
@@ -253,7 +253,7 @@ export const useGitHubStore = create<GitHubStore>((set, get) => ({
               sha: '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
               commit: {
                 message: 'style(ui): polish glassmorphic design system and custom cursor interactions',
-                author: { name: 'Marcus Vance', email: 'marcus@nexora.dev', date: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString() }
+                author: { name: 'Marcus Vance', email: 'marcus@zansta.dev', date: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString() }
               },
               author: { login: 'mvance', avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
               stats: { additions: 289, deletions: 44 }

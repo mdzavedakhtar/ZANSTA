@@ -11,11 +11,13 @@ interface NexoraIntroProps {
 
 export const NexoraIntro: React.FC<NexoraIntroProps> = ({ onComplete, forceShow = false }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
+  const [uiProgress, setUiProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const lastThresholdRef = useRef(-1);
 
   useEffect(() => {
     // Check if intro has already run in this session
@@ -53,7 +55,19 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({ onComplete, forceShow 
       const elapsed = (timestamp - startTimeRef.current) / 1000;
       const currentProgress = Math.min(1, elapsed / INTRO_CONFIG.totalDuration);
 
-      setProgress(currentProgress);
+      progressRef.current = currentProgress;
+
+      // Discrete milestone thresholds for UI commits:
+      let threshold = 0;
+      if (currentProgress >= 0.85) threshold = 0.85;
+      else if (currentProgress >= 0.8) threshold = 0.8;
+      else if (currentProgress >= 0.65) threshold = 0.65;
+      else if (currentProgress >= 0.5) threshold = 0.5;
+
+      if (threshold !== lastThresholdRef.current) {
+        lastThresholdRef.current = threshold;
+        setUiProgress(threshold);
+      }
 
       if (currentProgress < 1) {
         animationFrameRef.current = requestAnimationFrame(animate);
@@ -79,13 +93,13 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({ onComplete, forceShow 
       <motion.div
         aria-hidden="true"
         initial={{ opacity: 1 }}
-        animate={{ opacity: progress > 0.85 ? 0 : 1 }}
+        animate={{ opacity: uiProgress > 0.85 ? 0 : 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="fixed inset-0 z-[100] bg-[#050505] overflow-hidden select-none"
       >
-        <NexoraScene progress={progress} mousePos={mousePos} isMobile={isMobile} />
-        <IntroLogo progress={progress} />
+        <NexoraScene progress={progressRef} mousePos={mousePos} isMobile={isMobile} />
+        <IntroLogo progress={uiProgress} />
       </motion.div>
     </AnimatePresence>
   );

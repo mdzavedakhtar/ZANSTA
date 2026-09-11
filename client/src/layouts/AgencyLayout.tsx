@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Footer } from '@/components/layout/Footer';
 import { Building2, Briefcase, FileText, Users, Sparkles, Inbox } from 'lucide-react';
@@ -25,7 +25,8 @@ export const AgencyLayout: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-base font-black text-[#F5F2ED] font-display tracking-tight">NEXORA STUDIO</span>
+                <span className="text-base font-black text-[#F5F2ED] font-display tracking-tight">ZANSTA STUDIO</span>
+                {/* Intentional semantic color: purple for Agency Studio badge */}
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">AGENCY PLATFORM</span>
               </div>
               <span className="text-[11px] font-mono text-[#F5F2ED]/55">High-End Digital Agency & Enterprise Software Studio</span>
@@ -42,7 +43,7 @@ export const AgencyLayout: React.FC = () => {
                   to={link.path}
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#8B0D1A]/20 to-[#8B0D1A]/20 text-[#F5F2ED] border border-[#8B0D1A]/40 shadow-[0_0_15px_rgba(0,240,255,0.15)] font-bold'
+                      ? 'bg-gradient-to-r from-[#8B0D1A]/20 to-[#8B0D1A]/20 text-[#F5F2ED] border border-[#8B0D1A]/40 shadow-[0_0_15px_rgba(139,13,26,0.25)] font-bold'
                       : 'text-[#F5F2ED]/55 hover:text-[#F5F2ED] hover:bg-white/5'
                   }`}
                 >

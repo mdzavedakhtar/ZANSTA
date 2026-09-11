@@ -7,7 +7,7 @@ import { FolderDown, Upload, FileText, Download } from 'lucide-react';
 const mockFiles = [
   { id: 'f1', name: 'caresprint_architecture_v2.pdf', size: '4.2 MB', type: 'PDF', uploader: 'MD Zaved Akhtar', date: '2026-02-10' },
   { id: 'f2', name: 'neurostack_dataset_sample.json', size: '1.8 MB', type: 'JSON', uploader: 'Aman Deep', date: '2026-02-12' },
-  { id: 'f3', name: 'nexora_ui_kit_assets.zip', size: '18.5 MB', type: 'ZIP', uploader: 'Rahul Sharma', date: '2026-02-15' },
+  { id: 'f3', name: 'zansta_ui_kit_assets.zip', size: '18.5 MB', type: 'ZIP', uploader: 'Rahul Sharma', date: '2026-02-15' },
 ];
 
 export const WorkspaceFilesPage: React.FC = () => {

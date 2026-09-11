@@ -16,7 +16,7 @@ export const ProjectActivityPage: React.FC = () => {
         {[
           { user: 'MD Zaved Akhtar', action: 'moved task "Implement WebRTC signaling" to IN_PROGRESS', time: '15m ago' },
           { user: 'Rahul Sharma', action: 'uploaded file caresprint_mobile_build.apk', time: '1h ago' },
-          { user: 'Aman Deep', action: 'connected repository nexora/caresprint', time: '3h ago' },
+          { user: 'Aman Deep', action: 'connected repository zansta/caresprint', time: '3h ago' },
         ].map((item, idx) => (
           <Card key={idx} surfaceTier="100" className="p-4 flex items-center gap-4">
             <Avatar name={item.user} size="sm" />

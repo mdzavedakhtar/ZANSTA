@@ -68,7 +68,7 @@ export const ContactSection: React.FC = () => {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-[#F5F2ED]/40 uppercase">Direct Email</p>
+                    <p className="text-[10px] font-mono text-[#F5F2ED]/60 uppercase">Direct Email</p>
                     <a href="mailto:hello@zansta.dev" className="text-sm font-semibold text-[#F5F2ED] hover:text-[#8B0D1A] transition-colors">
                       hello@zansta.dev
                     </a>
@@ -80,7 +80,7 @@ export const ContactSection: React.FC = () => {
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-[#F5F2ED]/40 block uppercase">Direct Hotline</span>
+                    <span className="text-[10px] font-mono text-[#F5F2ED]/60 block uppercase">Direct Hotline</span>
                     <a href="tel:+919876543210" className="text-sm font-semibold text-[#F5F2ED] hover:text-[#8B0D1A] transition-colors font-mono">
                       +91 (800) 987-6543
                     </a>
@@ -92,7 +92,7 @@ export const ContactSection: React.FC = () => {
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-[#F5F2ED]/40 block uppercase">Studio Location</span>
+                    <span className="text-[10px] font-mono text-[#F5F2ED]/60 block uppercase">Studio Location</span>
                     <span className="text-sm font-semibold text-[#F5F2ED]">Delhi NCR & Bangalore, India</span>
                   </div>
                 </div>

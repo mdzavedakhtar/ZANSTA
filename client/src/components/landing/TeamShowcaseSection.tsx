@@ -50,7 +50,7 @@ export const TeamShowcaseSection: React.FC = () => {
                       </h3>
                       <p className="text-xs font-mono text-[#8B0D1A] mt-0.5">{m.role}</p>
                       {m.experienceYears && (
-                        <p className="text-[10px] font-mono text-[#F5F2ED]/40 mt-0.5">{m.experienceYears} Experience</p>
+                        <p className="text-[10px] font-mono text-[#F5F2ED]/60 mt-0.5">{m.experienceYears} Experience</p>
                       )}
                     </div>
                   </div>

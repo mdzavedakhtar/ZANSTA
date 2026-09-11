@@ -83,7 +83,7 @@ export const PublicProjectsPage: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-semibold font-mono transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#8B0D1A] text-[#050505] shadow-[0_0_20px_rgba(0,240,255,0.4)] scale-105'
+                    ? 'bg-[#8B0D1A] text-[#050505] shadow-[0_0_20px_rgba(139,13,26,0.4)] scale-105'
                     : 'bg-white/5 text-[#F5F2ED]/55 border border-white/10 hover:border-white/30 hover:text-[#F5F2ED]'
                 }`}
               >

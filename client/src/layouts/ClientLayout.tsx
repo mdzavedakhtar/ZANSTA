@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -22,7 +22,7 @@ export const ClientLayout: React.FC = () => {
               <Sparkles className="w-5 h-5 text-[#8B0D1A]" />
             </div>
             <div>
-              <span className="text-sm font-black text-[#F5F2ED] font-display tracking-wide">NEXORA</span>
+              <span className="text-sm font-black text-[#F5F2ED] font-display tracking-wide">ZANSTA</span>
               <span className="text-[10px] font-mono text-[#8B0D1A] block">CLIENT PORTAL HUB</span>
             </div>
           </div>

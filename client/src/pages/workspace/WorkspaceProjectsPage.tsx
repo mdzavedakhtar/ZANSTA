@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -6,9 +6,9 @@ import { Plus, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const workspaceProjects = [
-  { id: '1', name: 'CareSprint', category: 'Healthcare', status: 'Active', tasks: 14, repo: 'nexora/caresprint' },
-  { id: '2', name: 'NeuroStack', category: 'AI Infrastructure', status: 'Active', tasks: 8, repo: 'nexora/neurostack' },
-  { id: '3', name: 'InsightIQ', category: 'Analytics', status: 'Completed', tasks: 22, repo: 'nexora/insightiq' },
+  { id: '1', name: 'CareSprint', category: 'Healthcare', status: 'Active', tasks: 14, repo: 'zansta/caresprint' },
+  { id: '2', name: 'NeuroStack', category: 'AI Infrastructure', status: 'Active', tasks: 8, repo: 'zansta/neurostack' },
+  { id: '3', name: 'InsightIQ', category: 'Analytics', status: 'Completed', tasks: 22, repo: 'zansta/insightiq' },
 ];
 
 export const WorkspaceProjectsPage: React.FC = () => {

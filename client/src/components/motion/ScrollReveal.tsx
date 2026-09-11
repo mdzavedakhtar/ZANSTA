@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export interface ScrollRevealProps {
   children: React.ReactNode;
@@ -17,11 +17,17 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   className,
   delay = 0,
   direction = 'spatialDepth',
-  once = false, // Configured for bidirectional viewport replay
+  once = true, // Configured for single-trigger premium reveal
   amount = 0.2, // 20% viewport entry threshold
   scale = 0.92,
   blurPx = 8,
 }) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const getInitialState = () => {
     switch (direction) {
       case 'spatialDepth':

@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,13 +18,51 @@ export const Drawer: React.FC<DrawerProps> = ({
   position = 'right',
   children,
 }) => {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
+
+      setTimeout(() => {
+        drawerRef.current?.focus();
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+          return;
+        }
+
+        if (e.key === 'Tab' && drawerRef.current) {
+          const focusables = drawerRef.current.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusables.length === 0) return;
+
+          const firstEl = focusables[0];
+          const lastEl = focusables[focusables.length - 1];
+
+          if (e.shiftKey && document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl.focus();
+          } else if (!e.shiftKey && document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = 'auto';
+        window.removeEventListener('keydown', handleKeyDown);
+        previousActiveElement.current?.focus();
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const slideVariants = {
     hidden: { x: position === 'right' ? '100%' : '-100%' },
@@ -46,13 +84,18 @@ export const Drawer: React.FC<DrawerProps> = ({
 
           {/* Drawer Content */}
           <motion.div
+            ref={drawerRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title || 'Drawer'}
             variants={slideVariants}
             initial="hidden"
             animate="visible"
             exit="hidden"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={cn(
-              'fixed top-0 bottom-0 z-10 w-full max-w-md bg-[#0E0E0E] border-white/10 p-6 flex flex-col shadow-2xl',
+              'fixed top-0 bottom-0 z-10 w-full max-w-md bg-[#0E0E0E] border-white/10 p-6 flex flex-col shadow-2xl outline-none',
               position === 'right' ? 'right-0 border-l' : 'left-0 border-r'
             )}
           >

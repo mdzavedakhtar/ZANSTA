@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -26,7 +26,7 @@ export const ClientProjectsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-[#F5F2ED] font-display">YOUR CLIENT PROJECTS</h1>
           <p className="text-xs text-[#F5F2ED]/55 font-sans mt-1">
-            Projects engineered for your organization by NEXORA development team.
+            Projects engineered for your organization by ZANSTA development team.
           </p>
         </div>
         <Badge variant="crimson" size="md">1 Active Contract</Badge>

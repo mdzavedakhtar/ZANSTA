@@ -17,7 +17,7 @@ export const HeroSection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9, filter: 'blur(8px)' }}
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <Badge variant="crimson" dot size="md" className="shadow-[0_0_20px_rgba(139,13,26,0.20)]">
@@ -29,7 +29,7 @@ export const HeroSection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.92, filter: 'blur(10px)', z: -100 }}
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)', z: 0 }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-3"
           >
@@ -45,7 +45,7 @@ export const HeroSection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, filter: 'blur(6px)' }}
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <p className="text-base sm:text-xl text-[#F5F2ED]/60 max-w-2xl font-sans leading-relaxed">
@@ -57,7 +57,7 @@ export const HeroSection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-wrap items-center justify-center gap-4 pt-2"
           >

@@ -7,7 +7,7 @@ export interface MagneticButtonProps extends ButtonProps {
 }
 
 export const MagneticButton: React.FC<MagneticButtonProps> = ({
-  strength = 35,
+  strength = 22,
   children,
   className,
   ...props

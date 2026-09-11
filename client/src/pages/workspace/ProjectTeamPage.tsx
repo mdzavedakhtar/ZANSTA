@@ -16,8 +16,8 @@ export const ProjectTeamPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { name: 'MD Zaved Akhtar', email: 'mdzavedakhtar62@gmail.com', role: 'Project Lead', status: 'Active' },
-          { name: 'Rahul Sharma', email: 'rahul@nexora.dev', role: 'Frontend Engineer', status: 'Active' },
-          { name: 'Aman Deep', email: 'aman@nexora.dev', role: 'Backend Engineer', status: 'Active' },
+          { name: 'Rahul Sharma', email: 'rahul@zansta.dev', role: 'Frontend Engineer', status: 'Active' },
+          { name: 'Aman Deep', email: 'aman@zansta.dev', role: 'Backend Engineer', status: 'Active' },
         ].map((m) => (
           <Card key={m.email} surfaceTier="100" className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">

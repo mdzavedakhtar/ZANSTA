@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,18 +20,51 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md',
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
+
+      // Focus modal container on open
+      setTimeout(() => {
+        modalRef.current?.focus();
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+          return;
+        }
+
+        if (e.key === 'Tab' && modalRef.current) {
+          const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusables.length === 0) return;
+
+          const firstEl = focusables[0];
+          const lastEl = focusables[focusables.length - 1];
+
+          if (e.shiftKey && document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl.focus();
+          } else if (!e.shiftKey && document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
+      };
+
       window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = 'auto';
+        window.removeEventListener('keydown', handleKeyDown);
+        previousActiveElement.current?.focus();
+      };
     }
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
   }, [isOpen, onClose]);
 
   const maxWidths = {
@@ -57,12 +90,17 @@ export const Modal: React.FC<ModalProps> = ({
 
           {/* Modal Box */}
           <motion.div
+            ref={modalRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title || 'Dialog'}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
             className={cn(
-              'relative w-full bg-[#0E0E0E] border border-[#F5F2ED]/12 rounded-2xl p-6 shadow-2xl z-10 overflow-hidden',
+              'relative w-full bg-[#0E0E0E] border border-[#F5F2ED]/12 rounded-2xl p-6 shadow-2xl z-10 overflow-hidden outline-none',
               maxWidths[maxWidth]
             )}
           >

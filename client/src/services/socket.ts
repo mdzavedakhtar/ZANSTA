@@ -24,7 +24,7 @@ class SocketService {
     });
   }
 
-  public joinWorkspace(workspaceId: string = 'nexora-core') {
+  public joinWorkspace(workspaceId: string = 'zansta-core') {
     this.socket?.emit('join_workspace', workspaceId);
   }
 

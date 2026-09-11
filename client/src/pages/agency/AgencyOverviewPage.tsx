@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -37,7 +37,7 @@ export const AgencyOverviewPage: React.FC = () => {
             <Sparkles className="w-4 h-4 text-[#8B0D1A]" /> HIGH-END SOFTWARE STUDIO & AGENCY PLATFORM
           </div>
           <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-[#F5F2ED]">
-            NEXORA Studio Command Center
+            ZANSTA Studio Command Center
           </h1>
           <p className="text-sm md:text-base text-[#F5F2ED]/80 font-sans max-w-2xl">
             Manage enterprise client accounts, review inbound project leads, deploy milestone proposals, and scale your digital software agency operations.

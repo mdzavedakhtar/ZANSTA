@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
@@ -46,7 +46,7 @@ export const ClientDashboardPage: React.FC = () => {
             Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B0D1A] to-[#8B0D1A]/60">Dr. Arthur Pendelton</span>
           </h1>
           <p className="text-sm text-[#F5F2ED]/80 font-sans max-w-2xl">
-            Track real-time build progress, review upcoming sprint milestones, inspect latest deployed releases, and submit feedback directly to your dedicated NEXORA engineering team.
+            Track real-time build progress, review upcoming sprint milestones, inspect latest deployed releases, and submit feedback directly to your dedicated ZANSTA engineering team.
           </p>
         </div>
       </Card>

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -24,7 +24,7 @@ export const ClientProjectDemoPage: React.FC = () => {
               <Badge variant="crimson" size="sm" dot>Deployed Environment</Badge>
             </div>
             <p className="text-xs text-[#F5F2ED]/55 font-sans mt-1">
-              Inspect the live client build deployed on NEXORA Edge Network.
+              Inspect the live client build deployed on ZANSTA Edge Network.
             </p>
           </div>
 

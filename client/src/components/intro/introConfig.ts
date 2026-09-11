@@ -9,7 +9,7 @@ export const INTRO_CONFIG = {
     exitExpansionStart:  3.2,
     completeEnd:         4.0,
   },
-  // ── NEXORA Official Color Identity ─────────────────────────────────────
+  // ── ZANSTA Official Color Identity ─────────────────────────────────────
   colors: {
     baseBg:         '#0B0B0B',
     crimsonAccent:  '#8B0D1A',   // primary brand accent

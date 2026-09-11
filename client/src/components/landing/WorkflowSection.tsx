@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '../ui/Container';
 import { Card } from '../ui/Card';
@@ -53,12 +53,12 @@ export const WorkflowSection: React.FC = () => {
     <section className="py-28 bg-[#080808] border-b border-white/[0.06] relative">
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <Badge variant="crimson" size="md">THE NEXORA WORKFLOW ENGINE</Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-display text-[#F5F2ED]">
-            FROM INITIAL SCOPE TO CLIENT DEMO.
+          <Badge variant="crimson" size="md">THE ZANSTA WORKFLOW ENGINE</Badge>
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tightest font-display text-[#F5F2ED]">
+            FROM IDEA TO DEPLOYED PRODUCT IN ONE STREAMLINED LOOP.
           </h2>
           <p className="text-[#F5F2ED]/55 text-sm sm:text-base">
-            Click through the 5 stages of the integrated NEXORA product lifecycle.
+            Click through the 5 stages of the integrated ZANSTA product lifecycle.
           </p>
         </ScrollReveal>
 
@@ -80,7 +80,7 @@ export const WorkflowSection: React.FC = () => {
                 {isActive && (
                   <motion.div
                     layoutId="workflowActiveStage"
-                    className="absolute inset-0 rounded-xl border-2 border-[#8B0D1A]/60 shadow-[0_0_20px_rgba(0,240,255,0.2)] pointer-events-none"
+                    className="absolute inset-0 rounded-xl border-2 border-[#8B0D1A]/60 shadow-[0_0_20px_rgba(139,13,26,0.3)] pointer-events-none"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}

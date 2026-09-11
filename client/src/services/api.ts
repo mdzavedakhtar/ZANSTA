@@ -4,7 +4,7 @@ export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = localStorage.getItem('nexora_token');
+  const token = localStorage.getItem('zansta_token');
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

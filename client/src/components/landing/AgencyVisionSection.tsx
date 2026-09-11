@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Container } from '../ui/Container';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
@@ -43,15 +43,12 @@ export const AgencyVisionSection: React.FC = () => {
 
       <Container size="xl">
         <ScrollReveal className="text-center max-w-4xl mx-auto space-y-4 mb-16">
-          <Badge variant="crimson" size="md">THE EVOLUTION OF NEXORA</Badge>
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tightest font-display text-[#F5F2ED]">
-            FROM A TEAM WORKSPACE <br />
-            <span className="bg-gradient-to-r from-[#8B0D1A] via-[#8B0D1A]/50 to-[#8B0D1A] bg-clip-text text-transparent">
-              TO A DIGITAL PRODUCT STUDIO.
-            </span>
+          <Badge variant="crimson" size="md">THE EVOLUTION OF ZANSTA</Badge>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#F5F2ED] tracking-tight font-display">
+            TRANSFORM YOUR DEV COLLECTIVE INTO A HIGH-MARGIN AGENCY.
           </h2>
-          <p className="text-[#F5F2ED]/55 text-sm sm:text-base max-w-2xl mx-auto">
-            NEXORA provides the architecture for your dev team to evolve into a full-scale client agency platform.
+          <p className="text-sm sm:text-base text-[#F5F2ED]/70 max-w-2xl mx-auto leading-relaxed">
+            ZANSTA provides the architecture for your dev team to evolve into a full-scale client agency platform.
           </p>
         </ScrollReveal>
 

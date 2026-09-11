@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
@@ -121,7 +121,7 @@ export const ProjectCreatePage: React.FC = () => {
               label="GitHub Repository URL (Optional)"
               value={repoUrl}
               onChange={(e) => setRepoUrl(e.target.value)}
-              placeholder="https://github.com/nexora/project"
+              placeholder="https://github.com/zansta/project"
               leftIcon={<Github className="w-4 h-4 text-[#F5F2ED]/35" />}
             />
             <Input
