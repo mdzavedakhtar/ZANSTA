@@ -57,7 +57,15 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({ progress, isMobile
     pointsRef.current.rotation.y += delta * 0.15;
     pointsRef.current.rotation.x += delta * 0.05;
 
-    // Interpolate positions toward target as timeline progresses
+    if (isMobile) {
+      const factor = Math.min(1, Math.max(0, (currentProgress - 0.1) / 0.8));
+      const expansion = currentProgress > 0.8 ? (currentProgress - 0.8) * 2.5 : 0;
+      const s = Math.max(0.2, (1 - factor * 0.4) * (1 + expansion));
+      pointsRef.current.scale.set(s, s, s);
+      return;
+    }
+
+    // Interpolate positions toward target as timeline progresses (Desktop)
     const geo     = pointsRef.current.geometry;
     const posAttr = geo.attributes.position;
     if (!posAttr) return;

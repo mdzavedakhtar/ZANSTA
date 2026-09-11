@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NexoraScene } from '../intro/NexoraScene';
 import { NexoraIntro } from '../intro/NexoraIntro';
 
@@ -9,14 +9,22 @@ interface NexoraExperienceProps {
 export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
-  const [introFinished, setIntroFinished] = useState(false);
+  const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [introProgress, setIntroProgress] = useState(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('zansta_intro_seen')) {
+      return 1;
+    }
+    return 0;
+  });
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  const handleProgressUpdate = useCallback((p: number) => {
+    setIntroProgress(p);
+  }, []);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setReducedMotion(prefersReduced);
-    setIsMobile(window.innerWidth < 768);
 
     if (prefersReduced) return;
 
@@ -35,7 +43,7 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (mouseRafId !== null) return;
+      if (isMobile || mouseRafId !== null) return;
       const clientX = e.clientX;
       const clientY = e.clientY;
       mouseRafId = requestAnimationFrame(() => {
@@ -47,7 +55,9 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    if (!isMobile) {
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    }
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -55,14 +65,14 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
       if (scrollRafId) cancelAnimationFrame(scrollRafId);
       if (mouseRafId) cancelAnimationFrame(mouseRafId);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
-      {/* 3D Intro Opening Sequence */}
-      <NexoraIntro onComplete={() => setIntroFinished(true)} />
+      {/* 3D Intro Overlay Controls */}
+      <NexoraIntro onProgressUpdate={handleProgressUpdate} />
 
-      {/* Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
+      {/* Single Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
         {reducedMotion ? (
           <div className="absolute inset-0 bg-[#050505] flex items-center justify-center">
@@ -70,7 +80,7 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
           </div>
         ) : (
           <NexoraScene
-            progress={introFinished ? 1 : 0.9}
+            progress={introProgress}
             scrollProgress={scrollProgress}
             mousePos={mousePos}
             isMobile={isMobile}
@@ -85,3 +95,4 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
     </div>
   );
 };
+

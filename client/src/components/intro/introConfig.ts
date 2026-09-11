@@ -16,7 +16,7 @@ export const INTRO_CONFIG = {
     offwhiteAccent: '#F5F2ED',   // logo, tagline, highlight particles
     darkSurface:    '#0E0E0E',
   },
-  mobileParticleCount:  120,
+  mobileParticleCount:  60,
   desktopParticleCount: 350,
   // Section spatial camera Z-depth mapping
   sectionDepths: {

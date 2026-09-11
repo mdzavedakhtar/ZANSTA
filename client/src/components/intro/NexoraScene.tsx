@@ -48,13 +48,20 @@ export const NexoraScene: React.FC<NexoraSceneProps> = ({
     <div className="absolute inset-0 pointer-events-none w-full h-full">
       <Canvas
         camera={{ position: [0, 0, 5], fov: 60 }}
-        gl={{ antialias: true, alpha: true }}
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        gl={{
+          antialias: !isMobile,
+          alpha: true,
+          powerPreference: 'high-performance',
+          precision: isMobile ? 'mediump' : 'highp',
+        }}
+        dpr={isMobile ? 1 : [1, 2]}
         className="w-full h-full"
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1.5} color={INTRO_CONFIG.colors.crimsonAccent} />
-        <pointLight position={[-10, -10, -10]} intensity={1.0} color={INTRO_CONFIG.colors.crimsonAccent} />
+        {!isMobile && (
+          <pointLight position={[-10, -10, -10]} intensity={1.0} color={INTRO_CONFIG.colors.crimsonAccent} />
+        )}
 
         <ParticleField progress={progress} isMobile={isMobile} />
         <NetworkCore progress={progress} scrollProgress={scrollProgress} mousePos={mousePos} isMobile={isMobile} />
