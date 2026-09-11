@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NexoraScene } from '../intro/NexoraScene';
 import { NexoraIntro } from '../intro/NexoraIntro';
 
@@ -10,23 +10,22 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  const [introProgress, setIntroProgress] = useState(() => {
+  const [introFinished, setIntroFinished] = useState(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem('zansta_intro_seen')) {
-      return 1;
+      return true;
     }
-    return 0;
+    return false;
   });
   const [reducedMotion, setReducedMotion] = useState(false);
-
-  const handleProgressUpdate = useCallback((p: number) => {
-    setIntroProgress(p);
-  }, []);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setReducedMotion(prefersReduced);
 
-    if (prefersReduced) return;
+    if (prefersReduced) {
+      setIntroFinished(true);
+      return;
+    }
 
     let scrollRafId: number | null = null;
     let mouseRafId: number | null = null;
@@ -69,22 +68,24 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
-      {/* 3D Intro Overlay Controls */}
-      <NexoraIntro onProgressUpdate={handleProgressUpdate} />
+      {/* 3D Intro Opening Sequence */}
+      {!introFinished && <NexoraIntro onComplete={() => setIntroFinished(true)} />}
 
-      {/* Single Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
+      {/* Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
         {reducedMotion ? (
           <div className="absolute inset-0 bg-[#050505] flex items-center justify-center">
             <div className="w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#8B0D1A]/15 via-[#8B0D1A]/05 to-transparent blur-3xl opacity-50" />
           </div>
         ) : (
-          <NexoraScene
-            progress={introProgress}
-            scrollProgress={scrollProgress}
-            mousePos={mousePos}
-            isMobile={isMobile}
-          />
+          introFinished && (
+            <NexoraScene
+              progress={1}
+              scrollProgress={scrollProgress}
+              mousePos={mousePos}
+              isMobile={isMobile}
+            />
+          )
         )}
       </div>
 
@@ -95,4 +96,5 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
     </div>
   );
 };
+
 
