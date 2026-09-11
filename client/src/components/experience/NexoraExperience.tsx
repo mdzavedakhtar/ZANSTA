@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NexoraScene } from '../intro/NexoraScene';
 import { NexoraIntro } from '../intro/NexoraIntro';
 
@@ -10,6 +10,12 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [introProgress, setIntroProgress] = useState(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('zansta_intro_seen')) {
+      return 1;
+    }
+    return 0;
+  });
   const [introFinished, setIntroFinished] = useState(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem('zansta_intro_seen')) {
       return true;
@@ -18,12 +24,21 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
   });
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  const handleProgressUpdate = useCallback((p: number) => {
+    setIntroProgress(p);
+  }, []);
+
+  const handleIntroComplete = useCallback(() => {
+    setIntroFinished(true);
+  }, []);
+
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setReducedMotion(prefersReduced);
 
     if (prefersReduced) {
       setIntroFinished(true);
+      setIntroProgress(1);
       return;
     }
 
@@ -68,33 +83,43 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
-      {/* 3D Intro Opening Sequence */}
-      {!introFinished && <NexoraIntro onComplete={() => setIntroFinished(true)} />}
+      {/* 3D Intro Overlay Controls */}
+      {!introFinished && (
+        <NexoraIntro
+          onProgressUpdate={handleProgressUpdate}
+          onComplete={handleIntroComplete}
+        />
+      )}
 
-      {/* Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
+      {/* Single Persistent 3D WebGL World Canvas or Static Reduced Motion Fallback */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
         {reducedMotion ? (
           <div className="absolute inset-0 bg-[#050505] flex items-center justify-center">
             <div className="w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#8B0D1A]/15 via-[#8B0D1A]/05 to-transparent blur-3xl opacity-50" />
           </div>
         ) : (
-          introFinished && (
-            <NexoraScene
-              progress={1}
-              scrollProgress={scrollProgress}
-              mousePos={mousePos}
-              isMobile={isMobile}
-            />
-          )
+          <NexoraScene
+            progress={introProgress}
+            scrollProgress={scrollProgress}
+            mousePos={mousePos}
+            isMobile={isMobile}
+          />
         )}
       </div>
 
-      {/* Main Landing Page Content Overlay */}
-      <div className="relative z-10">
+      {/* Main Landing Page Content Overlay with Seamless Cross-Fade */}
+      <div
+        className="relative z-10 transition-opacity duration-700 ease-out"
+        style={{
+          opacity: introFinished ? 1 : Math.max(0, (introProgress - 0.75) / 0.25),
+          pointerEvents: introProgress < 0.85 ? 'none' : 'auto',
+        }}
+      >
         {children}
       </div>
     </div>
   );
 };
+
 
 

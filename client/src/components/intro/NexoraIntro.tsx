@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NexoraScene } from './NexoraScene';
 import { IntroLogo } from './IntroLogo';
 import { INTRO_CONFIG } from './introConfig';
 
 interface NexoraIntroProps {
+  onProgressUpdate?: (progress: number) => void;
   onComplete?: () => void;
   forceShow?: boolean;
 }
 
 export const NexoraIntro: React.FC<NexoraIntroProps> = ({
+  onProgressUpdate,
   onComplete,
   forceShow = false,
 }) => {
@@ -27,7 +28,6 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
 
   const progressRef = useRef(0);
   const [uiProgress, setUiProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -35,19 +35,9 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
 
   useEffect(() => {
     if (!isVisible) {
+      onProgressUpdate?.(1);
       onComplete?.();
       return;
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isMobile) return;
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = -(e.clientY / window.innerHeight) * 2 + 1;
-      setMousePos({ x, y });
-    };
-
-    if (!isMobile) {
-      window.addEventListener('mousemove', handleMouseMove, { passive: true });
     }
 
     // Animation timeline loop
@@ -57,6 +47,7 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
       const currentProgress = Math.min(1, elapsed / INTRO_CONFIG.totalDuration);
 
       progressRef.current = currentProgress;
+      onProgressUpdate?.(currentProgress);
 
       // Discrete milestone thresholds for UI commits:
       let threshold = 0;
@@ -75,6 +66,7 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
       } else {
         sessionStorage.setItem('zansta_intro_seen', 'true');
         setIsVisible(false);
+        onProgressUpdate?.(1);
         onComplete?.();
       }
     };
@@ -82,12 +74,9 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (!isMobile) {
-        window.removeEventListener('mousemove', handleMouseMove);
-      }
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [forceShow, isMobile, isVisible, onComplete]);
+  }, [forceShow, isVisible, onComplete, onProgressUpdate]);
 
   if (!isVisible) return null;
 
@@ -99,13 +88,13 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
         animate={{ opacity: uiProgress >= 0.8 ? 0 : 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="fixed inset-0 z-[100] bg-[#050505] overflow-hidden select-none pointer-events-none"
+        className="fixed inset-0 z-[100] bg-transparent overflow-hidden select-none pointer-events-none"
       >
-        <NexoraScene progress={progressRef} mousePos={mousePos} isMobile={isMobile} />
         <IntroLogo progress={uiProgress} isMobile={isMobile} />
       </motion.div>
     </AnimatePresence>
   );
 };
+
 
 
