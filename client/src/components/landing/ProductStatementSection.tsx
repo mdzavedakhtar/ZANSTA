@@ -35,7 +35,7 @@ export const ProductStatementSection: React.FC = () => {
   }, []);
 
   return (
-    <section className="w-full bg-[#080808] border-b border-white/[0.06] relative overflow-hidden py-5">
+    <section className="w-full bg-transparent border-b border-white/[0.06] relative overflow-hidden py-5">
       {/* Inject ticker keyframes */}
       <style dangerouslySetInnerHTML={{ __html: tickerStyles }} />
 
@@ -45,9 +45,9 @@ export const ProductStatementSection: React.FC = () => {
       {/* Ticker track — full-bleed, overflow hidden */}
       <div className="w-full overflow-hidden relative select-none">
         {/* Left fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#050505]/95 to-transparent z-10 pointer-events-none" />
         {/* Right fade */}
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#050505]/95 to-transparent z-10 pointer-events-none" />
 
         {/* Ticker track — duplicated for seamless loop */}
         <div className="flex whitespace-nowrap nexora-ticker-track">

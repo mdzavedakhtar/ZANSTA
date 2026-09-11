@@ -9,7 +9,7 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const FinalCTASection: React.FC = () => {
   return (
-    <section className="py-32 bg-[#050505] relative overflow-hidden">
+    <section className="py-32 bg-transparent relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl h-96 bg-radial-gradient opacity-60 pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
 

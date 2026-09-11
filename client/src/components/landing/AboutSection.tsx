@@ -6,7 +6,7 @@ import { ArrowUpRight, Cpu, Sparkles, Shield, Code2, Zap } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="about" className="py-32 bg-[#050505] border-b border-white/[0.06] relative overflow-hidden selection:bg-[#8B0D1A]/30">
+    <section id="about" className="py-32 bg-transparent border-b border-white/[0.06] relative overflow-hidden selection:bg-[#8B0D1A]/30">
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-[#8B0D1A]/05 rounded-full blur-[140px] pointer-events-none" />
 

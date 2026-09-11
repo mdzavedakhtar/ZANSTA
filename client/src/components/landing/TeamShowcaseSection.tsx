@@ -19,7 +19,7 @@ export const TeamShowcaseSection: React.FC = () => {
   if (members.length === 0) return null;
 
   return (
-    <section id="team" className="py-28 bg-[#080808] border-b border-white/[0.06] relative">
+    <section id="team" className="py-28 bg-transparent border-b border-white/[0.06] relative">
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <Badge variant="crimson" size="md">ENGINEERING COLLECTIVE</Badge>
