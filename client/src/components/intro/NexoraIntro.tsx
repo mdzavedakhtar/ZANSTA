@@ -14,7 +14,18 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
   onComplete,
   forceShow = false,
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    if (forceShow) return true;
+    if (typeof window !== 'undefined') {
+      const hasSeen = sessionStorage.getItem('zansta_intro_seen');
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (hasSeen || prefersReduced) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   const progressRef = useRef(0);
   const [uiProgress, setUiProgress] = useState(0);
   const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
@@ -23,20 +34,7 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
   const lastThresholdRef = useRef(-1);
 
   useEffect(() => {
-    // Check if intro has already run in this session
-    const hasSeen = sessionStorage.getItem('zansta_intro_seen');
-    if (hasSeen && !forceShow) {
-      setIsVisible(false);
-      onProgressUpdate?.(1);
-      onComplete?.();
-      return;
-    }
-
-    // Check prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion && !forceShow) {
-      sessionStorage.setItem('zansta_intro_seen', 'true');
-      setIsVisible(false);
+    if (!isVisible) {
       onProgressUpdate?.(1);
       onComplete?.();
       return;
@@ -78,7 +76,7 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [forceShow, onComplete, onProgressUpdate]);
+  }, [forceShow, isVisible, onComplete, onProgressUpdate]);
 
   if (!isVisible) return null;
 
@@ -87,10 +85,10 @@ export const NexoraIntro: React.FC<NexoraIntroProps> = ({
       <motion.div
         aria-hidden="true"
         initial={{ opacity: 1 }}
-        animate={{ opacity: uiProgress > 0.85 ? 0 : 1 }}
+        animate={{ opacity: uiProgress >= 0.8 ? 0 : 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="fixed inset-0 z-[100] bg-transparent overflow-hidden select-none pointer-events-none"
+        className="fixed inset-0 z-[100] bg-[#050505] overflow-hidden select-none pointer-events-none"
       >
         <IntroLogo progress={uiProgress} isMobile={isMobile} />
       </motion.div>
