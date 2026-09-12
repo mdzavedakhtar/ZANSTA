@@ -20,7 +20,7 @@ export const ProjectShowcaseSection: React.FC = () => {
   if (projects.length === 0) return null;
 
   return (
-    <section id="projects" className="py-28 bg-transparent border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30">
+    <section id="projects" className="py-28 bg-[#050505] border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30">
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
           <Badge variant="crimson" size="md">PORTFOLIO SHOWCASE</Badge>

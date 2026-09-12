@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 export const WarmLightResetSection: React.FC = () => {
   return (
-    <section className="py-28 bg-transparent text-[#F5F2ED] relative overflow-hidden select-none border-y border-white/[0.06] selection:bg-[#8B0D1A]/30">
+    <section className="py-28 bg-[#060608] text-[#F5F2ED] relative overflow-hidden select-none border-y border-white/[0.06] selection:bg-[#8B0D1A]/30">
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#8B0D1A]/10 rounded-full blur-[140px] pointer-events-none" />
 

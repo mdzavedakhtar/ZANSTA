@@ -28,7 +28,7 @@ export const ReviewsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-28 bg-transparent border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30 overflow-hidden">
+    <section className="py-28 bg-[#080808] border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30 overflow-hidden">
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <Badge variant="crimson" size="md">TESTIMONIALS & REVIEWS</Badge>

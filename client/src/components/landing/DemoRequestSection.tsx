@@ -39,7 +39,7 @@ export const DemoRequestSection: React.FC = () => {
   };
 
   return (
-    <section className="py-28 bg-transparent border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30">
+    <section className="py-28 bg-[#050505] border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30">
       <Container size="lg">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <Badge variant="crimson" size="md">DEMO EXPERIENCE</Badge>
