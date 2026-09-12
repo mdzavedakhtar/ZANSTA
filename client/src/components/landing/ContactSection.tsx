@@ -41,73 +41,75 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-28 bg-[#080808] border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30">
+    <section id="contact" className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative">
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
-          <Badge variant="crimson" size="md">GET IN TOUCH</Badge>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-display text-[#F5F2ED]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
+            GET IN TOUCH
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
             LET'S BUILD SOMETHING GREAT.
           </h2>
-          <p className="text-[#F5F2ED]/55 text-sm sm:text-base font-sans">
+          <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
             Ready to engineer your next software breakthrough? Reach out to our team directly.
           </p>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Left Column: Direct Contact Info */}
           <div className="lg:col-span-5 space-y-8">
             <ScrollReveal className="space-y-6">
-              <h3 className="text-2xl font-bold text-[#F5F2ED] font-display">ZANSTA HEADQUARTERS</h3>
-              <p className="text-sm text-[#F5F2ED]/55 font-sans leading-relaxed">
+              <h3 className="text-2xl font-semibold text-white font-display">ZANSTA HEADQUARTERS</h3>
+              <p className="text-sm text-zinc-400 font-sans leading-relaxed">
                 Our main engineering studio and client partnership hub.
               </p>
 
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 flex items-center justify-center text-[#8B0D1A] shrink-0">
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#0c0d12] border border-white/[0.08]">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-[#F5F2ED]/60 uppercase">Direct Email</p>
-                    <a href="mailto:hello@zansta.dev" className="text-sm font-semibold text-[#F5F2ED] hover:text-[#8B0D1A] transition-colors">
+                    <p className="text-[10px] font-mono text-zinc-400 uppercase">Direct Email</p>
+                    <a href="mailto:hello@zansta.dev" className="text-sm font-semibold text-white hover:text-white/80 transition-colors">
                       hello@zansta.dev
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#0E0E0E] border border-white/05">
-                  <div className="w-10 h-10 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
-                    <Phone className="w-5 h-5" />
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#0c0d12] border border-white/[0.08]">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
+                    <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-[#F5F2ED]/60 block uppercase">Direct Hotline</span>
-                    <a href="tel:+919876543210" className="text-sm font-semibold text-[#F5F2ED] hover:text-[#8B0D1A] transition-colors font-mono">
+                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Direct Hotline</span>
+                    <a href="tel:+919876543210" className="text-sm font-semibold text-white hover:text-white/80 transition-colors font-mono">
                       +91 (800) 987-6543
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#0E0E0E] border border-white/05">
-                  <div className="w-10 h-10 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
-                    <MapPin className="w-5 h-5" />
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#0c0d12] border border-white/[0.08]">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
+                    <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-[#F5F2ED]/60 block uppercase">Studio Location</span>
-                    <span className="text-sm font-semibold text-[#F5F2ED]">Delhi NCR & Bangalore, India</span>
+                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Studio Location</span>
+                    <span className="text-sm font-semibold text-white">Delhi NCR &amp; Bangalore, India</span>
                   </div>
                 </div>
               </div>
 
               {/* Social Channels */}
-              <div className="pt-4 flex items-center gap-3">
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-white/05 border border-white/10 text-[#F5F2ED]/60 hover:text-white hover:border-white/30 transition-colors">
-                  <Linkedin className="w-5 h-5" />
+              <div className="pt-2 flex items-center gap-3">
+                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
+                  <Linkedin className="w-4 h-4" />
                 </a>
-                <a href="https://github.com" target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-white/05 border border-white/10 text-[#F5F2ED]/60 hover:text-white hover:border-white/30 transition-colors">
-                  <Github className="w-5 h-5" />
+                <a href="https://github.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
+                  <Github className="w-4 h-4" />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-white/05 border border-white/10 text-[#F5F2ED]/60 hover:text-white hover:border-white/30 transition-colors">
-                  <Twitter className="w-5 h-5" />
+                <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
+                  <Twitter className="w-4 h-4" />
                 </a>
               </div>
             </ScrollReveal>
@@ -116,95 +118,102 @@ export const ContactSection: React.FC = () => {
           {/* Right Column: Professional Enquiry Form */}
           <div className="lg:col-span-7">
             <ScrollReveal delay={0.2}>
-              <Card surfaceTier="100" className="p-8 border border-white/10 relative overflow-hidden shadow-2xl">
+              <div className="p-8 sm:p-10 bg-[#0c0d12] border border-white/[0.08] rounded-3xl relative overflow-hidden shadow-2xl">
+                {/* Ambient Glow */}
+                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#3b0764]/20 via-[#8B0D1A]/10 to-transparent blur-3xl pointer-events-none" />
+
                 {isSuccess ? (
-                  <div className="py-12 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-[#8B0D1A]/20 border border-[#8B0D1A]/40 flex items-center justify-center text-[#8B0D1A] mx-auto">
-                      <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                  <div className="py-12 text-center space-y-4 relative z-10">
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
+                      <CheckCircle2 className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-bold text-[#F5F2ED] font-display">Enquiry Submitted!</h3>
-                    <p className="text-sm text-[#F5F2ED]/60 max-w-md mx-auto font-sans leading-relaxed">
+                    <h3 className="text-2xl font-semibold text-white font-display">Enquiry Submitted!</h3>
+                    <p className="text-sm text-zinc-400 max-w-md mx-auto font-sans leading-relaxed">
                       Thank you for contacting ZANSTA. Our lead architect will review your project scope and respond within 12 hours.
                     </p>
-                    <Button size="sm" variant="outline" onClick={() => setIsSuccess(false)}>
+                    <button
+                      type="button"
+                      onClick={() => setIsSuccess(false)}
+                      className="py-2.5 px-6 rounded-full bg-white/10 border border-white/15 text-white text-xs font-medium hover:bg-white/20 transition-all"
+                    >
                       Send Another Message
-                    </Button>
+                    </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Full Name *</label>
+                  <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Full Name *</label>
                         <input
                           type="text"
                           required
                           value={formData.name}
                           onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                           placeholder="Your Name"
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white placeholder:text-zinc-600 focus:outline-none transition-all"
                         />
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Email Address *</label>
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={formData.email}
                           onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                           placeholder="you@company.com"
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] font-mono placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white font-mono placeholder:text-zinc-600 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Phone Number (Optional)</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Phone Number (Optional)</label>
                         <input
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                           placeholder="+91 98765 43210"
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] font-mono placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white font-mono placeholder:text-zinc-600 focus:outline-none transition-all"
                         />
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Company / Startup</label>
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Company / Startup</label>
                         <input
                           type="text"
                           value={formData.company}
                           onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))}
                           placeholder="Company Name"
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white placeholder:text-zinc-600 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Service Interested In</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Service Interested In</label>
                         <select
                           value={formData.serviceInterested}
                           onChange={(e) => setFormData((prev) => ({ ...prev, serviceInterested: e.target.value }))}
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A] font-mono cursor-pointer"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white focus:outline-none font-mono cursor-pointer transition-all"
                         >
                           <option value="Full Stack Website Development">Full Stack Web App</option>
                           <option value="Generative AI Tools Development">Generative AI Engine</option>
                           <option value="Frontend Design">Frontend UI/UX Design</option>
                           <option value="App Development">Mobile App Development</option>
                           <option value="Data Analytics with Generative AI">Data Analytics AI</option>
-                          <option value="SEO Design & Optimization">SEO & Optimization</option>
+                          <option value="SEO Design & Optimization">SEO &amp; Optimization</option>
                         </select>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-mono text-[#F5F2ED]/80">Estimated Budget Range</label>
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-300">Estimated Budget Range</label>
                         <select
                           value={formData.budget}
                           onChange={(e) => setFormData((prev) => ({ ...prev, budget: e.target.value }))}
-                          className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A] font-mono cursor-pointer"
+                          className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white focus:outline-none font-mono cursor-pointer transition-all"
                         >
                           <option value="$10,000 - $25,000">$10,000 - $25,000</option>
                           <option value="$25,000 - $50,000">$25,000 - $50,000</option>
@@ -214,31 +223,29 @@ export const ContactSection: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono text-[#F5F2ED]/80">Project Scope / Details *</label>
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono text-zinc-300">Project Scope / Details *</label>
                       <textarea
                         rows={4}
                         required
                         value={formData.message}
                         onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
                         placeholder="Describe your project, timeline, target audience, and key technical requirements..."
-                        className="w-full px-4 py-3 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A] font-sans"
+                        className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white placeholder:text-zinc-600 focus:outline-none font-sans transition-all"
                       />
                     </div>
 
-                    <Button
+                    <button
                       type="submit"
-                      variant="glow"
-                      size="lg"
-                      isLoading={isSubmitting}
-                      leftIcon={<Send className="w-4 h-4" />}
-                      className="w-full text-xs font-bold"
+                      disabled={isSubmitting}
+                      className="w-full py-4 rounded-full bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition-all duration-200 flex items-center justify-center gap-2 shadow-xl"
                     >
-                      Send Project Enquiry
-                    </Button>
+                      <Send className="w-4 h-4" />
+                      <span>{isSubmitting ? 'Sending...' : 'Send Project Enquiry'}</span>
+                    </button>
                   </form>
                 )}
-              </Card>
+              </div>
             </ScrollReveal>
           </div>
         </div>

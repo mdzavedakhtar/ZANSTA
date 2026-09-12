@@ -28,58 +28,59 @@ export const ReviewsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-28 bg-[#080808] border-b border-white/[0.06] relative selection:bg-[#8B0D1A]/30 overflow-hidden">
+    <section className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative overflow-hidden">
       <Container size="xl">
-        <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <Badge variant="crimson" size="md">TESTIMONIALS & REVIEWS</Badge>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-display text-[#F5F2ED]">
+        <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
+            TESTIMONIALS & REVIEWS
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
             TRUSTED BY THE PEOPLE WE BUILD FOR.
           </h2>
-          <p className="text-[#F5F2ED]/55 text-sm sm:text-base font-sans">
+          <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
             Hear directly from founders, CTOs, and product directors who built their digital platforms with ZANSTA.
           </p>
         </ScrollReveal>
 
-        {/* Carousel / Card Showcase */}
+        {/* Carousel / Codex Card Showcase */}
         <div className="max-w-4xl mx-auto relative">
           <ScrollReveal>
-            <Card
-              surfaceTier="100"
-              className="p-8 sm:p-12 space-y-8 border border-white/10 relative overflow-hidden shadow-2xl bg-gradient-to-br from-[#0E0E0E] to-[#080808]"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#8B0D1A]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="p-8 sm:p-14 space-y-8 bg-[#0c0d12] border border-white/[0.08] rounded-3xl relative overflow-hidden shadow-2xl">
+              {/* Soft Ambient Radial Background Glow */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#3b0764]/20 via-[#8B0D1A]/10 to-transparent blur-3xl pointer-events-none" />
 
-              <div className="flex items-center justify-between border-b border-white/05 pb-6">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-6 relative z-10">
                 <div className="flex items-center gap-1.5 text-amber-400">
                   {[...Array(reviews[activeIndex]?.rating || 5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-current" />
+                    <Star key={i} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
                 {reviews[activeIndex]?.projectName && (
-                  <Badge variant="neutral" size="sm" className="font-mono text-xs">
+                  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
                     Project: {reviews[activeIndex].projectName}
-                  </Badge>
+                  </span>
                 )}
               </div>
 
               {/* Review Text */}
               <div className="space-y-4 relative z-10">
-                <Quote className="w-10 h-10 text-[#8B0D1A]/30" />
-                <p className="text-lg sm:text-2xl font-medium text-[#F5F2ED] font-sans leading-relaxed italic">
+                <Quote className="w-10 h-10 text-white/20" />
+                <p className="text-lg sm:text-2xl font-medium text-white font-sans leading-relaxed italic">
                   "{reviews[activeIndex]?.reviewText}"
                 </p>
               </div>
 
-              {/* Client Info & Carousel Navigation */}
-              <div className="pt-6 border-t border-white/05 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Client Info & Carousel Controls */}
+              <div className="pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                 <div className="flex items-center gap-4">
                   <Avatar
                     name={reviews[activeIndex]?.clientName}
                     src={reviews[activeIndex]?.clientImage}
                     size="lg"
+                    className="border border-white/10"
                   />
                   <div>
-                    <h4 className="text-base font-bold text-[#F5F2ED] font-display">
+                    <h4 className="text-base font-semibold text-white font-display">
                       {reviews[activeIndex]?.clientName}
                     </h4>
                     <p className="text-xs font-mono text-[#8B0D1A]">
@@ -89,20 +90,20 @@ export const ReviewsSection: React.FC = () => {
                 </div>
 
                 {reviews.length > 1 && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={handlePrev}
-                      className="p-2.5 rounded-xl bg-white/05 border border-white/10 text-[#F5F2ED]/70 hover:text-white hover:border-white/30 transition-colors"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center"
                       aria-label="Previous Review"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs font-mono text-[#F5F2ED]/60">
+                    <span className="text-xs font-mono text-zinc-400">
                       {activeIndex + 1} / {reviews.length}
                     </span>
                     <button
                       onClick={handleNext}
-                      className="p-2.5 rounded-xl bg-white/05 border border-white/10 text-[#F5F2ED]/70 hover:text-white hover:border-white/30 transition-colors"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center"
                       aria-label="Next Review"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -110,7 +111,7 @@ export const ReviewsSection: React.FC = () => {
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
           </ScrollReveal>
         </div>
       </Container>
