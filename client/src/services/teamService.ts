@@ -1,6 +1,7 @@
 import { CMSTeamMember } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { generateZavedResumePdfBase64 } from '@/utils/generateZavedResume';
 
 const STORAGE_KEY = 'zansta_cms_team';
 
@@ -21,7 +22,7 @@ export const defaultTeamMembers: CMSTeamMember[] = [
     github: 'https://github.com/mdzavedakhtar',
     linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
     portfolio: 'https://github.com/mdzavedakhtar',
-    resumeUrl: '',
+    resumeUrl: generateZavedResumePdfBase64(),
     resumeFileName: 'MD_Zaved_Akhtar_Resume.pdf',
     isFeatured: true,
     isVisible: true,

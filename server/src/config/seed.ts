@@ -7,6 +7,7 @@ import { CMSLandingContent } from '../models/CMSLandingContent.js';
 import { ContactEnquiry } from '../models/ContactEnquiry.js';
 import { DemoRequest } from '../models/DemoRequest.js';
 import { CMSActivityLog } from '../models/CMSActivityLog.js';
+import { generateZavedResumePdfBase64 } from '../utils/generateZavedResume.js';
 
 export const defaultProjects = [
   {
@@ -103,7 +104,7 @@ export const defaultTeamMembers = [
     github: 'https://github.com/mdzavedakhtar',
     linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
     portfolio: 'https://github.com/mdzavedakhtar',
-    resumeUrl: '',
+    resumeUrl: generateZavedResumePdfBase64(),
     resumeFileName: 'MD_Zaved_Akhtar_Resume.pdf',
     isFeatured: true,
     isVisible: true,
