@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Container } from '../ui/Container';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
 import { ScrollReveal } from '../motion/ScrollReveal';
-import { ExternalLink, ArrowRight, Star, Quote } from 'lucide-react';
+import { ExternalLink, ArrowRight, Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { projectService } from '@/services/projectService';
 import { CMSProject } from '@/types/cms';
 
 export const ProjectShowcaseSection: React.FC = () => {
   const [projects, setProjects] = useState<CMSProject[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const list = projectService.getProjects({ isFeatured: true, isVisible: true });
@@ -24,26 +24,87 @@ export const ProjectShowcaseSection: React.FC = () => {
     });
   }, []);
 
+  // 5-second automatic sliding effect
+  useEffect(() => {
+    if (projects.length <= 3 || isPaused) return;
+
+    timerRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % projects.length);
+    }, 5000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [projects.length, isPaused]);
+
   if (projects.length === 0) return null;
 
-  return (
-    <section id="projects" className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative">
-      <Container size="xl">
-        <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
-            PORTFOLIO SHOWCASE
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
-            SELECTED WORK.
-          </h2>
-          <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
-            High-performance applications and autonomous AI platforms engineered for market-leading clients.
-          </p>
-        </ScrollReveal>
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % projects.length);
+  };
 
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
+  };
+
+  // Compute 3 visible cards in cyclical order if slider active
+  const visibleProjects = projects.length > 3
+    ? [
+        projects[currentIndex % projects.length],
+        projects[(currentIndex + 1) % projects.length],
+        projects[(currentIndex + 2) % projects.length],
+      ]
+    : projects;
+
+  return (
+    <section
+      id="projects"
+      className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <Container size="xl">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <ScrollReveal className="space-y-4 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
+              PORTFOLIO SHOWCASE
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
+              SELECTED WORK.
+            </h2>
+            <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
+              High-performance applications and autonomous AI platforms engineered for market-leading clients.
+            </p>
+          </ScrollReveal>
+
+          {/* Slider Controls if > 3 projects */}
+          {projects.length > 3 && (
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-xs font-mono text-zinc-400 mr-2">
+                Auto-Slide 5s ({currentIndex + 1}/{projects.length})
+              </span>
+              <button
+                onClick={handlePrev}
+                className="w-10 h-10 rounded-full bg-white/05 hover:bg-white/15 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+                aria-label="Previous Projects"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-10 h-10 rounded-full bg-white/05 hover:bg-white/15 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+                aria-label="Next Projects"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Projects 3-Card Window */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((p, idx) => (
-            <ScrollReveal key={p.id} delay={idx * 0.12}>
+          {visibleProjects.map((p, idx) => (
+            <div key={`${p.id}-${currentIndex}-${idx}`} className="transition-all duration-500 ease-out">
               <div className="group h-full flex flex-col justify-between space-y-6 bg-[#0c0d12] border border-white/[0.08] hover:border-white/20 p-6 rounded-3xl overflow-hidden relative shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <div className="space-y-4">
                   {/* Ambient Light Image Frame */}
@@ -105,14 +166,14 @@ export const ProjectShowcaseSection: React.FC = () => {
                 {/* CTAs */}
                 <div className="pt-6 border-t border-white/[0.08] flex items-center justify-between gap-3">
                   <Link to={`/projects/${p.slug}`}>
-                    <button className="py-2.5 px-4 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition-all flex items-center gap-1.5 shadow-md">
+                    <button className="py-2.5 px-4 rounded-full bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition-all flex items-center gap-1.5 shadow-md cursor-pointer">
                       <span>View Case Study</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </Link>
                   {p.liveUrl && (
                     <a href={p.liveUrl} target="_blank" rel="noreferrer">
-                      <button className="py-2.5 px-4 rounded-full bg-white/5 border border-white/10 text-white text-xs font-medium hover:bg-white/10 transition-all flex items-center gap-1.5">
+                      <button className="py-2.5 px-4 rounded-full bg-white/5 border border-white/10 text-white text-xs font-medium hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer">
                         <span>Live Demo</span>
                         <ExternalLink className="w-3.5 h-3.5 text-[#8B0D1A]" />
                       </button>
@@ -120,9 +181,27 @@ export const ProjectShowcaseSection: React.FC = () => {
                   )}
                 </div>
               </div>
-            </ScrollReveal>
+            </div>
           ))}
         </div>
+
+        {/* Pagination Dots if > 3 */}
+        {projects.length > 3 && (
+          <div className="flex items-center justify-center gap-2 pt-10">
+            {projects.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                aria-label={`Jump to project ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  i === currentIndex % projects.length
+                    ? 'w-8 bg-[#8B0D1A]'
+                    : 'w-2 bg-white/20 hover:bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </Container>
     </section>
   );

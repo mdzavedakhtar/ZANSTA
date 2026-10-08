@@ -103,11 +103,13 @@ export const Navbar: React.FC = () => {
         el.scrollIntoView({ behavior: 'smooth' });
         setActiveSection(item.id);
         window.history.pushState(null, '', item.id === 'hero' ? '/' : `#${item.id}`);
+      } else {
+        navigate(item.path);
       }
       setMobileMenuOpen(false);
     } else {
       e.preventDefault();
-      navigate(`/#${item.id}`);
+      navigate(item.path);
       setMobileMenuOpen(false);
     }
   };

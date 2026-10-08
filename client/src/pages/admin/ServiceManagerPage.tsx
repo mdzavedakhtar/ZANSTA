@@ -55,6 +55,20 @@ export const ServiceManagerPage: React.FC = () => {
     loadServices();
   };
 
+  const handleMoveOrder = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= services.length) return;
+
+    const newServices = [...services];
+    const temp = newServices[index];
+    newServices[index] = newServices[targetIndex];
+    newServices[targetIndex] = temp;
+
+    setServices(newServices);
+    await serviceService.reorderServices(newServices);
+    loadServices();
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
@@ -68,7 +82,7 @@ export const ServiceManagerPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs text-[#F5F2ED]/55 font-sans">
-            Manage ZANSTA agency service offerings, descriptions, tech stacks, and public presentation.
+            Manage ZANSTA agency service offerings, sequence display order (1, 2, 3, 4...), descriptions, tech stacks, and public presentation.
           </p>
         </div>
 
@@ -80,20 +94,41 @@ export const ServiceManagerPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {services.map((s) => (
+        {services.map((s, idx) => (
           <Card key={s.id} surfaceTier="100" className="p-6 space-y-4 border border-white/10 relative">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+                <div className="w-10 h-10 rounded-xl bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
                   <Code2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#F5F2ED] font-display">{s.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-md bg-[#8B0D1A] text-white font-mono text-[10px] font-bold shadow">
+                      #{s.order !== undefined ? s.order : idx + 1}
+                    </span>
+                    <h3 className="text-base font-extrabold text-[#F5F2ED] font-display">{s.name}</h3>
+                  </div>
                   <p className="text-xs text-[#F5F2ED]/55 mt-0.5">{s.shortDescription}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => handleMoveOrder(idx, 'up')}
+                  disabled={idx === 0}
+                  title="Move Up in Sequence"
+                  className="p-1.5 rounded bg-white/05 hover:bg-white/15 disabled:opacity-20 text-white text-[10px] font-mono transition-colors"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => handleMoveOrder(idx, 'down')}
+                  disabled={idx === services.length - 1}
+                  title="Move Down in Sequence"
+                  className="p-1.5 rounded bg-white/05 hover:bg-white/15 disabled:opacity-20 text-white text-[10px] font-mono transition-colors"
+                >
+                  ▼
+                </button>
                 <button
                   onClick={() => handleToggleFeatured(s)}
                   className={`p-1.5 rounded-lg border transition-colors ${

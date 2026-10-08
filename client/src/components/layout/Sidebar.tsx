@@ -45,7 +45,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Projects', path: '/admin/projects', icon: FolderGit2 },
       { label: 'Team', path: '/admin/team', icon: Users },
-      { label: 'Activity', path: '/admin/activity', icon: Activity },
     ],
   },
   {

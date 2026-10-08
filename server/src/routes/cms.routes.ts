@@ -17,6 +17,7 @@ import {
   createService,
   updateService,
   deleteService,
+  reorderServices,
   getDemos,
   getDemoByTokenOrId,
   createDemo,
@@ -67,6 +68,7 @@ router.delete('/team/:id', deleteTeamMember);
 router.get('/services', getServices);
 router.get('/services/:id', getServiceById);
 router.post('/services', createService);
+router.put('/services/reorder', reorderServices);
 router.put('/services/:id', updateService);
 router.delete('/services/:id', deleteService);
 

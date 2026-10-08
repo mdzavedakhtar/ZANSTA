@@ -54,7 +54,6 @@ import { ReviewFormPage } from '@/pages/admin/ReviewFormPage';
 import { DemoRequestManagerPage } from '@/pages/admin/DemoRequestManagerPage';
 import { EnquiryManagerPage } from '@/pages/admin/EnquiryManagerPage';
 import { LandingPageEditorPage } from '@/pages/admin/LandingPageEditorPage';
-import { AdminActivityPage } from '@/pages/admin/AdminActivityPage';
 
 // Project Workspace Sub-routes
 import { ProjectOverviewPage } from '@/pages/workspace/ProjectOverviewPage';
@@ -152,14 +151,12 @@ export const router = createBrowserRouter([
       { path: 'admin/demo-requests', element: <DemoRequestManagerPage /> },
       { path: 'admin/enquiries', element: <EnquiryManagerPage /> },
 
-      // Admin Landing Page & Activity CMS
+      // Admin Landing Page CMS
       { path: 'admin/landing', element: <LandingPageEditorPage /> },
-      { path: 'admin/activity', element: <AdminActivityPage /> },
 
       // Legacy Workspace Navigation Compatibility
       { path: 'workspace/team', element: <TeamManagerPage /> },
       { path: 'workspace/projects', element: <ProjectManagerPage /> },
-      { path: 'workspace/activity', element: <AdminActivityPage /> },
       { path: 'workspace/files', element: <WorkspaceFilesPage /> },
       { path: 'settings', element: <WorkspaceSettingsPage /> },
       { path: 'notifications', element: <WorkspaceNotificationsPage /> },

@@ -1,13 +1,13 @@
 export const INTRO_CONFIG = {
-  totalDuration: 4.0, // seconds for initial intro
+  totalDuration: 1.0, // Snappy 1.0s entrance for high-speed hero loading
   timeline: {
-    darkAmbientEnd:      0.5,
-    particleFormationEnd: 1.3,
-    coreIlluminatedEnd:  2.0,
-    logoRevealEnd:       2.6,
-    taglineRevealEnd:    3.2,
-    exitExpansionStart:  3.2,
-    completeEnd:         4.0,
+    darkAmbientEnd:      0.15,
+    particleFormationEnd: 0.4,
+    coreIlluminatedEnd:  0.65,
+    logoRevealEnd:       0.8,
+    taglineRevealEnd:    0.9,
+    exitExpansionStart:  0.9,
+    completeEnd:         1.0,
   },
   // ── ZANSTA Official Color Identity ─────────────────────────────────────
   colors: {
@@ -16,8 +16,8 @@ export const INTRO_CONFIG = {
     offwhiteAccent: '#F5F2ED',   // logo, tagline, highlight particles
     darkSurface:    '#0E0E0E',
   },
-  mobileParticleCount:  350,
-  desktopParticleCount: 350,
+  mobileParticleCount:  150,
+  desktopParticleCount: 220,
   // Section spatial camera Z-depth mapping
   sectionDepths: {
     hero:      5,

@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Container } from '../ui/Container';
-import { Badge } from '../ui/Badge';
-import { Card } from '../ui/Card';
 import { Avatar } from '../ui/Avatar';
 import { ScrollReveal } from '../motion/ScrollReveal';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +9,8 @@ import { CMSReview } from '@/types/cms';
 export const ReviewsSection: React.FC = () => {
   const [reviews, setReviews] = useState<CMSReview[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const list = reviewService.getReviews({ isVisible: true });
@@ -23,6 +23,17 @@ export const ReviewsSection: React.FC = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (reviews.length <= 1 || isPaused) return;
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % reviews.length);
+    }, 6000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [reviews.length, isPaused]);
+
   if (reviews.length === 0) return null;
 
   const handleNext = () => {
@@ -34,7 +45,11 @@ export const ReviewsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative overflow-hidden">
+    <section
+      className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <Container size="xl">
         <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
@@ -51,7 +66,7 @@ export const ReviewsSection: React.FC = () => {
         {/* Carousel / Codex Card Showcase */}
         <div className="max-w-4xl mx-auto relative">
           <ScrollReveal>
-            <div className="p-8 sm:p-14 space-y-8 bg-[#0c0d12] border border-white/[0.08] rounded-3xl relative overflow-hidden shadow-2xl">
+            <div className="p-8 sm:p-14 space-y-8 bg-[#0c0d12] border border-white/[0.08] rounded-3xl relative overflow-hidden shadow-2xl transition-all duration-500">
               {/* Soft Ambient Radial Background Glow */}
               <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#3b0764]/20 via-[#8B0D1A]/10 to-transparent blur-3xl pointer-events-none" />
 
@@ -69,7 +84,7 @@ export const ReviewsSection: React.FC = () => {
               </div>
 
               {/* Review Text */}
-              <div className="space-y-4 relative z-10">
+              <div className="space-y-4 relative z-10 min-h-[100px]">
                 <Quote className="w-10 h-10 text-white/20" />
                 <p className="text-lg sm:text-2xl font-medium text-white font-sans leading-relaxed italic">
                   "{reviews[activeIndex]?.reviewText}"
@@ -99,7 +114,7 @@ export const ReviewsSection: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={handlePrev}
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center cursor-pointer active:scale-95"
                       aria-label="Previous Review"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -109,7 +124,7 @@ export const ReviewsSection: React.FC = () => {
                     </span>
                     <button
                       onClick={handleNext}
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/15 transition-all flex items-center justify-center cursor-pointer active:scale-95"
                       aria-label="Next Review"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -119,6 +134,24 @@ export const ReviewsSection: React.FC = () => {
               </div>
             </div>
           </ScrollReveal>
+
+          {/* Dots Indicator */}
+          {reviews.length > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-6">
+              {reviews.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveIndex(i)}
+                  aria-label={`Jump to review ${i + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                    i === activeIndex
+                      ? 'w-8 bg-[#8B0D1A]'
+                      : 'w-2 bg-white/20 hover:bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Container>
     </section>

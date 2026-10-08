@@ -154,26 +154,45 @@ export const getProjectByIdOrSlug = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    const slug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    let rawSlug = (data.slug || data.name || 'project')
+      .toString()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    if (!rawSlug) rawSlug = `project-${Date.now().toString().slice(-6)}`;
+    
     const id = data.id || `proj_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
 
     let newProject: any;
     if (isDbConnected()) {
+      // Ensure unique slug
+      let slug = rawSlug;
+      const existing = await CMSProject.findOne({ slug });
+      if (existing) {
+        slug = `${rawSlug}-${Date.now().toString().slice(-4)}`;
+      }
+
       const count = await CMSProject.countDocuments();
-      const order = data.order !== undefined ? data.order : count + 1;
+      const order =
+        data.order !== undefined && data.order !== null && !isNaN(Number(data.order))
+          ? Number(data.order)
+          : count + 1;
 
       newProject = await CMSProject.create({
         ...data,
         id,
-        slug: slug || `project-${Date.now()}`,
+        slug,
         order,
       });
     } else {
       newProject = {
         ...data,
         id,
-        slug: slug || `project-${Date.now()}`,
-        order: data.order !== undefined ? data.order : memoryProjects.length + 1,
+        slug: rawSlug,
+        order:
+          data.order !== undefined && data.order !== null && !isNaN(Number(data.order))
+            ? Number(data.order)
+            : memoryProjects.length + 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -183,14 +202,18 @@ export const createProject = async (req: Request, res: Response) => {
     await recordActivity('MD Zaved Akhtar', 'created project', newProject.name, 'project');
     res.status(201).json({ success: true, data: newProject, message: 'Project created successfully' });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: { message: error.message } });
+    console.error('Error creating project:', error);
+    res.status(500).json({ success: false, error: { message: error.message || 'Failed to create project' } });
   }
 };
 
 export const updateProject = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+    if (updates.order !== undefined && updates.order !== null && !isNaN(Number(updates.order))) {
+      updates.order = Number(updates.order);
+    }
 
     let updatedProject: any = null;
     if (isDbConnected()) {
@@ -247,13 +270,17 @@ export const reorderProjects = async (req: Request, res: Response) => {
       if (isDbConnected()) {
         for (let i = 0; i < projects.length; i++) {
           const item = projects[i];
+          const orderNum = item.order !== undefined && !isNaN(Number(item.order)) ? Number(item.order) : i + 1;
           await CMSProject.findOneAndUpdate(
             { $or: [{ id: item.id }, { slug: item.id }] },
-            { order: i + 1 }
+            { order: orderNum }
           );
         }
       }
-      memoryProjects = projects.map((p, idx) => ({ ...p, order: idx + 1 }));
+      memoryProjects = projects.map((p, idx) => ({
+        ...p,
+        order: p.order !== undefined && !isNaN(Number(p.order)) ? Number(p.order) : idx + 1,
+      }));
     }
     await recordActivity('MD Zaved Akhtar', 'reordered projects', 'Project Showcase Order', 'project');
     res.json({ success: true, message: 'Projects reordered successfully' });
@@ -459,13 +486,19 @@ export const createService = async (req: Request, res: Response) => {
     let newService: any;
     if (isDbConnected()) {
       const count = await CMSService.countDocuments();
-      const order = data.order !== undefined ? data.order : count + 1;
+      const order =
+        data.order !== undefined && data.order !== null && !isNaN(Number(data.order))
+          ? Number(data.order)
+          : count + 1;
       newService = await CMSService.create({ ...data, id, order });
     } else {
       newService = {
         ...data,
         id,
-        order: data.order !== undefined ? data.order : memoryServices.length + 1,
+        order:
+          data.order !== undefined && data.order !== null && !isNaN(Number(data.order))
+            ? Number(data.order)
+            : memoryServices.length + 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -482,7 +515,10 @@ export const createService = async (req: Request, res: Response) => {
 export const updateService = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+    if (updates.order !== undefined && updates.order !== null && !isNaN(Number(updates.order))) {
+      updates.order = Number(updates.order);
+    }
 
     let updatedService: any = null;
     if (isDbConnected()) {
@@ -499,6 +535,29 @@ export const updateService = async (req: Request, res: Response) => {
 
     await recordActivity('MD Zaved Akhtar', 'updated agency service', updatedService.name, 'service');
     res.json({ success: true, data: updatedService, message: 'Service updated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const reorderServices = async (req: Request, res: Response) => {
+  try {
+    const { services } = req.body;
+    if (Array.isArray(services)) {
+      if (isDbConnected()) {
+        for (let i = 0; i < services.length; i++) {
+          const item = services[i];
+          const orderNum = item.order !== undefined && !isNaN(Number(item.order)) ? Number(item.order) : i + 1;
+          await CMSService.findOneAndUpdate({ id: item.id }, { order: orderNum });
+        }
+      }
+      memoryServices = services.map((s, idx) => ({
+        ...s,
+        order: s.order !== undefined && !isNaN(Number(s.order)) ? Number(s.order) : idx + 1,
+      }));
+    }
+    await recordActivity('MD Zaved Akhtar', 'reordered services', 'Services Showcase Order', 'service');
+    res.json({ success: true, message: 'Services reordered successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, error: { message: error.message } });
   }

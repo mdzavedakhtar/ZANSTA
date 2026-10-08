@@ -235,4 +235,23 @@ export const serviceService = {
     activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target?.name || id, 'service');
     return true;
   },
+
+  reorderServices: async (reorderedServices: CMSService[]): Promise<void> => {
+    const updated = reorderedServices.map((s, idx) => ({
+      ...s,
+      order: idx + 1,
+      updatedAt: new Date().toISOString(),
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    activityService.logActivity('MD Zaved Akhtar', 'reordered services', 'Services Showcase Order', 'service');
+
+    try {
+      await apiRequest('/cms/services/reorder', {
+        method: 'PUT',
+        body: JSON.stringify({ services: updated }),
+      });
+    } catch (err) {
+      console.warn('[serviceService] Failed to sync services order to MongoDB:', err);
+    }
+  },
 };
