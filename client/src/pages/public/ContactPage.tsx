@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '@/components/shared/SEO';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,11 +12,16 @@ import { Send, Mail, MapPin, Phone } from 'lucide-react';
 export const ContactPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Project request submitted successfully! (Phase 1 Demo)');
+    alert('Project enquiry submitted! Our team will contact you shortly.');
   };
 
   return (
     <div className="pt-28 pb-20">
+      <SEO
+        title="Contact Us — Start a Project"
+        description="Ready to build your next digital breakthrough? Reach out to ZANSTA for custom web application development, AI agent pipelines, and enterprise software."
+        keywords="contact ZANSTA, hire software agency, web developers, AI developers, project enquiry, Bhilai, India"
+      />
       <Container size="xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Info Side */}
@@ -33,13 +39,21 @@ export const ContactPage: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#8B0D1A]">
                   <Mail className="w-4 h-4" />
                 </div>
-                <span>contact@zansta.dev</span>
+                <a href="mailto:zanstacom@gmail.com" className="hover:text-white transition-colors">
+                  zanstacom@gmail.com
+                </a>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-[#F5F2ED]/80">
+                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#8B0D1A]">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <span>+91 6202888431, +91 6287786639</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-[#F5F2ED]/80">
                 <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#8B0D1A]">
                   <MapPin className="w-4 h-4" />
                 </div>
-                <span>San Francisco, CA & Remote Global</span>
+                <span>Bhilai, Kohka, Durg, Chhattisgarh 490023</span>
               </div>
             </div>
           </FadeIn>

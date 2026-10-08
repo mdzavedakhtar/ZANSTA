@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SEO } from '@/components/shared/SEO';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -33,6 +34,11 @@ const agencyServices = [
 export const ServicesPage: React.FC = () => {
   return (
     <div className="pt-28 pb-20">
+      <SEO
+        title="Software Engineering & Generative AI Services"
+        description="Explore ZANSTA's engineering capabilities: full-stack web applications, autonomous generative AI systems, RAG document pipelines, and scalable cloud architectures."
+        keywords="ZANSTA services, web engineering, generative AI tools development, full stack MERN, Next.js, Python, data analytics, custom software agency"
+      />
       <Container size="xl">
         <FadeIn className="max-w-2xl space-y-4 mb-12">
           <Badge variant="crimson" size="md">ZANSTA AGENCY SERVICES</Badge>

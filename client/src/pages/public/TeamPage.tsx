@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { SEO } from '@/components/shared/SEO';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -20,6 +21,11 @@ export const TeamPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-20">
+      <SEO
+        title="Engineering Team & Collective"
+        description="Meet the core software architects, Generative AI engineers, and UI/UX designers powering ZANSTA."
+        keywords="ZANSTA team, software engineers, MD Zaved Akhtar, full stack builders, AI developers, Bhilai, India"
+      />
       <Container size="xl">
         <FadeIn className="max-w-2xl space-y-4 mb-12">
           <Badge variant="crimson" size="md">ENGINEERING TEAM</Badge>

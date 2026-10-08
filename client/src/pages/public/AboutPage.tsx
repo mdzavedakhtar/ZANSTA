@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '@/components/shared/SEO';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -7,6 +8,11 @@ import { FadeIn } from '@/components/motion/FadeIn';
 export const AboutPage: React.FC = () => {
   return (
     <div className="pt-28 pb-20">
+      <SEO
+        title="About ZANSTA — Engineering Philosophy, Mission & Agency Story"
+        description="Learn how ZANSTA combines software engineering rigor, AI agent architectures, and pixel-perfect design systems to build high-performance digital breakthroughs."
+        keywords="about ZANSTA, software agency philosophy, web development agency, AI engineering team, technical agency, MD Zaved Akhtar"
+      />
       <Container size="xl">
         <FadeIn className="max-w-3xl space-y-6">
           <Badge variant="crimson" size="md">OUR STORY & VISION</Badge>

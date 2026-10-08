@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { SEO } from '@/components/shared/SEO';
 import { Navbar as FloatingNavbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Card } from '@/components/ui/Card';
@@ -40,6 +41,11 @@ export const PublicProjectsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
+      <SEO
+        title="Portfolio Showcase & Case Studies"
+        description="Explore production-grade software applications, generative AI engines, and SaaS products engineered and shipped by ZANSTA."
+        keywords="ZANSTA projects, portfolio, SaaS case studies, telemedicine platform, autonomous AI engine, real time analytics hub"
+      />
       <FloatingNavbar />
 
       {/* Hero Header Section */}

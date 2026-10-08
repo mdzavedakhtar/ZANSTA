@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO } from '@/components/shared/SEO';
 import { NexoraExperience } from '@/components/experience/NexoraExperience';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ProductStatementSection } from '@/components/landing/ProductStatementSection';
@@ -16,6 +17,11 @@ import { WarmLightResetSection } from '@/components/landing/WarmLightResetSectio
 export const HomePage: React.FC = () => {
   return (
     <NexoraExperience>
+      <SEO
+        title="ZANSTA — Next-Gen Creative Agency & Software Engineering Engine"
+        description="ZANSTA builds enterprise web applications, generative AI agent systems, scalable full-stack architectures, and ultra-fluid digital experiences for market leaders."
+        keywords="ZANSTA, creative agency, web development, generative AI tools, MERN stack, Next.js, Python, full stack engineer, AI agents, software engineering, Bhilai, India"
+      />
       <div className="relative overflow-hidden text-[#F5F2ED]">
         {/* 1. HERO SECTION */}
         <HeroSection />

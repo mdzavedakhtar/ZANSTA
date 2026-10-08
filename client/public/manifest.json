@@ -1,0 +1,17 @@
+{
+  "name": "ZANSTA — Creative Software & High-Performance Engineering",
+  "short_name": "ZANSTA",
+  "description": "Next-gen creative software agency building enterprise web platforms, generative AI agent systems, and ultra-fluid digital experiences.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#8B0D1A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
