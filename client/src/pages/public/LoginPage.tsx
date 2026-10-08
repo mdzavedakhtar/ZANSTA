@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Logo } from '@/components/shared/Logo';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToast } from '@/components/ui/Toast';
-import { Lock, Mail, ArrowRight, Github, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -40,20 +40,18 @@ export const LoginPage: React.FC = () => {
           <div className="text-center space-y-2">
             <Logo size="lg" className="justify-center mb-2" />
             <h2 className="text-2xl font-extrabold text-[#F5F2ED] tracking-tight font-display">
-              WELCOME BACK
+              SUPERADMIN PORTAL
             </h2>
-            <p className="text-xs text-[#F5F2ED]/55">Sign in to your ZANSTA workspace</p>
+            <p className="text-xs text-[#F5F2ED]/55">Sign in to your ZANSTA Superadmin workspace</p>
           </div>
-
-
 
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
-              label="Email Address"
+              label="Admin Email Address"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
+              placeholder="admin@example.com"
               leftIcon={<Mail className="w-4 h-4 text-[#F5F2ED]/35" />}
               required
             />
@@ -89,12 +87,12 @@ export const LoginPage: React.FC = () => {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-[#F5F2ED]/55">
-            Don't have a workspace account?{' '}
-            <Link to="/register" className="text-[#8B0D1A] hover:underline font-semibold">
-              Create account
-            </Link>
-          </p>
+          <div className="pt-2 text-center border-t border-white/05">
+            <p className="text-[11px] font-mono text-[#F5F2ED]/40 flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#8B0D1A]" />
+              <span>Restricted Superadmin & Workspace Portal</span>
+            </p>
+          </div>
         </Card>
       </Container>
     </div>
