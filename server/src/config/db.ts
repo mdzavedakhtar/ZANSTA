@@ -3,6 +3,10 @@ import { ENV } from './env.js';
 import { seedCMSData } from './seed.js';
 
 export const connectDB = async (): Promise<boolean> => {
+  if (mongoose.connection && mongoose.connection.readyState >= 1) {
+    return true;
+  }
+
   const uri = ENV.MONGODB_URI || '';
 
   if (!uri || uri.includes('<db_username>') || uri.includes('<username>')) {
