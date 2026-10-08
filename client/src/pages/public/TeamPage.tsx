@@ -8,6 +8,7 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Github, Linkedin, FileText, Briefcase } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
+import { openResumeDocument } from '@/lib/documentViewer';
 
 export const TeamPage: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
@@ -88,14 +89,13 @@ export const TeamPage: React.FC = () => {
                 </div>
 
                 {member.resumeUrl && (
-                  <a
-                    href={member.resumeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1"
+                  <button
+                    type="button"
+                    onClick={() => openResumeDocument(member.resumeUrl, member.resumeFileName || `${member.name}_Resume.pdf`)}
+                    className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
                   >
                     <FileText className="w-3.5 h-3.5" /> View Resume
-                  </a>
+                  </button>
                 )}
               </div>
             </Card>

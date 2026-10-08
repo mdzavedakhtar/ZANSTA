@@ -7,6 +7,7 @@ import { ScrollReveal } from '../motion/ScrollReveal';
 import { Github, Linkedin, FileText } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
+import { openResumeDocument } from '@/lib/documentViewer';
 
 export const TeamShowcaseSection: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
@@ -103,14 +104,13 @@ export const TeamShowcaseSection: React.FC = () => {
                   </div>
 
                   {m.resumeUrl ? (
-                    <a
-                      href={m.resumeUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1.5"
+                    <button
+                      type="button"
+                      onClick={() => openResumeDocument(m.resumeUrl, m.resumeFileName || `${m.name}_Resume.pdf`)}
+                      className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1.5 cursor-pointer bg-transparent border-none p-0"
                     >
                       <FileText className="w-3.5 h-3.5" /> Resume PDF
-                    </a>
+                    </button>
                   ) : (
                     <div className="text-[10px] font-mono text-zinc-400">
                       ZANSTA Engineer

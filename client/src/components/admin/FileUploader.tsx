@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FileText, Upload, X, Eye, Download, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { openResumeDocument } from '@/lib/documentViewer';
 
 interface FileUploaderProps {
   value?: string;
@@ -59,16 +60,15 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <a
-              href={value}
-              target="_blank"
-              rel="noreferrer"
-              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs flex items-center gap-1"
+            <button
+              type="button"
+              onClick={() => openResumeDocument(value, fileName)}
+              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
               title="View Resume"
             >
               <Eye className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">View</span>
-            </a>
+            </button>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}

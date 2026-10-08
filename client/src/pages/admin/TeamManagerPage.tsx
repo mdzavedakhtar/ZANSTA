@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
+import { openResumeDocument } from '@/lib/documentViewer';
 import {
   Users,
   UserPlus,
@@ -205,15 +206,14 @@ export const TeamManagerPage: React.FC = () => {
 
                 {/* Resume Status Badge */}
                 {m.resumeUrl ? (
-                  <a
-                    href={m.resumeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 text-[11px] font-mono text-[#F5F2ED]/90 hover:bg-[#8B0D1A]/20 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => openResumeDocument(m.resumeUrl, m.resumeFileName || `${m.name}_Resume.pdf`)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 text-[11px] font-mono text-[#F5F2ED]/90 hover:bg-[#8B0D1A]/20 transition-colors cursor-pointer text-left"
                   >
-                    <FileText className="w-3.5 h-3.5 text-[#8B0D1A]" />
-                    <span>View Resume PDF</span>
-                  </a>
+                    <FileText className="w-3.5 h-3.5 text-[#8B0D1A] shrink-0" />
+                    <span className="truncate max-w-[150px]">{m.resumeFileName || 'View Resume PDF'}</span>
+                  </button>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#F5F2ED]/30 italic">
                     No resume uploaded
