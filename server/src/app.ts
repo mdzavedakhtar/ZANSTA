@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -32,6 +33,31 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+
+// Root Status & Health Check Handler
+app.get('/', (req, res) => {
+  const isConnected = mongoose.connection.readyState === 1;
+  res.json({
+    success: true,
+    name: 'ZANSTA Backend Engine API',
+    status: 'ONLINE',
+    version: '1.0.0',
+    database: isConnected ? 'CONNECTED (MongoDB Atlas)' : 'CONNECTING',
+    endpoints: {
+      health: '/api/v1/health',
+      team: '/api/v1/cms/team',
+      services: '/api/v1/cms/services',
+      projects: '/api/v1/cms/projects',
+      reviews: '/api/v1/cms/reviews',
+      landing: '/api/v1/cms/landing',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting' });
+});
 
 // Robots.txt Handler
 app.get('/robots.txt', (req, res) => {
