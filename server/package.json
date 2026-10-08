@@ -1,5 +1,5 @@
 {
-  "name": "nexora-server",
+  "name": "server",
   "version": "1.0.0",
   "description": "NEXORA Backend API Server & Socket.IO Gateway",
   "main": "dist/server.js",
@@ -18,7 +18,6 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.2",
     "morgan": "^1.10.0",
-    "nexora-platform": "file:..",
     "nodemailer": "^10.0.16",
     "socket.io": "^4.7.5",
     "zod": "^3.23.8"

@@ -1,5 +1,5 @@
 {
-  "name": "nexora-client",
+  "name": "client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -20,7 +20,6 @@
     "framer-motion": "^11.5.4",
     "gsap": "^3.12.5",
     "lucide-react": "^0.439.0",
-    "nexora-platform": "file:..",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
