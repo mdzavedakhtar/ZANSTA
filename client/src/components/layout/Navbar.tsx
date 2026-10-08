@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { Logo } from '../shared/Logo';
 import { MagneticButton } from '../ui/MagneticButton';
+import { NavbarOfferBanner } from './NavbarOfferBanner';
 
 interface NavItem {
   label: string;
@@ -115,7 +116,10 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 pt-4 px-[3vw] sm:px-[4vw] transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-40 pt-3 px-[3vw] sm:px-[4vw] transition-all duration-300">
+      {/* Landscape Promo Advertisement Carousel Banner (5-second auto rotation) */}
+      <NavbarOfferBanner />
+
       {/* Main Navbar Bar */}
       <div
         className={`relative flex items-center justify-between px-5 py-3 rounded-2xl transition-all duration-300 ${

@@ -5,6 +5,7 @@ import { ScrollReveal } from '../motion/ScrollReveal';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { reviewService } from '@/services/reviewService';
 import { CMSReview } from '@/types/cms';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 
 export const ReviewsSection: React.FC = () => {
   const [reviews, setReviews] = useState<CMSReview[]>([]);
@@ -12,7 +13,7 @@ export const ReviewsSection: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  const loadReviews = () => {
     const list = reviewService.getReviews({ isVisible: true });
     setReviews(list);
 
@@ -21,7 +22,15 @@ export const ReviewsSection: React.FC = () => {
         setReviews(freshList);
       }
     });
+  };
+
+  useEffect(() => {
+    loadReviews();
   }, []);
+
+  useCmsLiveSync('review', () => {
+    loadReviews();
+  });
 
   useEffect(() => {
     if (reviews.length <= 1 || isPaused) return;

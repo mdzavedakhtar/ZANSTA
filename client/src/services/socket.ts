@@ -29,24 +29,66 @@ export const getSocketUrl = (): string => {
 
 class SocketService {
   private socket: Socket | null = null;
+  private listeners: Map<string, Set<(...args: any[]) => void>> = new Map();
+
+  constructor() {
+    // Automatically connect in browser context
+    if (typeof window !== 'undefined') {
+      this.connect();
+    }
+  }
 
   public connect() {
-    if (this.socket) return;
+    if (this.socket && this.socket.connected) return;
 
-    this.socket = io(getSocketUrl(), {
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    try {
+      this.socket = io(getSocketUrl(), {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 20,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 10000,
+      });
 
-    this.socket.on('connect', () => {
-      console.log(`[Socket.IO Client] Connected with ID: ${this.socket?.id}`);
-    });
+      this.socket.on('connect', () => {
+        console.log(`[Socket.IO Client] Connected with ID: ${this.socket?.id}`);
+        this.joinWorkspace('zansta-core');
+      });
 
-    this.socket.on('connect_error', (err) => {
-      console.warn(`[Socket.IO Client] Connection Notice: Server Gateway offline (${err.message}). App running in decoupled state.`);
-    });
+      // Global CMS Synchronization Listener
+      this.socket.on('cms:sync', (payload: { type: string; data?: any; timestamp: string }) => {
+        console.log(`[Socket.IO Live Sync] Received cms:sync for ${payload?.type}:`, payload);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('zansta:cms:update', {
+              detail: payload,
+            })
+          );
+        }
+      });
+
+      // Specific entity update listeners
+      const entityTypes = ['project', 'team', 'service', 'demo', 'review', 'landing', 'enquiry', 'demoRequest', 'banner'];
+      entityTypes.forEach((type) => {
+        this.socket?.on(`cms:${type}:updated`, (data: any) => {
+          console.log(`[Socket.IO Live Sync] Received cms:${type}:updated:`, data);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('zansta:cms:update', {
+                detail: { type, data, timestamp: new Date().toISOString() },
+              })
+            );
+          }
+        });
+      });
+
+      this.socket.on('connect_error', (err) => {
+        console.warn(`[Socket.IO Client] Server Gateway reconnecting (${err.message})`);
+      });
+    } catch (e) {
+      console.warn('[Socket.IO Client] Failed to initialize socket connection:', e);
+    }
   }
 
   public joinWorkspace(workspaceId: string = 'zansta-core') {
@@ -66,6 +108,7 @@ class SocketService {
   }
 
   public on(event: string, callback: (...args: any[]) => void) {
+    if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
 
@@ -80,3 +123,4 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
+

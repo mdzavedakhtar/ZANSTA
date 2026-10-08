@@ -5,6 +5,7 @@ import { ScrollReveal } from '../motion/ScrollReveal';
 import { ExternalLink, ArrowRight, Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { projectService } from '@/services/projectService';
 import { CMSProject } from '@/types/cms';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 
 export const ProjectShowcaseSection: React.FC = () => {
   const [projects, setProjects] = useState<CMSProject[]>([]);
@@ -12,7 +13,7 @@ export const ProjectShowcaseSection: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  const loadProjects = () => {
     const list = projectService.getProjects({ isFeatured: true, isVisible: true });
     setProjects(list.length > 0 ? list : projectService.getProjects({ isVisible: true }));
 
@@ -22,7 +23,15 @@ export const ProjectShowcaseSection: React.FC = () => {
         setProjects(featured.length > 0 ? featured : freshList.filter((p) => p.isVisible));
       }
     });
+  };
+
+  useEffect(() => {
+    loadProjects();
   }, []);
+
+  useCmsLiveSync('project', () => {
+    loadProjects();
+  });
 
   // 5-second automatic sliding effect
   useEffect(() => {

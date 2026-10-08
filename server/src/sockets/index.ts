@@ -1,6 +1,10 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 
+let activeIo: SocketIOServer | null = null;
+
 export const initSockets = (io: SocketIOServer) => {
+  activeIo = io;
+
   io.on('connection', (socket: Socket) => {
     console.log(`[Socket.IO] Client connected: ${socket.id}`);
 
@@ -55,4 +59,11 @@ export const initSockets = (io: SocketIOServer) => {
       console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
     });
   });
+};
+
+export const broadcastCmsEvent = (type: string, data?: any) => {
+  if (activeIo) {
+    activeIo.emit('cms:sync', { type, data, timestamp: new Date().toISOString() });
+    activeIo.emit(`cms:${type}:updated`, data);
+  }
 };

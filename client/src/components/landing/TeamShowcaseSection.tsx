@@ -6,12 +6,13 @@ import { Github, Linkedin, FileText, ChevronLeft, ChevronRight } from 'lucide-re
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
 import { openResumeDocument } from '@/lib/documentViewer';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 
 export const TeamShowcaseSection: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
+  const loadTeam = () => {
     const list = teamService.getTeamMembers({ isVisible: true });
     setMembers(list);
 
@@ -20,7 +21,15 @@ export const TeamShowcaseSection: React.FC = () => {
         setMembers(freshList);
       }
     });
+  };
+
+  useEffect(() => {
+    loadTeam();
   }, []);
+
+  useCmsLiveSync('team', () => {
+    loadTeam();
+  });
 
   if (members.length === 0) return null;
 

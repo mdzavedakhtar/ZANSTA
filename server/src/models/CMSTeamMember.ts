@@ -49,5 +49,9 @@ const CMSTeamMemberSchema = new Schema<ICSTeamMember>(
   { timestamps: true }
 );
 
+CMSTeamMemberSchema.index({ order: 1, createdAt: -1 });
+CMSTeamMemberSchema.index({ isVisible: 1, isFeatured: 1 });
+CMSTeamMemberSchema.index({ name: 'text', role: 'text', bio: 'text' });
+
 type ICSTeamMember = ICMSTeamMember;
 export const CMSTeamMember = mongoose.model<ICMSTeamMember>('CMSTeamMember', CMSTeamMemberSchema);

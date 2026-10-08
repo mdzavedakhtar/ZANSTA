@@ -49,4 +49,15 @@ const CMSProjectSchema = new Schema<ICMSProject>(
   { timestamps: true }
 );
 
+// High-speed compound and search indexing
+CMSProjectSchema.index({ order: 1, createdAt: -1 });
+CMSProjectSchema.index({ isVisible: 1, isFeatured: 1 });
+CMSProjectSchema.index({ status: 1, category: 1 });
+CMSProjectSchema.index({
+  name: 'text',
+  shortDescription: 'text',
+  description: 'text',
+  clientName: 'text',
+});
+
 export const CMSProject = mongoose.model<ICMSProject>('CMSProject', CMSProjectSchema);

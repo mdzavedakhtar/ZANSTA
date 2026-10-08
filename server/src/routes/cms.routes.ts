@@ -30,6 +30,13 @@ import {
   createReview,
   updateReview,
   deleteReview,
+  reorderReviews,
+  getBanners,
+  getBannerById,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  reorderBanners,
   getLandingContent,
   updateLandingContent,
   getEnquiries,
@@ -85,8 +92,17 @@ router.delete('/demos/:id', deleteDemo);
 router.get('/reviews', getReviews);
 router.get('/reviews/:id', getReviewById);
 router.post('/reviews', createReview);
+router.put('/reviews/reorder', reorderReviews);
 router.put('/reviews/:id', updateReview);
 router.delete('/reviews/:id', deleteReview);
+
+// Banners & Offers CMS Routes
+router.get('/banners', getBanners);
+router.get('/banners/:id', getBannerById);
+router.post('/banners', createBanner);
+router.put('/banners/reorder', reorderBanners);
+router.put('/banners/:id', updateBanner);
+router.delete('/banners/:id', deleteBanner);
 
 // Landing Page CMS Routes
 router.get('/landing', getLandingContent);
@@ -113,3 +129,4 @@ router.delete('/activities', clearActivities);
 router.post('/send-email', sendCustomEmailHandler);
 
 export default router;
+

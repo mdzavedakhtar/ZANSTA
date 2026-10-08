@@ -51,6 +51,8 @@ import { ServiceManagerPage } from '@/pages/admin/ServiceManagerPage';
 import { ServiceFormPage } from '@/pages/admin/ServiceFormPage';
 import { ReviewManagerPage } from '@/pages/admin/ReviewManagerPage';
 import { ReviewFormPage } from '@/pages/admin/ReviewFormPage';
+import { BannerManagerPage } from '@/pages/admin/BannerManagerPage';
+import { BannerFormPage } from '@/pages/admin/BannerFormPage';
 import { DemoRequestManagerPage } from '@/pages/admin/DemoRequestManagerPage';
 import { EnquiryManagerPage } from '@/pages/admin/EnquiryManagerPage';
 import { LandingPageEditorPage } from '@/pages/admin/LandingPageEditorPage';
@@ -146,6 +148,11 @@ export const router = createBrowserRouter([
       { path: 'admin/reviews', element: <ReviewManagerPage /> },
       { path: 'admin/reviews/new', element: <ReviewFormPage /> },
       { path: 'admin/reviews/:id/edit', element: <ReviewFormPage /> },
+
+      // Admin Banners & Offers CRUD
+      { path: 'admin/banners', element: <BannerManagerPage /> },
+      { path: 'admin/banners/new', element: <BannerFormPage /> },
+      { path: 'admin/banners/:id/edit', element: <BannerFormPage /> },
 
       // Admin Leads & Enquiries
       { path: 'admin/demo-requests', element: <DemoRequestManagerPage /> },

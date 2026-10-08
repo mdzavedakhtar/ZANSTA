@@ -27,4 +27,8 @@ const DemoRequestSchema = new Schema<IDemoRequest>(
   { timestamps: true }
 );
 
+DemoRequestSchema.index({ createdAt: -1 });
+DemoRequestSchema.index({ status: 1, createdAt: -1 });
+DemoRequestSchema.index({ email: 1 });
+
 export const DemoRequest = mongoose.model<IDemoRequest>('DemoRequest', DemoRequestSchema);

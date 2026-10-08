@@ -3,6 +3,7 @@ import { Container } from '../ui/Container';
 import { ScrollReveal } from '../motion/ScrollReveal';
 import { serviceService } from '@/services/serviceService';
 import { CMSService } from '@/types/cms';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 import {
   Layout,
   Code2,
@@ -113,14 +114,22 @@ export const ServicesSection: React.FC = () => {
     return cached.length > 0 ? cached : defaultServicesDisplay;
   });
 
-  useEffect(() => {
+  const loadServices = () => {
     serviceService.fetchServices().then((list) => {
       if (list && list.length > 0) {
         const visibleList = list.filter((s) => s.isVisible);
         if (visibleList.length > 0) setServices(visibleList);
       }
     });
+  };
+
+  useEffect(() => {
+    loadServices();
   }, []);
+
+  useCmsLiveSync('service', () => {
+    loadServices();
+  });
 
   const scrollToContact = () => {
     const el = document.getElementById('contact');
