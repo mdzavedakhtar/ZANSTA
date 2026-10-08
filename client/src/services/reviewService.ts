@@ -71,6 +71,17 @@ export const reviewService = {
       if (response.success && Array.isArray(response.data)) {
         if (!filters || Object.keys(filters).length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        } else {
+          try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const current: CMSReview[] = stored ? JSON.parse(stored) : [];
+            const mergedMap = new Map<string, CMSReview>();
+            current.forEach((r) => mergedMap.set(r.id, r));
+            response.data.forEach((r) => mergedMap.set(r.id, r));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
+          } catch {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          }
         }
         return response.data;
       }

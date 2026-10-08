@@ -97,8 +97,21 @@ export const teamService = {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await apiRequest<{ success: boolean; data: CMSTeamMember[] }>(`/cms/team${queryString}`);
       if (response.success && Array.isArray(response.data)) {
+        // Update local storage cache with live backend data
         if (!filters || Object.keys(filters).length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        } else {
+          // Merge fetched members into existing storage
+          try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const current: CMSTeamMember[] = stored ? JSON.parse(stored) : [];
+            const mergedMap = new Map<string, CMSTeamMember>();
+            current.forEach((m) => mergedMap.set(m.id, m));
+            response.data.forEach((m) => mergedMap.set(m.id, m));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
+          } catch {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          }
         }
         return response.data;
       }
@@ -115,11 +128,6 @@ export const teamService = {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         members = JSON.parse(stored);
-        const zavedIdx = members.findIndex(m => m.id === 'team_zaved' || m.id === 'team_sahil' || m.name.toLowerCase().includes('sahil') || m.name.toLowerCase().includes('zaved'));
-        if (zavedIdx !== -1) {
-          members[zavedIdx] = defaultTeamMembers[0];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
-        }
       } else {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTeamMembers));
         members = defaultTeamMembers;

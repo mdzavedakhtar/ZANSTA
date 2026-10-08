@@ -114,6 +114,17 @@ export const projectService = {
       if (response.success && Array.isArray(response.data)) {
         if (!filters || Object.keys(filters).length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        } else {
+          try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const current: CMSProject[] = stored ? JSON.parse(stored) : [];
+            const mergedMap = new Map<string, CMSProject>();
+            current.forEach((p) => mergedMap.set(p.id, p));
+            response.data.forEach((p) => mergedMap.set(p.id, p));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
+          } catch {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          }
         }
         return response.data;
       }

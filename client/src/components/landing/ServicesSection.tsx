@@ -108,7 +108,10 @@ const defaultServicesDisplay: Partial<CMSService>[] = [
 ];
 
 export const ServicesSection: React.FC = () => {
-  const [services, setServices] = useState<Partial<CMSService>[]>(defaultServicesDisplay);
+  const [services, setServices] = useState<Partial<CMSService>[]>(() => {
+    const cached = serviceService.getServices().filter((s) => s.isVisible);
+    return cached.length > 0 ? cached : defaultServicesDisplay;
+  });
 
   useEffect(() => {
     serviceService.fetchServices().then((list) => {
