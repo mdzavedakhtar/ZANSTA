@@ -12,34 +12,40 @@ export const DemoRequestManagerPage: React.FC = () => {
   const [requests, setRequests] = useState<DemoRequest[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<DemoRequest | null>(null);
 
-  const loadRequests = () => {
+  const loadRequests = async () => {
     setRequests(demoRequestService.getRequests());
+    try {
+      const fresh = await demoRequestService.fetchRequests();
+      if (fresh) setRequests(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh demo requests:', e);
+    }
   };
 
   useEffect(() => {
     loadRequests();
   }, []);
 
-  const handleStatusChange = (id: string, newStatus: DemoRequestStatus) => {
-    demoRequestService.updateStatus(id, newStatus);
+  const handleStatusChange = async (id: string, newStatus: DemoRequestStatus) => {
+    await demoRequestService.updateStatus(id, newStatus);
     loadRequests();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    demoRequestService.deleteRequest(deleteTarget.id);
+    await demoRequestService.deleteRequest(deleteTarget.id);
     setDeleteTarget(null);
     loadRequests();
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      <div className="pb-6 border-b border-white/10">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
+      <div className="pb-6 border-b border-white/10 w-full">
         <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+          <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
             <MonitorPlay className="w-4 h-4" />
           </div>
-          <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+          <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
             DEMO REQUEST LEADS MANAGER
           </h1>
         </div>

@@ -32,47 +32,57 @@ export const TeamManagerPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CMSTeamMember | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadTeam = () => {
+  const loadTeam = async () => {
     const list = teamService.getTeamMembers({
       search,
       isVisible: visibilityFilter === 'ALL' ? undefined : visibilityFilter === 'VISIBLE',
     });
     setMembers(list);
+
+    try {
+      const fresh = await teamService.fetchTeamMembers({
+        search,
+        isVisible: visibilityFilter === 'ALL' ? undefined : visibilityFilter === 'VISIBLE',
+      });
+      if (fresh) setMembers(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh team:', e);
+    }
   };
 
   useEffect(() => {
     loadTeam();
   }, [search, visibilityFilter]);
 
-  const handleToggleFeatured = (member: CMSTeamMember) => {
-    teamService.updateMember(member.id, { isFeatured: !member.isFeatured });
+  const handleToggleFeatured = async (member: CMSTeamMember) => {
+    await teamService.updateMember(member.id, { isFeatured: !member.isFeatured });
     loadTeam();
   };
 
-  const handleToggleVisibility = (member: CMSTeamMember) => {
-    teamService.updateMember(member.id, { isVisible: !member.isVisible });
+  const handleToggleVisibility = async (member: CMSTeamMember) => {
+    await teamService.updateMember(member.id, { isVisible: !member.isVisible });
     loadTeam();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    teamService.deleteMember(deleteTarget.id);
+    await teamService.deleteMember(deleteTarget.id);
     setIsDeleting(false);
     setDeleteTarget(null);
     loadTeam();
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <Users className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               TEAM MANAGEMENT SYSTEM
             </h1>
           </div>
@@ -81,15 +91,15 @@ export const TeamManagerPage: React.FC = () => {
           </p>
         </div>
 
-        <Link to="/admin/team/new">
-          <Button size="sm" variant="glow" leftIcon={<UserPlus className="w-4 h-4" />}>
+        <Link to="/admin/team/new" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" variant="glow" leftIcon={<UserPlus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             Add Team Member
           </Button>
         </Link>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
         <div className="relative">
           <Search className="w-4 h-4 text-[#F5F2ED]/35 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input

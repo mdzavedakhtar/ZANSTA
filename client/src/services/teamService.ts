@@ -1,9 +1,10 @@
 import { CMSTeamMember } from '@/types/cms';
+import { apiRequest } from './api';
 import { activityService } from './activityService';
 
 const STORAGE_KEY = 'zansta_cms_team';
 
-const defaultTeamMembers: CMSTeamMember[] = [
+export const defaultTeamMembers: CMSTeamMember[] = [
   {
     id: 'team_zaved',
     name: 'MD Zaved Akhtar',
@@ -85,13 +86,35 @@ export interface TeamFilterOptions {
 }
 
 export const teamService = {
+  // Async fetch from MongoDB API
+  fetchTeamMembers: async (filters?: TeamFilterOptions): Promise<CMSTeamMember[]> => {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.isFeatured !== undefined) params.append('isFeatured', String(filters.isFeatured));
+      if (filters?.isVisible !== undefined) params.append('isVisible', String(filters.isVisible));
+      if (filters?.search) params.append('search', filters.search);
+
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await apiRequest<{ success: boolean; data: CMSTeamMember[] }>(`/cms/team${queryString}`);
+      if (response.success && Array.isArray(response.data)) {
+        if (!filters || Object.keys(filters).length === 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        }
+        return response.data;
+      }
+    } catch (err) {
+      console.warn('[teamService] Backend API offline or unreachable, using local cache:', err);
+    }
+    return teamService.getTeamMembers(filters);
+  },
+
+  // Synchronous read with local cache
   getTeamMembers: (filters?: TeamFilterOptions): CMSTeamMember[] => {
     let members: CMSTeamMember[] = [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         members = JSON.parse(stored);
-        // Automatically sync latest Zaved data
         const zavedIdx = members.findIndex(m => m.id === 'team_zaved' || m.id === 'team_sahil' || m.name.toLowerCase().includes('sahil') || m.name.toLowerCase().includes('zaved'));
         if (zavedIdx !== -1) {
           members[zavedIdx] = defaultTeamMembers[0];
@@ -130,11 +153,12 @@ export const teamService = {
     return members.find((m) => m.id === id) || null;
   },
 
-  createMember: (data: Omit<CMSTeamMember, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): CMSTeamMember => {
+  createMember: async (data: Omit<CMSTeamMember, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): Promise<CMSTeamMember> => {
     const members = teamService.getTeamMembers();
+    const id = `team_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     const newMember: CMSTeamMember = {
       ...data,
-      id: `team_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id,
       order: data.order ?? (members.length + 1),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -143,10 +167,21 @@ export const teamService = {
     const updated = [...members, newMember];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     activityService.logActivity('MD Zaved Akhtar', 'added team member', newMember.name, 'team');
+
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>('/cms/team', {
+        method: 'POST',
+        body: JSON.stringify(newMember),
+      });
+      if (res.success && res.data) return res.data;
+    } catch (err) {
+      console.warn('[teamService] Failed to create team member in MongoDB, saved locally:', err);
+    }
+
     return newMember;
   },
 
-  updateMember: (id: string, updates: Partial<CMSTeamMember>): CMSTeamMember | null => {
+  updateMember: async (id: string, updates: Partial<CMSTeamMember>): Promise<CMSTeamMember | null> => {
     const members = teamService.getTeamMembers();
     const index = members.findIndex((m) => m.id === id);
     if (index === -1) return null;
@@ -161,10 +196,20 @@ export const teamService = {
     members[index] = updatedMember;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
     activityService.logActivity('MD Zaved Akhtar', 'updated team member', updatedMember.name, 'team');
+
+    try {
+      await apiRequest(`/cms/team/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+    } catch (err) {
+      console.warn('[teamService] Failed to update team member in MongoDB, updated locally:', err);
+    }
+
     return updatedMember;
   },
 
-  deleteMember: (id: string): boolean => {
+  deleteMember: async (id: string): Promise<boolean> => {
     const members = teamService.getTeamMembers();
     const target = members.find((m) => m.id === id);
     if (!target) return false;
@@ -172,10 +217,19 @@ export const teamService = {
     const filtered = members.filter((m) => m.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     activityService.logActivity('MD Zaved Akhtar', 'deleted team member', target.name, 'team');
+
+    try {
+      await apiRequest(`/cms/team/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.warn('[teamService] Failed to delete team member in MongoDB, deleted locally:', err);
+    }
+
     return true;
   },
 
-  reorderMembers: (reorderedMembers: CMSTeamMember[]): void => {
+  reorderMembers: async (reorderedMembers: CMSTeamMember[]): Promise<void> => {
     const updated = reorderedMembers.map((m, idx) => ({
       ...m,
       order: idx + 1,
@@ -183,5 +237,14 @@ export const teamService = {
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     activityService.logActivity('MD Zaved Akhtar', 'reordered team members', 'Team Showcase Order', 'team');
+
+    try {
+      await apiRequest('/cms/team/reorder', {
+        method: 'PUT',
+        body: JSON.stringify({ members: updated }),
+      });
+    } catch (err) {
+      console.warn('[teamService] Failed to sync team order to MongoDB:', err);
+    }
   },
 };

@@ -1,43 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { FadeIn } from '@/components/motion/FadeIn';
-import { ExternalLink, ArrowRight, Github } from 'lucide-react';
-
-const sampleProjects = [
-  {
-    slug: 'caresprint',
-    name: 'CARESPRINT',
-    tagline: 'On-Demand Healthcare & Telemedicine Platform',
-    category: 'Healthcare SaaS',
-    tech: ['React', 'Node.js', 'Socket.IO', 'MongoDB', 'Razorpay'],
-    status: 'COMPLETED',
-    demoUrl: 'https://caresprint.example.com',
-  },
-  {
-    slug: 'neurostack',
-    name: 'NEUROSTACK',
-    tagline: 'Autonomous AI Agent Workflow Engine',
-    category: 'AI Platform',
-    tech: ['TypeScript', 'Python', 'Vector DB', 'FastAPI', 'Tailwind'],
-    status: 'IN_PROGRESS',
-    demoUrl: 'https://neurostack.example.com',
-  },
-  {
-    slug: 'insightiq',
-    name: 'INSIGHT IQ',
-    tagline: 'Real-time Financial Analytics & Reporting Hub',
-    category: 'Fintech SaaS',
-    tech: ['Next.js', 'Express', 'Redis', 'Chart.js', 'PostgreSQL'],
-    status: 'COMPLETED',
-    demoUrl: 'https://insightiq.example.com',
-  },
-];
+import { ExternalLink, ArrowRight } from 'lucide-react';
+import { projectService } from '@/services/projectService';
+import { CMSProject } from '@/types/cms';
 
 export const ProjectsPage: React.FC = () => {
+  const [projects, setProjects] = useState<CMSProject[]>([]);
+
+  useEffect(() => {
+    const list = projectService.getProjects({ isVisible: true });
+    setProjects(list);
+
+    projectService.fetchProjects({ isVisible: true }).then((freshList) => {
+      if (freshList && freshList.length > 0) {
+        setProjects(freshList);
+      }
+    });
+  }, []);
+
   return (
     <div className="pt-28 pb-20">
       <Container size="xl">
@@ -52,11 +37,20 @@ export const ProjectsPage: React.FC = () => {
         </FadeIn>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {sampleProjects.map((project) => (
-            <Card key={project.slug} glowOnHover className="flex flex-col justify-between" data-cursor-text="EXPLORE">
+          {projects.map((project) => (
+            <Card key={project.id || project.slug} glowOnHover className="flex flex-col justify-between" data-cursor-text="EXPLORE">
               <div className="space-y-4">
+                {project.thumbnail && (
+                  <div className="aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/05 mb-2">
+                    <img
+                      src={project.thumbnail}
+                      alt={project.name}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
-                  <Badge variant={project.status === 'COMPLETED' ? 'active' : 'crimson'} size="sm">
+                  <Badge variant={project.status === 'COMPLETED' || project.status === 'LIVE' ? 'active' : 'crimson'} size="sm">
                     {project.status}
                   </Badge>
                   <span className="text-[11px] font-mono text-[#F5F2ED]/35">{project.category}</span>
@@ -66,11 +60,13 @@ export const ProjectsPage: React.FC = () => {
                   <h3 className="text-xl font-extrabold text-[#F5F2ED] tracking-tight font-display">
                     {project.name}
                   </h3>
-                  <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">{project.tagline}</p>
+                  <p className="text-xs text-[#F5F2ED]/55 mt-1 leading-relaxed">
+                    {project.shortDescription || project.description}
+                  </p>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 pt-2">
-                  {project.tech.map((t) => (
+                  {project.techStack.map((t) => (
                     <Badge key={t} variant="neutral" size="sm">
                       {t}
                     </Badge>
@@ -84,11 +80,13 @@ export const ProjectsPage: React.FC = () => {
                     Case Study
                   </Button>
                 </Link>
-                <a href={project.demoUrl} target="_blank" rel="noreferrer">
-                  <Button size="sm" variant="ghost" rightIcon={<ExternalLink className="w-3.5 h-3.5 text-[#8B0D1A]" />}>
-                    Demo
-                  </Button>
-                </a>
+                {project.liveUrl && (
+                  <a href={project.liveUrl} target="_blank" rel="noreferrer">
+                    <Button size="sm" variant="ghost" rightIcon={<ExternalLink className="w-3.5 h-3.5 text-[#8B0D1A]" />}>
+                      Live Demo
+                    </Button>
+                  </a>
+                )}
               </div>
             </Card>
           ))}

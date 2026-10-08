@@ -197,11 +197,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
         <div className={cn('flex items-center justify-between p-2 rounded-xl bg-[#0E0E0E] border border-[#F5F2ED]/05', !isMobileView && collapsed && 'flex-col gap-2')}>
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <Avatar name={user?.name || 'MD Zaved Akhtar'} src={user?.avatar || '/zaved.jpg'} size="sm" status="online" />
+            <Avatar name={user?.name || 'Super Admin'} src={user?.avatar || '/zaved.jpg'} size="sm" status="online" />
             {(isMobileView || !collapsed) && (
               <div className="overflow-hidden">
-                <p className="text-xs font-semibold text-[#F5F2ED]/90 truncate">{user?.name || 'MD Zaved Akhtar'}</p>
-                <p className="text-[10px] text-[#F5F2ED]/40 truncate">{user?.email || 'mdzavedakhtar62@gmail.com'}</p>
+                <p className="text-xs font-semibold text-[#F5F2ED]/90 truncate">{user?.name || 'Super Admin'}</p>
+                <p className="text-[10px] text-[#F5F2ED]/40 truncate">{user?.email || 'Authenticated'}</p>
               </div>
             )}
           </div>

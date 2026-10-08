@@ -22,6 +22,13 @@ export const PublicProjectsPage: React.FC = () => {
   useEffect(() => {
     const list = projectService.getProjects({ isVisible: true });
     setProjects(list);
+
+    projectService.fetchProjects({ isVisible: true }).then((freshList) => {
+      if (freshList && freshList.length > 0) {
+        setProjects(freshList);
+      }
+    });
+
     window.scrollTo(0, 0);
   }, []);
 

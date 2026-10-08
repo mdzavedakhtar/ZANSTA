@@ -48,7 +48,7 @@ export const TeamMemberFormPage: React.FC = () => {
     }
   }, [id, isEdit]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -62,13 +62,18 @@ export const TeamMemberFormPage: React.FC = () => {
     }
 
     setIsSaving(true);
-    if (isEdit && id) {
-      teamService.updateMember(id, formData);
-    } else {
-      teamService.createMember(formData as any);
+    try {
+      if (isEdit && id) {
+        await teamService.updateMember(id, formData);
+      } else {
+        await teamService.createMember(formData as any);
+      }
+      navigate('/admin/team');
+    } catch (err: any) {
+      setError(err.message || 'Failed to save team member');
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    navigate('/admin/team');
   };
 
   return (
@@ -289,13 +294,13 @@ export const TeamMemberFormPage: React.FC = () => {
         </Card>
 
         {/* Submit Bar */}
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Link to="/admin/team">
-            <Button size="md" variant="ghost">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 w-full">
+          <Link to="/admin/team" className="w-full sm:w-auto">
+            <Button size="md" variant="ghost" className="w-full sm:w-auto justify-center">
               Cancel
             </Button>
           </Link>
-          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             {isEdit ? 'Update Member Profile' : 'Add Team Member'}
           </Button>
         </div>

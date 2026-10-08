@@ -11,6 +11,7 @@ import githubRoutes from './github.routes.js';
 import clientLinkRoutes from './clientLink.routes.js';
 import feedbackRoutes from './feedback.routes.js';
 import agencyRoutes from './agency.routes.js';
+import cmsRoutes from './cms.routes.js';
 
 const apiRouter = Router();
 
@@ -26,5 +27,9 @@ apiRouter.use('/github', githubRoutes);
 apiRouter.use('/client-links', clientLinkRoutes);
 apiRouter.use('/feedback', feedbackRoutes);
 apiRouter.use('/agency', agencyRoutes);
+
+// CMS API Routes (Portfolio Projects, Team Members, Services, Demos, Reviews, Landing CMS, Enquiries, Demo Requests, Activity Logs)
+apiRouter.use('/cms', cmsRoutes);
+apiRouter.use('/', cmsRoutes);
 
 export default apiRouter;

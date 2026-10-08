@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { AuthenticatedRequest } from '../middleware/auth.middleware.js';
+import { ENV } from '../config/env.js';
 
 // Helper to format user response (omits password)
 const sanitizeUser = (user: any) => ({
-  id: user._id || user.id,
-  name: user.name,
+  id: user._id?.toString() || user.id || 'superadmin_id',
+  name: user.name || 'MD Zaved Akhtar',
   email: user.email,
-  role: user.role,
-  avatar: user.avatar || '',
+  role: user.role || 'OWNER',
+  avatar: user.avatar || '/zaved.jpg',
   bio: user.bio || '',
   skills: user.skills || [],
   github: user.github || '',
@@ -17,111 +19,129 @@ const sanitizeUser = (user: any) => ({
   isVerified: user.isVerified ?? true,
 });
 
-// Fallback Mock Users for Decoupled DB Testing
-const mockUsersDatabase: any[] = [
-  {
-    _id: 'user_mock_zaved',
-    name: 'MD Zaved Akhtar',
-    email: 'mdzavedakhtar62@gmail.com',
-    role: 'OWNER',
-    avatar: '/zaved.jpg',
-    bio: 'Lead Architect & Full Stack Engineer',
-    skills: ['TypeScript', 'Node.js', 'React', 'MongoDB', 'Python', 'AI'],
-    github: 'https://github.com/mdzavedakhtar',
-    linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
-    isVerified: true,
-  },
-  {
-    _id: 'user_mock_rahul',
-    name: 'Rahul Sharma',
-    email: 'rahul@zansta.dev',
-    role: 'ADMIN',
-    avatar: '',
-    bio: 'Frontend Specialist',
-    skills: ['React', 'Tailwind'],
-    github: '',
-    linkedin: '',
-    isVerified: true,
-  },
-  {
-    _id: 'user_mock_aman',
-    name: 'Aman Deep',
-    email: 'aman@zansta.dev',
-    role: 'MEMBER',
-    avatar: '',
-    bio: 'Backend Engineer',
-    skills: ['Node.js', 'Express'],
-    github: '',
-    linkedin: '',
-    isVerified: true,
-  },
-];
-
 // @desc    Register new user
 // @route   POST /api/v1/auth/register
 export const register = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
+  const cleanEmail = email.trim().toLowerCase();
 
   const isDbConnected = mongoose.connection.readyState === 1;
-
-  if (isDbConnected) {
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        error: { message: 'User with this email already exists.', statusCode: 409 },
-      });
-    }
-
-    const user = await User.create({
-      name,
-      email: email.toLowerCase(),
-      password,
-      role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
-    });
-
-    const token = user.generateJWTToken();
-
-    return res.status(201).json({
-      success: true,
-      message: 'Account created successfully',
-      token,
-      user: sanitizeUser(user),
-    });
-  } else {
-    // Decoupled Mode Mock Response
-    const mockUser = {
-      _id: `user_mock_${Date.now()}`,
-      name,
-      email: email.toLowerCase(),
-      role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role || 'MEMBER'),
-      avatar: '',
-      bio: 'Developer Workspace Member',
-      skills: ['TypeScript', 'React'],
-      github: '',
-      linkedin: '',
-      isVerified: true,
-    };
-    mockUsersDatabase.push(mockUser);
-
-    return res.status(201).json({
-      success: true,
-      message: 'Account created successfully (Decoupled Mode)',
-      token: `mock_jwt_token_${mockUser._id}`,
-      user: sanitizeUser(mockUser),
+  if (!isDbConnected) {
+    return res.status(503).json({
+      success: false,
+      error: { message: 'Database connection unavailable. Please try again.', statusCode: 503 },
     });
   }
+
+  const existingUser = await User.findOne({ email: cleanEmail });
+  if (existingUser) {
+    return res.status(409).json({
+      success: false,
+      error: { message: 'User with this email already exists.', statusCode: 409 },
+    });
+  }
+
+  const isSuperadminEmail = ENV.SUPERADMIN_EMAIL && cleanEmail === ENV.SUPERADMIN_EMAIL;
+  const assignedRole = isSuperadminEmail ? 'OWNER' : (role === 'OWNER' ? 'MEMBER' : (role || 'MEMBER'));
+
+  const user = await User.create({
+    name,
+    email: cleanEmail,
+    password,
+    role: assignedRole,
+  });
+
+  const token = user.generateJWTToken();
+
+  return res.status(201).json({
+    success: true,
+    message: 'Account created successfully',
+    token,
+    user: sanitizeUser(user),
+  });
 };
 
-// @desc    Login user
+// @desc    Login user / Superadmin (strictly validates against .env or MongoDB)
 // @route   POST /api/v1/auth/login
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Please provide email and password', statusCode: 400 },
+    });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const isSuperadminEmail = ENV.SUPERADMIN_EMAIL && cleanEmail === ENV.SUPERADMIN_EMAIL;
   const isDbConnected = mongoose.connection.readyState === 1;
 
+  // 1. SUPERADMIN AUTHENTICATION FLOW (Strictly verified against .env)
+  if (isSuperadminEmail) {
+    if (!ENV.SUPERADMIN_PASSWORD || password !== ENV.SUPERADMIN_PASSWORD) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Invalid email or password', statusCode: 401 },
+      });
+    }
+
+    // Superadmin password verified! Sync / find with MongoDB if DB is online
+    if (isDbConnected) {
+      let superadmin = await User.findOne({ email: cleanEmail }).select('+password');
+      if (!superadmin) {
+        superadmin = await User.create({
+          name: ENV.SUPERADMIN_NAME || 'MD Zaved Akhtar',
+          email: cleanEmail,
+          password: ENV.SUPERADMIN_PASSWORD,
+          role: 'OWNER',
+          isVerified: true,
+        });
+      } else {
+        // Ensure role is OWNER and password is synchronized
+        superadmin.role = 'OWNER';
+        superadmin.password = ENV.SUPERADMIN_PASSWORD;
+        await superadmin.save();
+      }
+
+      const token = superadmin.generateJWTToken();
+      return res.status(200).json({
+        success: true,
+        message: 'Superadmin authenticated successfully',
+        token,
+        user: sanitizeUser(superadmin),
+      });
+    } else {
+      // Fallback JWT if DB is connecting
+      const token = jwt.sign(
+        { id: 'superadmin_id', email: cleanEmail, role: 'OWNER' },
+        ENV.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: 'Superadmin authenticated successfully',
+        token,
+        user: {
+          id: 'superadmin_id',
+          name: ENV.SUPERADMIN_NAME || 'MD Zaved Akhtar',
+          email: cleanEmail,
+          role: 'OWNER',
+          avatar: '/zaved.jpg',
+          bio: 'Lead Architect & Full Stack Engineer',
+          skills: ['TypeScript', 'Node.js', 'React', 'MongoDB', 'Python', 'AI'],
+          github: 'https://github.com/mdzavedakhtar',
+          linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
+          isVerified: true,
+        },
+      });
+    }
+  }
+
+  // 2. STANDARD USER AUTHENTICATION FLOW (MongoDB)
   if (isDbConnected) {
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({
@@ -139,29 +159,9 @@ export const login = async (req: Request, res: Response) => {
       user: sanitizeUser(user),
     });
   } else {
-    // Decoupled Mode Mock Match
-    let mockUser = mockUsersDatabase.find((u) => u.email === email.toLowerCase());
-    if (!mockUser) {
-      mockUser = {
-        _id: `user_mock_${Date.now()}`,
-        name: email.split('@')[0].toUpperCase(),
-        email: email.toLowerCase(),
-        role: email.toLowerCase() === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : 'MEMBER',
-        avatar: '',
-        bio: 'Workspace Member',
-        skills: ['TypeScript', 'React', 'Node.js'],
-        github: '',
-        linkedin: '',
-        isVerified: true,
-      };
-      mockUsersDatabase.push(mockUser);
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: 'Logged in successfully (Decoupled Mode)',
-      token: `mock_jwt_token_${mockUser._id}`,
-      user: sanitizeUser(mockUser),
+    return res.status(401).json({
+      success: false,
+      error: { message: 'Invalid email or password', statusCode: 401 },
     });
   }
 };
@@ -187,9 +187,16 @@ export const getMe = async (req: AuthenticatedRequest, res: Response) => {
 export const updateProfile = async (req: AuthenticatedRequest, res: Response) => {
   const { name, bio, avatar, skills, github, linkedin } = req.body;
 
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: { message: 'Not authenticated', statusCode: 401 },
+    });
+  }
+
   const isDbConnected = mongoose.connection.readyState === 1;
 
-  if (isDbConnected && req.user) {
+  if (isDbConnected && req.user._id) {
     if (name) req.user.name = name;
     if (bio !== undefined) req.user.bio = bio;
     if (avatar !== undefined) req.user.avatar = avatar;
@@ -205,43 +212,22 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response) =>
       user: sanitizeUser(req.user),
     });
   } else {
-    // Decoupled Mode Update
     const updatedUser = {
-      ...(req.user || mockUsersDatabase[0]),
-      name: name || req.user?.name || 'MD Zaved Akhtar',
-      bio: bio ?? req.user?.bio ?? '',
-      avatar: avatar ?? req.user?.avatar ?? '',
-      skills: skills || req.user?.skills || [],
-      github: github ?? req.user?.github ?? '',
-      linkedin: linkedin ?? req.user?.linkedin ?? '',
+      ...req.user,
+      name: name || req.user.name,
+      bio: bio ?? req.user.bio,
+      avatar: avatar ?? req.user.avatar,
+      skills: skills || req.user.skills,
+      github: github ?? req.user.github,
+      linkedin: linkedin ?? req.user.linkedin,
     };
 
     return res.status(200).json({
       success: true,
-      message: 'Profile updated successfully (Decoupled Mode)',
+      message: 'Profile updated successfully',
       user: sanitizeUser(updatedUser),
     });
   }
-};
-
-// @desc    Forgot Password Request
-// @route   POST /api/v1/auth/forgot-password
-export const forgotPassword = async (req: Request, res: Response) => {
-  const { email } = req.body;
-
-  return res.status(200).json({
-    success: true,
-    message: `Password reset instructions sent to ${email}`,
-  });
-};
-
-// @desc    Reset Password
-// @route   POST /api/v1/auth/reset-password
-export const resetPassword = async (req: Request, res: Response) => {
-  return res.status(200).json({
-    success: true,
-    message: 'Password reset successfully. Please log in.',
-  });
 };
 
 // @desc    Logout User

@@ -1,9 +1,10 @@
 import { CMSProject } from '@/types/cms';
+import { apiRequest } from './api';
 import { activityService } from './activityService';
 
 const STORAGE_KEY = 'zansta_cms_projects';
 
-const defaultProjects: CMSProject[] = [
+export const defaultProjects: CMSProject[] = [
   {
     id: 'proj_caresprint',
     name: 'CareSprint Platform',
@@ -22,6 +23,8 @@ const defaultProjects: CMSProject[] = [
     githubUrl: 'https://github.com/zansta/caresprint',
     liveUrl: 'https://caresprint.example.com',
     clientName: 'CareSprint Health Inc.',
+    clientRating: 5.0,
+    clientReviewPreview: 'ZANSTA delivered our telemedicine video gateway with sub-100ms signaling latency.',
     isClientProject: true,
     isFeatured: true,
     isVisible: true,
@@ -47,6 +50,8 @@ const defaultProjects: CMSProject[] = [
     githubUrl: 'https://github.com/zansta/neurostack',
     liveUrl: 'https://neurostack.example.com',
     clientName: 'Internal Product',
+    clientRating: 5.0,
+    clientReviewPreview: 'Multi-agent orchestration engine that automated our operational workflows.',
     isClientProject: false,
     isFeatured: true,
     isVisible: true,
@@ -72,6 +77,8 @@ const defaultProjects: CMSProject[] = [
     githubUrl: 'https://github.com/zansta/insightiq',
     liveUrl: 'https://insightiq.example.com',
     clientName: 'Apex Capital Ltd',
+    clientRating: 5.0,
+    clientReviewPreview: 'The real-time streaming WebSocket hub handles millions of points seamlessly.',
     isClientProject: true,
     isFeatured: true,
     isVisible: true,
@@ -91,6 +98,32 @@ export interface ProjectFilterOptions {
 }
 
 export const projectService = {
+  // Async fetch from MongoDB API
+  fetchProjects: async (filters?: ProjectFilterOptions): Promise<CMSProject[]> => {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status && filters.status !== 'ALL') params.append('status', filters.status);
+      if (filters?.category && filters.category !== 'ALL') params.append('category', filters.category);
+      if (filters?.isFeatured !== undefined) params.append('isFeatured', String(filters.isFeatured));
+      if (filters?.isVisible !== undefined) params.append('isVisible', String(filters.isVisible));
+      if (filters?.isClientProject !== undefined) params.append('isClientProject', String(filters.isClientProject));
+      if (filters?.search) params.append('search', filters.search);
+
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await apiRequest<{ success: boolean; data: CMSProject[] }>(`/cms/projects${queryString}`);
+      if (response.success && Array.isArray(response.data)) {
+        if (!filters || Object.keys(filters).length === 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        }
+        return response.data;
+      }
+    } catch (err) {
+      console.warn('[projectService] Backend API offline or unreachable, using local cache:', err);
+    }
+    return projectService.getProjects(filters);
+  },
+
+  // Synchronous read with local cache
   getProjects: (filters?: ProjectFilterOptions): CMSProject[] => {
     let projects: CMSProject[] = [];
     try {
@@ -113,7 +146,7 @@ export const projectService = {
 
     return projects.filter((p) => {
       if (filters.status && filters.status !== 'ALL' && p.status !== filters.status) {
-        if (filters.status === 'ACTIVE' && (p.status !== 'IN_PROGRESS' && p.status !== 'LIVE')) return false;
+        if (filters.status === 'ACTIVE' && p.status !== 'IN_PROGRESS' && p.status !== 'LIVE') return false;
         if (filters.status !== 'ACTIVE' && p.status !== filters.status) return false;
       }
       if (filters.category && filters.category !== 'ALL' && p.category !== filters.category) return false;
@@ -142,27 +175,44 @@ export const projectService = {
     return projects.find((p) => p.slug === slug || p.id === slug) || null;
   },
 
-  createProject: (data: Omit<CMSProject, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): CMSProject => {
+  createProject: async (data: Omit<CMSProject, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): Promise<CMSProject> => {
     const projects = projectService.getProjects();
     const slug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const id = `proj_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+
     const newProject: CMSProject = {
       ...data,
-      id: `proj_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id,
       slug: slug || `project-${Date.now()}`,
       order: data.order ?? (projects.length + 1),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
+    // Update local cache immediately
     const updatedProjects = [...projects, newProject];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
     activityService.logActivity('MD Zaved Akhtar', 'created project', newProject.name, 'project');
+
+    // Sync to MongoDB server
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSProject }>('/cms/projects', {
+        method: 'POST',
+        body: JSON.stringify(newProject),
+      });
+      if (res.success && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('[projectService] Failed to save project to MongoDB directly, stored locally:', err);
+    }
+
     return newProject;
   },
 
-  updateProject: (id: string, updates: Partial<CMSProject>): CMSProject | null => {
+  updateProject: async (id: string, updates: Partial<CMSProject>): Promise<CMSProject | null> => {
     const projects = projectService.getProjects();
-    const index = projects.findIndex((p) => p.id === id);
+    const index = projects.findIndex((p) => p.id === id || p.slug === id);
     if (index === -1) return null;
 
     const existing = projects[index];
@@ -175,21 +225,42 @@ export const projectService = {
     projects[index] = updatedProject;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
     activityService.logActivity('MD Zaved Akhtar', 'updated project', updatedProject.name, 'project');
+
+    // Sync to MongoDB server
+    try {
+      await apiRequest(`/cms/projects/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+    } catch (err) {
+      console.warn('[projectService] Failed to update project in MongoDB, updated locally:', err);
+    }
+
     return updatedProject;
   },
 
-  deleteProject: (id: string): boolean => {
+  deleteProject: async (id: string): Promise<boolean> => {
     const projects = projectService.getProjects();
-    const target = projects.find((p) => p.id === id);
+    const target = projects.find((p) => p.id === id || p.slug === id);
     if (!target) return false;
 
-    const filtered = projects.filter((p) => p.id !== id);
+    const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     activityService.logActivity('MD Zaved Akhtar', 'deleted project', target.name, 'project');
+
+    // Sync to MongoDB server
+    try {
+      await apiRequest(`/cms/projects/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.warn('[projectService] Failed to delete project in MongoDB, deleted locally:', err);
+    }
+
     return true;
   },
 
-  reorderProjects: (reorderedProjects: CMSProject[]): void => {
+  reorderProjects: async (reorderedProjects: CMSProject[]): Promise<void> => {
     const updated = reorderedProjects.map((p, idx) => ({
       ...p,
       order: idx + 1,
@@ -197,5 +268,14 @@ export const projectService = {
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     activityService.logActivity('MD Zaved Akhtar', 'reordered projects', 'Project Showcase Order', 'project');
+
+    try {
+      await apiRequest('/cms/projects/reorder', {
+        method: 'PUT',
+        body: JSON.stringify({ projects: updated }),
+      });
+    } catch (err) {
+      console.warn('[projectService] Failed to sync project order to MongoDB:', err);
+    }
   },
 };

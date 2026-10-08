@@ -56,7 +56,7 @@ export const DemoFormPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -70,13 +70,18 @@ export const DemoFormPage: React.FC = () => {
     }
 
     setIsSaving(true);
-    if (isEdit && id) {
-      demoService.updateDemo(id, formData);
-    } else {
-      demoService.createDemo(formData as any);
+    try {
+      if (isEdit && id) {
+        await demoService.updateDemo(id, formData);
+      } else {
+        await demoService.createDemo(formData as any);
+      }
+      navigate('/admin/demos');
+    } catch (err: any) {
+      setError(err.message || 'Failed to save demo');
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    navigate('/admin/demos');
   };
 
   return (
@@ -238,13 +243,13 @@ export const DemoFormPage: React.FC = () => {
         </Card>
 
         {/* Submit */}
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Link to="/admin/demos">
-            <Button size="md" variant="ghost">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 w-full">
+          <Link to="/admin/demos" className="w-full sm:w-auto">
+            <Button size="md" variant="ghost" className="w-full sm:w-auto justify-center">
               Cancel
             </Button>
           </Link>
-          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             {isEdit ? 'Update Client Demo' : 'Publish Client Demo'}
           </Button>
         </div>

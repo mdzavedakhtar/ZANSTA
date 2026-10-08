@@ -1,34 +1,27 @@
 import { DemoRequest, DemoRequestStatus } from '@/types/cms';
+import { apiRequest } from './api';
 import { activityService } from './activityService';
 
 const STORAGE_KEY = 'zansta_cms_demo_requests';
 
-const defaultRequests: DemoRequest[] = [
-  {
-    id: 'req_1',
-    name: 'Alexander Wright',
-    email: 'alexander@horizontech.com',
-    company: 'Horizon Technologies',
-    projectInterest: 'AI & Generative AI Tools',
-    message: 'We are looking to build a multi-agent workflow platform similar to NeuroStack.',
-    contactMethod: 'email',
-    status: 'NEW',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-  },
-  {
-    id: 'req_2',
-    name: 'Sophia Martinez',
-    email: 'sophia@valenciamedical.com',
-    company: 'Valencia Medical Group',
-    projectInterest: 'Full Stack Telemedicine Web App',
-    message: 'Interested in a custom WebRTC platform for patient consultations.',
-    contactMethod: 'linkedin',
-    status: 'CONTACTED',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-];
+export const defaultRequests: DemoRequest[] = [];
 
 export const demoRequestService = {
+  // Async fetch from MongoDB API
+  fetchRequests: async (): Promise<DemoRequest[]> => {
+    try {
+      const response = await apiRequest<{ success: boolean; data: DemoRequest[] }>('/cms/demo-requests');
+      if (response.success && Array.isArray(response.data)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        return response.data;
+      }
+    } catch (err) {
+      console.warn('[demoRequestService] Backend API offline, using local cache:', err);
+    }
+    return demoRequestService.getRequests();
+  },
+
+  // Synchronous read with local cache
   getRequests: (): DemoRequest[] => {
     let requests: DemoRequest[] = [];
     try {
@@ -47,11 +40,12 @@ export const demoRequestService = {
     return requests;
   },
 
-  createRequest: (data: Omit<DemoRequest, 'id' | 'createdAt' | 'status'>): DemoRequest => {
+  createRequest: async (data: Omit<DemoRequest, 'id' | 'createdAt' | 'status'>): Promise<DemoRequest> => {
     const requests = demoRequestService.getRequests();
+    const id = `req_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     const newRequest: DemoRequest = {
       ...data,
-      id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id,
       status: 'NEW',
       createdAt: new Date().toISOString(),
     };
@@ -59,10 +53,21 @@ export const demoRequestService = {
     const updated = [newRequest, ...requests];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     activityService.logActivity(newRequest.name, 'submitted demo request', newRequest.company || newRequest.email, 'request');
+
+    try {
+      const res = await apiRequest<{ success: boolean; data: DemoRequest }>('/cms/demo-requests', {
+        method: 'POST',
+        body: JSON.stringify(newRequest),
+      });
+      if (res.success && res.data) return res.data;
+    } catch (err) {
+      console.warn('[demoRequestService] Failed to submit demo request to MongoDB, saved locally:', err);
+    }
+
     return newRequest;
   },
 
-  updateStatus: (id: string, status: DemoRequestStatus): DemoRequest | null => {
+  updateStatus: async (id: string, status: DemoRequestStatus): Promise<DemoRequest | null> => {
     const requests = demoRequestService.getRequests();
     const index = requests.findIndex((r) => r.id === id);
     if (index === -1) return null;
@@ -70,10 +75,20 @@ export const demoRequestService = {
     requests[index].status = status;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
     activityService.logActivity('MD Zaved Akhtar', `updated demo request status to ${status}`, requests[index].name, 'request');
+
+    try {
+      await apiRequest(`/cms/demo-requests/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+    } catch (err) {
+      console.warn('[demoRequestService] Failed to update demo request status in MongoDB:', err);
+    }
+
     return requests[index];
   },
 
-  deleteRequest: (id: string): boolean => {
+  deleteRequest: async (id: string): Promise<boolean> => {
     const requests = demoRequestService.getRequests();
     const target = requests.find((r) => r.id === id);
     if (!target) return false;
@@ -81,6 +96,15 @@ export const demoRequestService = {
     const filtered = requests.filter((r) => r.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     activityService.logActivity('MD Zaved Akhtar', 'deleted demo request', target.name, 'request');
+
+    try {
+      await apiRequest(`/cms/demo-requests/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.warn('[demoRequestService] Failed to delete demo request on server:', err);
+    }
+
     return true;
   },
 };

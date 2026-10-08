@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { Container } from '../ui/Container';
-import { Badge } from '../ui/Badge';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
 import { ScrollReveal } from '../motion/ScrollReveal';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Linkedin, Github, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Linkedin, Github } from 'lucide-react';
 import { enquiryService } from '@/services/enquiryService';
 
 export const ContactSection: React.FC = () => {
@@ -14,19 +11,32 @@ export const ContactSection: React.FC = () => {
     phone: '',
     company: '',
     serviceInterested: 'Full Stack Website Development',
-    budget: '$25,000 - $50,000',
+    budget: '₹25,000 - ₹50,000',
     message: '',
   });
 
+  const [customBudget, setCustomBudget] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
+    const finalBudget =
+      formData.budget === 'Other'
+        ? customBudget.trim()
+          ? customBudget.startsWith('₹')
+            ? customBudget
+            : `₹${customBudget}`
+          : 'Custom Budget (₹)'
+        : formData.budget;
+
     setIsSubmitting(true);
-    enquiryService.createEnquiry(formData);
+    await enquiryService.createEnquiry({
+      ...formData,
+      budget: finalBudget,
+    });
     setIsSubmitting(false);
     setIsSuccess(true);
     setFormData({
@@ -35,9 +45,10 @@ export const ContactSection: React.FC = () => {
       phone: '',
       company: '',
       serviceInterested: 'Full Stack Website Development',
-      budget: '$25,000 - $50,000',
+      budget: '₹25,000 - ₹50,000',
       message: '',
     });
+    setCustomBudget('');
   };
 
   return (
@@ -71,8 +82,8 @@ export const ContactSection: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] font-mono text-zinc-400 uppercase">Direct Email</p>
-                    <a href="mailto:hello@zansta.dev" className="text-sm font-semibold text-white hover:text-white/80 transition-colors">
-                      hello@zansta.dev
+                    <a href="mailto:zanstacom@gmail.com" className="text-sm font-semibold text-white hover:text-white/80 transition-colors">
+                      zanstacom@gmail.com
                     </a>
                   </div>
                 </div>
@@ -82,10 +93,16 @@ export const ContactSection: React.FC = () => {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Direct Hotline</span>
-                    <a href="tel:+919876543210" className="text-sm font-semibold text-white hover:text-white/80 transition-colors font-mono">
-                      +91 (800) 987-6543
-                    </a>
+                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">Direct Hotlines</span>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <a href="tel:+916202888431" className="text-sm font-semibold text-white hover:text-white/80 transition-colors font-mono">
+                        +91 6202888431
+                      </a>
+                      <span className="text-zinc-600">•</span>
+                      <a href="tel:+916287786639" className="text-sm font-semibold text-white hover:text-white/80 transition-colors font-mono">
+                        +91 6287786639
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -95,21 +112,21 @@ export const ContactSection: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-[10px] font-mono text-zinc-400 block uppercase">Studio Location</span>
-                    <span className="text-sm font-semibold text-white">Delhi NCR &amp; Bangalore, India</span>
+                    <span className="text-sm font-semibold text-white">Bhilai, Kohka, Durg, Chhattisgarh 490023</span>
                   </div>
                 </div>
               </div>
 
               {/* Social Channels */}
               <div className="pt-2 flex items-center gap-3">
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
+                <a href="https://www.linkedin.com/in/md-zaved-akhtar-22013828b" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center" aria-label="LinkedIn">
                   <Linkedin className="w-4 h-4" />
                 </a>
-                <a href="https://github.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
+                <a href="https://github.com/mdzavedakhtar" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center" aria-label="GitHub">
                   <Github className="w-4 h-4" />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center">
-                  <Twitter className="w-4 h-4" />
+                <a href="mailto:zanstacom@gmail.com" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center" aria-label="Email">
+                  <Mail className="w-4 h-4" />
                 </a>
               </div>
             </ScrollReveal>
@@ -129,7 +146,7 @@ export const ContactSection: React.FC = () => {
                     </div>
                     <h3 className="text-2xl font-semibold text-white font-display">Enquiry Submitted!</h3>
                     <p className="text-sm text-zinc-400 max-w-md mx-auto font-sans leading-relaxed">
-                      Thank you for contacting ZANSTA. Our lead architect will review your project scope and respond within 12 hours.
+                      Thank you for contacting ZANSTA. Our lead architect will review your project scope and respond within 2-4 hours.
                     </p>
                     <button
                       type="button"
@@ -174,7 +191,7 @@ export const ContactSection: React.FC = () => {
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                          placeholder="+91 98765 43210"
+                          placeholder="Enter your phone number"
                           className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white font-mono placeholder:text-zinc-600 focus:outline-none transition-all"
                         />
                       </div>
@@ -209,19 +226,42 @@ export const ContactSection: React.FC = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-mono text-zinc-300">Estimated Budget Range</label>
+                        <label className="text-xs font-mono text-zinc-300">Estimated Budget Range (INR ₹)</label>
                         <select
                           value={formData.budget}
                           onChange={(e) => setFormData((prev) => ({ ...prev, budget: e.target.value }))}
                           className="w-full px-4 py-3 bg-[#13141f] border border-white/[0.08] focus:border-white/30 rounded-xl text-xs text-white focus:outline-none font-mono cursor-pointer transition-all"
                         >
-                          <option value="$10,000 - $25,000">$10,000 - $25,000</option>
-                          <option value="$25,000 - $50,000">$25,000 - $50,000</option>
-                          <option value="$50,000 - $100,000">$50,000 - $100,000</option>
-                          <option value="$100,000+">$100,000+</option>
+                          <option value="₹25,000 - ₹50,000">₹25,000 - ₹50,000</option>
+                          <option value="₹50,000 - ₹1,00,000">₹50,000 - ₹1,00,000</option>
+                          <option value="₹1,00,000 - ₹2,50,000">₹1,00,000 - ₹2,50,000</option>
+                          <option value="₹2,50,000 - ₹5,00,000">₹2,50,000 - ₹5,00,000</option>
+                          <option value="₹5,00,000+">₹5,00,000+</option>
+                          <option value="Other">Other / Custom Budget (₹)</option>
                         </select>
                       </div>
                     </div>
+
+                    {/* Dynamic Custom Budget Input Field if "Other" is selected */}
+                    {formData.budget === 'Other' && (
+                      <div className="space-y-2 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.12] transition-all">
+                        <label className="text-xs font-mono text-zinc-300 flex items-center justify-between">
+                          <span>Enter Your Custom Budget Amount *</span>
+                          <span className="text-[10px] text-emerald-400 font-semibold uppercase font-mono">Indian Rupees (₹)</span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 font-mono font-bold">₹</span>
+                          <input
+                            type="text"
+                            required
+                            value={customBudget}
+                            onChange={(e) => setCustomBudget(e.target.value)}
+                            placeholder="e.g. 75,000 or 3,50,000"
+                            className="w-full pl-9 pr-4 py-3 bg-[#13141f] border border-white/[0.12] focus:border-white/40 rounded-xl text-xs text-white font-mono placeholder:text-zinc-600 focus:outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <label className="text-xs font-mono text-zinc-300">Project Scope / Details *</label>

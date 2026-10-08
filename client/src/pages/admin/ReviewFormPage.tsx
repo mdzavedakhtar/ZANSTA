@@ -53,7 +53,7 @@ export const ReviewFormPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -67,13 +67,18 @@ export const ReviewFormPage: React.FC = () => {
     }
 
     setIsSaving(true);
-    if (isEdit && id) {
-      reviewService.updateReview(id, formData);
-    } else {
-      reviewService.createReview(formData as any);
+    try {
+      if (isEdit && id) {
+        await reviewService.updateReview(id, formData);
+      } else {
+        await reviewService.createReview(formData as any);
+      }
+      navigate('/admin/reviews');
+    } catch (err: any) {
+      setError(err.message || 'Failed to save review');
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    navigate('/admin/reviews');
   };
 
   return (
@@ -217,13 +222,13 @@ export const ReviewFormPage: React.FC = () => {
           </div>
         </Card>
 
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Link to="/admin/reviews">
-            <Button size="md" variant="ghost">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 w-full">
+          <Link to="/admin/reviews" className="w-full sm:w-auto">
+            <Button size="md" variant="ghost" className="w-full sm:w-auto justify-center">
               Cancel
             </Button>
           </Link>
-          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             {isEdit ? 'Update Review' : 'Publish Review'}
           </Button>
         </div>

@@ -25,40 +25,46 @@ export const ReviewManagerPage: React.FC = () => {
   const [reviews, setReviews] = useState<CMSReview[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<CMSReview | null>(null);
 
-  const loadReviews = () => {
+  const loadReviews = async () => {
     setReviews(reviewService.getReviews());
+    try {
+      const fresh = await reviewService.fetchReviews();
+      if (fresh) setReviews(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh reviews:', e);
+    }
   };
 
   useEffect(() => {
     loadReviews();
   }, []);
 
-  const handleToggleFeatured = (review: CMSReview) => {
-    reviewService.updateReview(review.id, { isFeatured: !review.isFeatured });
+  const handleToggleFeatured = async (review: CMSReview) => {
+    await reviewService.updateReview(review.id, { isFeatured: !review.isFeatured });
     loadReviews();
   };
 
-  const handleToggleVisibility = (review: CMSReview) => {
-    reviewService.updateReview(review.id, { isVisible: !review.isVisible });
+  const handleToggleVisibility = async (review: CMSReview) => {
+    await reviewService.updateReview(review.id, { isVisible: !review.isVisible });
     loadReviews();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    reviewService.deleteReview(deleteTarget.id);
+    await reviewService.deleteReview(deleteTarget.id);
     setDeleteTarget(null);
     loadReviews();
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <MessageSquareQuote className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               CLIENT REVIEWS & TESTIMONIALS CMS
             </h1>
           </div>
@@ -67,8 +73,8 @@ export const ReviewManagerPage: React.FC = () => {
           </p>
         </div>
 
-        <Link to="/admin/reviews/new">
-          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />}>
+        <Link to="/admin/reviews/new" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             Add Review
           </Button>
         </Link>

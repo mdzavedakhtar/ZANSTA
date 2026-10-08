@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../shared/Logo';
 import { Container } from '../ui/Container';
-import { Github, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
+import { Github, Linkedin, Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -19,28 +19,46 @@ export const Footer: React.FC = () => {
               ZANSTA is a high-performance developer workspace & software agency platform. Build, manage, and showcase extraordinary digital products.
             </p>
 
+            {/* Direct Contact Badges in Footer */}
+            <div className="space-y-2 pt-2 text-xs">
+              <div className="flex items-center gap-2 text-[#F5F2ED]/70">
+                <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span>Bhilai, Kohka, Durg, Chhattisgarh 490023</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-[#F5F2ED]/70">
+                <Phone className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <a href="tel:+916202888431" className="hover:text-white transition-colors font-mono">+91 6202888431</a>
+                <span className="text-zinc-600">•</span>
+                <a href="tel:+916287786639" className="hover:text-white transition-colors font-mono">+91 6287786639</a>
+              </div>
+              <div className="flex items-center gap-2 text-[#F5F2ED]/70">
+                <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <a href="mailto:zanstacom@gmail.com" className="hover:text-white transition-colors font-mono">zanstacom@gmail.com</a>
+              </div>
+            </div>
+
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://github.com"
+                href="https://github.com/mdzavedakhtar"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-[#8B0D1A]/50 hover:shadow-[0_0_12px_rgba(139,13,26,0.20)] transition-all"
+                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-white/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.1)] transition-all"
                 aria-label="GitHub"
               >
                 <Github className="w-4 h-4" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/md-zaved-akhtar-22013828b"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-[#8B0D1A]/50 hover:shadow-[0_0_12px_rgba(139,13,26,0.20)] transition-all"
+                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-white/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.1)] transition-all"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href="mailto:contact@zansta.dev"
-                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-[#8B0D1A]/50 hover:shadow-[0_0_12px_rgba(139,13,26,0.20)] transition-all"
+                href="mailto:zanstacom@gmail.com"
+                className="w-9 h-9 rounded-lg bg-[#0E0E0E] border border-[#F5F2ED]/10 flex items-center justify-center text-[#F5F2ED]/50 hover:text-[#F5F2ED] hover:border-white/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.1)] transition-all"
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4" />
@@ -71,7 +89,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <span className="text-slate-600 flex items-center gap-1 cursor-not-allowed">
-                  Client Portal <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[#F5F2ED]/55">Soon</span>
+                  Client Portal <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[#F5F2ED]/55">Live</span>
                 </span>
               </li>
             </ul>
@@ -111,7 +129,7 @@ export const Footer: React.FC = () => {
             </p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8B0D1A] hover:text-[#F5F2ED] transition-colors pt-1"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:text-white/80 transition-colors pt-1"
             >
               Start Project Request <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>

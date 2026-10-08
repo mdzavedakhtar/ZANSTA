@@ -33,48 +33,59 @@ export const ProjectManagerPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CMSProject | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadProjects = () => {
+  const loadProjects = async () => {
     const list = projectService.getProjects({
       search,
       status: statusFilter,
       category: categoryFilter,
     });
     setProjects(list);
+
+    try {
+      const fresh = await projectService.fetchProjects({
+        search,
+        status: statusFilter,
+        category: categoryFilter,
+      });
+      if (fresh) setProjects(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh projects:', e);
+    }
   };
 
   useEffect(() => {
     loadProjects();
   }, [search, statusFilter, categoryFilter]);
 
-  const handleToggleFeatured = (project: CMSProject) => {
-    projectService.updateProject(project.id, { isFeatured: !project.isFeatured });
+  const handleToggleFeatured = async (project: CMSProject) => {
+    await projectService.updateProject(project.id, { isFeatured: !project.isFeatured });
     loadProjects();
   };
 
-  const handleToggleVisibility = (project: CMSProject) => {
-    projectService.updateProject(project.id, { isVisible: !project.isVisible });
+  const handleToggleVisibility = async (project: CMSProject) => {
+    await projectService.updateProject(project.id, { isVisible: !project.isVisible });
     loadProjects();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    projectService.deleteProject(deleteTarget.id);
+    await projectService.deleteProject(deleteTarget.id);
     setIsDeleting(false);
     setDeleteTarget(null);
     loadProjects();
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
       {/* Top Header & Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <FolderGit2 className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               PROJECT MANAGEMENT SYSTEM
             </h1>
           </div>
@@ -83,15 +94,15 @@ export const ProjectManagerPage: React.FC = () => {
           </p>
         </div>
 
-        <Link to="/admin/projects/new">
-          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />}>
+        <Link to="/admin/projects/new" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             Create Project
           </Button>
         </Link>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
         <div className="relative">
           <Search className="w-4 h-4 text-[#F5F2ED]/35 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
