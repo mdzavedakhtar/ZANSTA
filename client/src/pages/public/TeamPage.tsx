@@ -8,10 +8,11 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Github, Linkedin, FileText, Briefcase } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { openResumeDocument } from '@/lib/documentViewer';
+import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 
 export const TeamPage: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
+  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   useEffect(() => {
     setMembers(teamService.getTeamMembers({ isVisible: true }));
@@ -71,7 +72,8 @@ export const TeamPage: React.FC = () => {
                       href={member.github}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="GitHub"
                     >
                       <Github className="w-4 h-4" />
                     </a>
@@ -81,7 +83,8 @@ export const TeamPage: React.FC = () => {
                       href={member.linkedin}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="LinkedIn"
                     >
                       <Linkedin className="w-4 h-4" />
                     </a>
@@ -91,8 +94,8 @@ export const TeamPage: React.FC = () => {
                 {member.resumeUrl && (
                   <button
                     type="button"
-                    onClick={() => openResumeDocument(member.resumeUrl, member.resumeFileName || `${member.name}_Resume.pdf`)}
-                    className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                    onClick={() => setPreviewMember(member)}
+                    className="text-xs font-mono text-[#ff4d61] hover:text-white bg-[#8B0D1A]/15 hover:bg-[#8B0D1A]/30 border border-[#8B0D1A]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <FileText className="w-3.5 h-3.5" /> View Resume
                   </button>
@@ -102,6 +105,18 @@ export const TeamPage: React.FC = () => {
           ))}
         </div>
       </Container>
+
+      {/* In-App Resume Preview Modal */}
+      {previewMember && (
+        <ResumePreviewModal
+          isOpen={!!previewMember}
+          onClose={() => setPreviewMember(null)}
+          resumeUrl={previewMember.resumeUrl}
+          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
+          memberName={previewMember.name}
+          memberRole={previewMember.role}
+        />
+      )}
     </div>
   );
 };

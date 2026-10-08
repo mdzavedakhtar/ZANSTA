@@ -5,12 +5,13 @@ import { ScrollReveal } from '../motion/ScrollReveal';
 import { Github, Linkedin, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { openResumeDocument } from '@/lib/documentViewer';
 import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
+import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 
 export const TeamShowcaseSection: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   const loadTeam = () => {
     const list = teamService.getTeamMembers({ isVisible: true });
@@ -106,7 +107,7 @@ export const TeamShowcaseSection: React.FC = () => {
                       <h3 className="text-lg font-semibold text-white font-display group-hover:text-white transition-colors">
                         {m.name}
                       </h3>
-                      <p className="text-xs font-mono text-[#8B0D1A] mt-0.5">{m.role}</p>
+                      <p className="text-xs font-mono text-[#ff4d61] mt-0.5">{m.role}</p>
                       {m.experienceYears && (
                         <p className="text-[10px] font-mono text-zinc-400 mt-0.5">{m.experienceYears} Experience</p>
                       )}
@@ -155,10 +156,10 @@ export const TeamShowcaseSection: React.FC = () => {
                   {m.resumeUrl ? (
                     <button
                       type="button"
-                      onClick={() => openResumeDocument(m.resumeUrl, m.resumeFileName || `${m.name}_Resume.pdf`)}
-                      className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1.5 cursor-pointer bg-transparent border-none p-0"
+                      onClick={() => setPreviewMember(m)}
+                      className="text-xs font-mono text-[#ff4d61] hover:text-white bg-[#8B0D1A]/15 hover:bg-[#8B0D1A]/30 border border-[#8B0D1A]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
                     >
-                      <FileText className="w-3.5 h-3.5" /> Resume PDF
+                      <FileText className="w-3.5 h-3.5" /> View Resume
                     </button>
                   ) : (
                     <div className="text-[10px] font-mono text-zinc-400">
@@ -189,6 +190,18 @@ export const TeamShowcaseSection: React.FC = () => {
           </div>
         )}
       </Container>
+
+      {/* In-App Resume Preview Modal */}
+      {previewMember && (
+        <ResumePreviewModal
+          isOpen={!!previewMember}
+          onClose={() => setPreviewMember(null)}
+          resumeUrl={previewMember.resumeUrl}
+          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
+          memberName={previewMember.name}
+          memberRole={previewMember.role}
+        />
+      )}
     </section>
   );
 };

@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { openResumeDocument } from '@/lib/documentViewer';
+import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 import {
   Users,
   UserPlus,
@@ -32,6 +32,7 @@ export const TeamManagerPage: React.FC = () => {
   const [visibilityFilter, setVisibilityFilter] = useState('ALL');
   const [deleteTarget, setDeleteTarget] = useState<CMSTeamMember | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   const loadTeam = async () => {
     const list = teamService.getTeamMembers({
@@ -68,92 +69,94 @@ export const TeamManagerPage: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    await teamService.deleteMember(deleteTarget.id);
-    setIsDeleting(false);
-    setDeleteTarget(null);
-    loadTeam();
+    try {
+      await teamService.deleteMember(deleteTarget.id);
+      setDeleteTarget(null);
+      loadTeam();
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
-              <Users className="w-4 h-4" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
-              TEAM MANAGEMENT SYSTEM
-            </h1>
-          </div>
-          <p className="text-xs text-[#F5F2ED]/55 font-sans">
-            Manage agency team members, photos, roles, tech stacks, experience summaries, resumes, and public visibility.
+          <h1 className="text-xl font-bold text-[#F5F2ED] font-display flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#8B0D1A]" />
+            Core Team & Collective CMS
+          </h1>
+          <p className="text-xs text-[#F5F2ED]/50 mt-1">
+            Manage engineers, roles, experience, tech stacks, and uploaded resume documents.
           </p>
         </div>
 
-        <Link to="/admin/team/new" className="w-full sm:w-auto shrink-0">
-          <Button size="sm" variant="glow" leftIcon={<UserPlus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
-            Add Team Member
+        <Link to="/admin/team/new">
+          <Button variant="primary" size="sm" leftIcon={<UserPlus className="w-4 h-4" />}>
+            Add Engineer
           </Button>
         </Link>
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#F5F2ED]/35 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* Filters & Search */}
+      <Card surfaceTier="100" className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 text-[#F5F2ED]/40 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search member name, role, bio, tech stack..."
-            className="w-full pl-10 pr-4 py-2 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A] font-sans"
+            placeholder="Search by name, role, skill..."
+            className="w-full pl-9 pr-4 py-2 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
           />
         </div>
 
-        <select
-          value={visibilityFilter}
-          onChange={(e) => setVisibilityFilter(e.target.value)}
-          className="px-3.5 py-2 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A] font-mono cursor-pointer"
-        >
-          <option value="ALL">All Team Members</option>
-          <option value="VISIBLE">Visible on Landing Page</option>
-          <option value="HIDDEN">Hidden from Public</option>
-        </select>
-      </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+          {['ALL', 'VISIBLE', 'HIDDEN'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setVisibilityFilter(tab)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                visibilityFilter === tab
+                  ? 'bg-[#8B0D1A] text-white'
+                  : 'bg-white/05 text-[#F5F2ED]/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </Card>
 
-      {/* Team Cards Grid */}
+      {/* Grid of Team Cards */}
       {members.length === 0 ? (
         <EmptyState
-          icon={<Users className="w-8 h-8 text-[#8B0D1A]" />}
+          icon={<Users className="w-7 h-7" />}
           title="No team members found"
-          description="Add your agency builders or refine your search filters."
+          description="Try adjusting your search criteria or add a new team member."
           actionLabel="Add Team Member"
           onAction={() => navigate('/admin/team/new')}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {members.map((m) => (
             <Card
               key={m.id}
               surfaceTier="100"
-              glowOnHover
-              className="group flex flex-col justify-between p-5 space-y-4 border border-white/10 relative"
+              className="p-5 flex flex-col justify-between space-y-4 relative group border border-white/05 hover:border-white/15 transition-all"
             >
-              <div className="space-y-4">
-                {/* Avatar & Controls Header */}
+              <div className="space-y-3">
+                {/* Header row with Avatar & actions */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <Avatar name={m.name} src={m.photo} size="lg" status="online" />
+                    <Avatar name={m.name} src={m.photo} size="lg" />
                     <div>
-                      <h3 className="text-base font-extrabold text-[#F5F2ED] font-display group-hover:text-[#8B0D1A] transition-colors">
-                        {m.name}
-                      </h3>
+                      <h3 className="text-sm font-bold text-[#F5F2ED] font-display">{m.name}</h3>
                       <p className="text-xs font-mono text-[#8B0D1A] mt-0.5">{m.role}</p>
                       {m.experienceYears && (
                         <p className="text-[10px] font-mono text-[#F5F2ED]/40 flex items-center gap-1 mt-0.5">
-                          <Briefcase className="w-3 h-3 text-[#8B0D1A]/70" /> {m.experienceYears} Exp
+                          <Briefcase className="w-3 h-3 text-[#8B0D1A]" /> {m.experienceYears} Experience
                         </p>
                       )}
                     </div>
@@ -162,33 +165,35 @@ export const TeamManagerPage: React.FC = () => {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleToggleFeatured(m)}
-                      className={`p-1.5 rounded-lg border transition-colors ${
+                      className={`p-1.5 rounded-lg transition-colors ${
                         m.isFeatured
-                          ? 'bg-[#8B0D1A]/80 border-[#8B0D1A] text-amber-300'
-                          : 'bg-white/05 border-white/10 text-white/40 hover:text-white'
+                          ? 'text-amber-400 bg-amber-400/10'
+                          : 'text-[#F5F2ED]/30 hover:text-amber-400 hover:bg-white/05'
                       }`}
-                      title={m.isFeatured ? 'Featured Team Member' : 'Mark Featured'}
+                      title={m.isFeatured ? 'Featured on Home' : 'Mark as Featured'}
                     >
                       <Star className="w-3.5 h-3.5 fill-current" />
                     </button>
+
                     <button
                       onClick={() => handleToggleVisibility(m)}
-                      className={`p-1.5 rounded-lg border transition-colors ${
+                      className={`p-1.5 rounded-lg transition-colors ${
                         m.isVisible
-                          ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-400'
-                          : 'bg-white/05 border-white/10 text-white/40 hover:text-white'
+                          ? 'text-emerald-400 bg-emerald-400/10'
+                          : 'text-[#F5F2ED]/30 hover:text-white hover:bg-white/05'
                       }`}
-                      title={m.isVisible ? 'Visible on Public Site' : 'Hidden from Public'}
+                      title={m.isVisible ? 'Visible publicly' : 'Hidden from public'}
                     >
                       {m.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>
 
-                <p className="text-xs text-[#F5F2ED]/60 leading-relaxed line-clamp-2 font-sans">{m.bio}</p>
+                {/* Bio snippet */}
+                <p className="text-xs text-[#F5F2ED]/60 line-clamp-2 leading-relaxed">{m.bio}</p>
 
-                {/* Tech Stack Badges */}
-                <div className="flex flex-wrap gap-1 pt-1">
+                {/* Tech Pills */}
+                <div className="flex flex-wrap gap-1.5">
                   {m.techStack.slice(0, 5).map((tech) => (
                     <span
                       key={tech}
@@ -208,10 +213,10 @@ export const TeamManagerPage: React.FC = () => {
                 {m.resumeUrl ? (
                   <button
                     type="button"
-                    onClick={() => openResumeDocument(m.resumeUrl, m.resumeFileName || `${m.name}_Resume.pdf`)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 text-[11px] font-mono text-[#F5F2ED]/90 hover:bg-[#8B0D1A]/20 transition-colors cursor-pointer text-left"
+                    onClick={() => setPreviewMember(m)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 text-[11px] font-mono text-[#ff4d61] hover:bg-[#8B0D1A]/20 transition-colors cursor-pointer text-left"
                   >
-                    <FileText className="w-3.5 h-3.5 text-[#8B0D1A] shrink-0" />
+                    <FileText className="w-3.5 h-3.5 text-[#ff4d61] shrink-0" />
                     <span className="truncate max-w-[150px]">{m.resumeFileName || 'View Resume PDF'}</span>
                   </button>
                 ) : (
@@ -244,7 +249,7 @@ export const TeamManagerPage: React.FC = () => {
                   </Link>
                   <button
                     onClick={() => setDeleteTarget(m)}
-                    className="p-2 rounded-lg text-[#F5F2ED]/30 hover:text-[#8B0D1A] hover:bg-[#8B0D1A]/10 transition-colors"
+                    className="p-2 rounded-lg text-[#F5F2ED]/30 hover:text-[#8B0D1A] hover:bg-[#8B0D1A]/10 transition-colors cursor-pointer"
                     title="Delete Member"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -266,6 +271,18 @@ export const TeamManagerPage: React.FC = () => {
         onClose={() => setDeleteTarget(null)}
         isLoading={isDeleting}
       />
+
+      {/* In-App Resume Preview Modal */}
+      {previewMember && (
+        <ResumePreviewModal
+          isOpen={!!previewMember}
+          onClose={() => setPreviewMember(null)}
+          resumeUrl={previewMember.resumeUrl}
+          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
+          memberName={previewMember.name}
+          memberRole={previewMember.role}
+        />
+      )}
     </div>
   );
 };
