@@ -4,7 +4,12 @@ const getApiBaseUrl = () => {
   }
   if (typeof window !== 'undefined') {
     const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:5000/api/v1`;
+    // Local development check
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.')) {
+      return `${protocol}//${hostname}:5000/api/v1`;
+    }
+    // Production cloud/Vercel deployment: relative URL to match serverless rewrite
+    return '/api/v1';
   }
   return 'http://localhost:5000/api/v1';
 };
