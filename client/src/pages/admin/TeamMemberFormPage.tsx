@@ -42,9 +42,15 @@ export const TeamMemberFormPage: React.FC = () => {
       const existing = teamService.getMemberById(id);
       if (existing) {
         setFormData(existing);
-      } else {
-        setError('Team member not found.');
       }
+      teamService.fetchMemberById(id).then((fresh) => {
+        if (fresh) {
+          setFormData(fresh);
+          setError(null);
+        } else if (!existing) {
+          setError('Team member not found.');
+        }
+      });
     }
   }, [id, isEdit]);
 

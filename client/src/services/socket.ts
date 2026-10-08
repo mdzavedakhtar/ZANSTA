@@ -1,17 +1,31 @@
 import { io, Socket } from 'socket.io-client';
 
-const getSocketUrl = () => {
-  if (import.meta.env.VITE_SOCKET_URL) {
-    return import.meta.env.VITE_SOCKET_URL;
-  }
+export const getSocketUrl = (): string => {
+  const envUrl = import.meta.env.VITE_SOCKET_URL;
+
   if (typeof window !== 'undefined') {
-    const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:5000`;
+    const { protocol, hostname, port } = window.location;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (envUrl && !envUrl.includes('localhost') && envUrl.startsWith('http')) {
+      return envUrl;
+    }
+
+    if (isLocalhost) {
+      return `${protocol}//${hostname}:5000`;
+    }
+
+    // On LAN device (e.g. 192.168.1.10)
+    if (hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
+      return `${protocol}//${hostname}:5000`;
+    }
+
+    return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
   }
-  return 'http://localhost:5000';
+
+  return envUrl || 'http://localhost:5000';
 };
 
-const SOCKET_URL = getSocketUrl();
 
 class SocketService {
   private socket: Socket | null = null;
@@ -19,7 +33,7 @@ class SocketService {
   public connect() {
     if (this.socket) return;
 
-    this.socket = io(SOCKET_URL, {
+    this.socket = io(getSocketUrl(), {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,

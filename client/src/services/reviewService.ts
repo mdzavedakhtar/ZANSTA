@@ -76,8 +76,10 @@ export const reviewService = {
             const stored = localStorage.getItem(STORAGE_KEY);
             const current: CMSReview[] = stored ? JSON.parse(stored) : [];
             const mergedMap = new Map<string, CMSReview>();
-            current.forEach((r) => mergedMap.set(r.id, r));
             response.data.forEach((r) => mergedMap.set(r.id, r));
+            current.forEach((r) => {
+              if (!mergedMap.has(r.id)) mergedMap.set(r.id, r);
+            });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
           } catch {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
@@ -123,6 +125,23 @@ export const reviewService = {
     return reviews.find((r) => r.id === id) || null;
   },
 
+  fetchReviewById: async (id: string): Promise<CMSReview | null> => {
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSReview }>(`/cms/reviews/${id}`);
+      if (res.success && res.data) {
+        const reviews = reviewService.getReviews();
+        const updated = reviews.some((r) => r.id === id)
+          ? reviews.map((r) => (r.id === id ? res.data : r))
+          : [...reviews, res.data];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('[reviewService] Could not fetch review by ID from server:', err);
+    }
+    return reviewService.getReviewById(id);
+  },
+
   createReview: async (data: Omit<CMSReview, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): Promise<CMSReview> => {
     const reviews = reviewService.getReviews();
     const id = `rev_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
@@ -134,59 +153,63 @@ export const reviewService = {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = [...reviews, newReview];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'added client review', `${newReview.clientName} (${newReview.companyName})`, 'review');
-
     try {
       const res = await apiRequest<{ success: boolean; data: CMSReview }>('/cms/reviews', {
         method: 'POST',
         body: JSON.stringify(newReview),
       });
-      if (res.success && res.data) return res.data;
+      const saved = res.data || newReview;
+      const updated = [...reviews.filter((r) => r.id !== id && r.id !== saved.id), saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'added client review', `${saved.clientName} (${saved.companyName})`, 'review');
+      return saved;
     } catch (err) {
       console.warn('[reviewService] Failed to save review in MongoDB, saved locally:', err);
+      const updated = [...reviews, newReview];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'added client review (offline)', `${newReview.clientName} (${newReview.companyName})`, 'review');
+      return newReview;
     }
-
-    return newReview;
   },
 
   updateReview: async (id: string, updates: Partial<CMSReview>): Promise<CMSReview | null> => {
     const reviews = reviewService.getReviews();
     const index = reviews.findIndex((r) => r.id === id);
-    if (index === -1) return null;
+    const existing = index !== -1 ? reviews[index] : ({} as CMSReview);
 
-    const existing = reviews[index];
     const updatedReview: CMSReview = {
       ...existing,
       ...updates,
+      id,
       updatedAt: new Date().toISOString(),
     };
 
-    reviews[index] = updatedReview;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-    activityService.logActivity('MD Zaved Akhtar', 'updated client review', updatedReview.clientName, 'review');
-
     try {
-      await apiRequest(`/cms/reviews/${id}`, {
+      const res = await apiRequest<{ success: boolean; data: CMSReview }>(`/cms/reviews/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
+      const saved = res.data || updatedReview;
+      const updatedList = reviews.some((r) => r.id === id)
+        ? reviews.map((r) => (r.id === id ? saved : r))
+        : [...reviews, saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      activityService.logActivity('MD Zaved Akhtar', 'updated client review', saved.clientName || 'Review', 'review');
+      return saved;
     } catch (err) {
       console.warn('[reviewService] Failed to update review in MongoDB, updated locally:', err);
+      if (index !== -1) {
+        reviews[index] = updatedReview;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated client review (offline)', updatedReview.clientName || 'Review', 'review');
+      return updatedReview;
     }
-
-    return updatedReview;
   },
 
   deleteReview: async (id: string): Promise<boolean> => {
     const reviews = reviewService.getReviews();
     const target = reviews.find((r) => r.id === id);
-    if (!target) return false;
-
-    const filtered = reviews.filter((r) => r.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted client review', target.clientName, 'review');
 
     try {
       await apiRequest(`/cms/reviews/${id}`, {
@@ -196,6 +219,9 @@ export const reviewService = {
       console.warn('[reviewService] Failed to delete review from MongoDB, deleted locally:', err);
     }
 
+    const filtered = reviews.filter((r) => r.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    activityService.logActivity('MD Zaved Akhtar', 'deleted client review', target?.clientName || id, 'review');
     return true;
   },
 };

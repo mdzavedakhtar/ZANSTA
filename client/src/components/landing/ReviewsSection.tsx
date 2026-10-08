@@ -17,7 +17,7 @@ export const ReviewsSection: React.FC = () => {
     setReviews(list);
 
     reviewService.fetchReviews({ isVisible: true }).then((freshList) => {
-      if (freshList && freshList.length > 0) {
+      if (Array.isArray(freshList)) {
         setReviews(freshList);
       }
     });

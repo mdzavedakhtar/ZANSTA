@@ -15,7 +15,7 @@ export const TeamPage: React.FC = () => {
   useEffect(() => {
     setMembers(teamService.getTeamMembers({ isVisible: true }));
     teamService.fetchTeamMembers({ isVisible: true }).then((fresh) => {
-      if (fresh && fresh.length > 0) setMembers(fresh);
+      if (Array.isArray(fresh)) setMembers(fresh);
     });
   }, []);
 

@@ -16,7 +16,7 @@ export const TeamShowcaseSection: React.FC = () => {
     setMembers(list);
 
     teamService.fetchTeamMembers({ isVisible: true }).then((freshList) => {
-      if (freshList && freshList.length > 0) {
+      if (Array.isArray(freshList)) {
         setMembers(freshList);
       }
     });

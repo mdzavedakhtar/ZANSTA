@@ -39,9 +39,15 @@ export const ProjectFormPage: React.FC = () => {
       const existing = projectService.getProjectById(id);
       if (existing) {
         setFormData(existing);
-      } else {
-        setError('Project not found.');
       }
+      projectService.fetchProjectById(id).then((fresh) => {
+        if (fresh) {
+          setFormData(fresh);
+          setError(null);
+        } else if (!existing) {
+          setError('Project not found.');
+        }
+      });
     }
   }, [id, isEdit]);
 
