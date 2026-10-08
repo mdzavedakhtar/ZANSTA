@@ -112,21 +112,8 @@ export const projectService = {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await apiRequest<{ success: boolean; data: CMSProject[] }>(`/cms/projects${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        if (!filters || Object.keys(filters).length === 0) {
+        if (!filters || Object.keys(filters).length === 0 || (Object.keys(filters).length === 1 && filters.isVisible !== undefined)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-        } else {
-          try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            const current: CMSProject[] = stored ? JSON.parse(stored) : [];
-            const mergedMap = new Map<string, CMSProject>();
-            response.data.forEach((p) => mergedMap.set(p.id, p));
-            current.forEach((p) => {
-              if (!mergedMap.has(p.id)) mergedMap.set(p.id, p);
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
-          } catch {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-          }
         }
         return response.data;
       }

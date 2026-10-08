@@ -20,6 +20,7 @@ import {
   LogOut,
   Sparkles,
   Megaphone,
+  ShieldCheck,
   X,
 } from 'lucide-react';
 import { Logo } from '../shared/Logo';
@@ -53,6 +54,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Landing Page', path: '/admin/landing', icon: Globe },
       { label: 'Promo Banners', path: '/admin/banners', icon: Megaphone },
+      { label: 'Certificates & MSME', path: '/admin/certificates', icon: ShieldCheck },
       { label: 'Services', path: '/admin/services', icon: Layers },
       { label: 'Client Demos', path: '/admin/demos', icon: MonitorPlay },
       { label: 'Reviews', path: '/admin/reviews', icon: MessageSquareQuote },

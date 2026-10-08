@@ -53,6 +53,8 @@ import { ReviewManagerPage } from '@/pages/admin/ReviewManagerPage';
 import { ReviewFormPage } from '@/pages/admin/ReviewFormPage';
 import { BannerManagerPage } from '@/pages/admin/BannerManagerPage';
 import { BannerFormPage } from '@/pages/admin/BannerFormPage';
+import { CertificateManagerPage } from '@/pages/admin/CertificateManagerPage';
+import { CertificateFormPage } from '@/pages/admin/CertificateFormPage';
 import { DemoRequestManagerPage } from '@/pages/admin/DemoRequestManagerPage';
 import { EnquiryManagerPage } from '@/pages/admin/EnquiryManagerPage';
 import { LandingPageEditorPage } from '@/pages/admin/LandingPageEditorPage';
@@ -153,6 +155,11 @@ export const router = createBrowserRouter([
       { path: 'admin/banners', element: <BannerManagerPage /> },
       { path: 'admin/banners/new', element: <BannerFormPage /> },
       { path: 'admin/banners/:id/edit', element: <BannerFormPage /> },
+
+      // Admin Certificates & MSME Verified CMS
+      { path: 'admin/certificates', element: <CertificateManagerPage /> },
+      { path: 'admin/certificates/new', element: <CertificateFormPage /> },
+      { path: 'admin/certificates/:id/edit', element: <CertificateFormPage /> },
 
       // Admin Leads & Enquiries
       { path: 'admin/demo-requests', element: <DemoRequestManagerPage /> },

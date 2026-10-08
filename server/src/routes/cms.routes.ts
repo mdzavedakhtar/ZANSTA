@@ -37,6 +37,12 @@ import {
   updateBanner,
   deleteBanner,
   reorderBanners,
+  getCertificates,
+  getCertificateById,
+  createCertificate,
+  updateCertificate,
+  deleteCertificate,
+  reorderCertificates,
   getLandingContent,
   updateLandingContent,
   getEnquiries,
@@ -103,6 +109,14 @@ router.post('/banners', createBanner);
 router.put('/banners/reorder', reorderBanners);
 router.put('/banners/:id', updateBanner);
 router.delete('/banners/:id', deleteBanner);
+
+// Company & Government MSME Certificates Routes
+router.get('/certificates', getCertificates);
+router.get('/certificates/:id', getCertificateById);
+router.post('/certificates', createCertificate);
+router.put('/certificates/reorder', reorderCertificates);
+router.put('/certificates/:id', updateCertificate);
+router.delete('/certificates/:id', deleteCertificate);
 
 // Landing Page CMS Routes
 router.get('/landing', getLandingContent);

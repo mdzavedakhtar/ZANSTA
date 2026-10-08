@@ -29,54 +29,6 @@ export const defaultTeamMembers: CMSTeamMember[] = [
     createdAt: '2026-01-01T10:00:00.000Z',
     updatedAt: '2026-02-10T12:00:00.000Z',
   },
-  {
-    id: 'team_rahul',
-    name: 'Rahul Sharma',
-    role: 'Frontend & Motion Specialist',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    bio: 'Crafting 2026-level web aesthetics, custom magnetic cursors, and fluid Framer Motion animations.',
-    fullBio:
-      'UI/UX Design Engineer dedicated to pixel-perfect micro-interactions, responsive design systems, and cutting-edge 3D WebGL user interfaces.',
-    techStack: ['React 18', 'Framer Motion', 'GSAP', 'Tailwind CSS', 'UI/UX Architecture', 'Three.js'],
-    experienceYears: '4+',
-    experienceSummary: 'Design systems engineer crafting high-impact agency showcase experiences.',
-    location: 'Bangalore, India',
-    email: 'rahul@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Rahul_Sharma_Frontend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 2,
-    createdAt: '2026-01-05T11:00:00.000Z',
-    updatedAt: '2026-02-12T15:20:00.000Z',
-  },
-  {
-    id: 'team_aman',
-    name: 'Aman Deep',
-    role: 'Backend & Real-Time Gateway Engineer',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
-    bio: 'Engineering Socket.IO streaming event topologies, WebRTC signaling mesh, and secure JWT auth.',
-    fullBio:
-      'Infrastructure developer focusing on low-latency Socket.IO event gateways, Redis caching, microservices security, and CI/CD pipelines.',
-    techStack: ['Node.js', 'Socket.IO', 'Express', 'Docker', 'Security Standards', 'Redis', 'PostgreSQL'],
-    experienceYears: '3+',
-    experienceSummary: 'Backend engineer specializing in streaming WebRTC signaling and API gateways.',
-    location: 'Chandigarh, India',
-    email: 'aman@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Aman_Deep_Backend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 3,
-    createdAt: '2026-01-12T09:30:00.000Z',
-    updatedAt: '2026-02-18T10:15:00.000Z',
-  },
 ];
 
 export interface TeamFilterOptions {
@@ -97,22 +49,9 @@ export const teamService = {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await apiRequest<{ success: boolean; data: CMSTeamMember[] }>(`/cms/team${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        // Cache the live backend data
+        // Cleanly store exact server data without reviving deleted members
         if (!filters || Object.keys(filters).length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-        } else {
-          try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            const current: CMSTeamMember[] = stored ? JSON.parse(stored) : [];
-            const mergedMap = new Map<string, CMSTeamMember>();
-            response.data.forEach((m) => mergedMap.set(m.id, m));
-            current.forEach((m) => {
-              if (!mergedMap.has(m.id)) mergedMap.set(m.id, m);
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
-          } catch {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-          }
         }
         return response.data;
       }
@@ -127,7 +66,7 @@ export const teamService = {
     let members: CMSTeamMember[] = [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+      if (stored !== null) {
         members = JSON.parse(stored);
       } else {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTeamMembers));

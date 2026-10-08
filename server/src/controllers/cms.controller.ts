@@ -10,6 +10,7 @@ import { ContactEnquiry } from '../models/ContactEnquiry.js';
 import { DemoRequest } from '../models/DemoRequest.js';
 import { CMSActivityLog } from '../models/CMSActivityLog.js';
 import { CMSBanner } from '../models/CMSBanner.js';
+import { CMSCertificate } from '../models/CMSCertificate.js';
 import { broadcastCmsEvent } from '../sockets/index.js';
 import {
   defaultProjects,
@@ -20,6 +21,7 @@ import {
   defaultLandingContent,
   defaultEnquiries,
   defaultDemoRequests,
+  defaultCertificates,
 } from '../config/seed.js';
 import {
   sendContactNotificationToAdmin,
@@ -78,6 +80,7 @@ let memoryLanding: any = { ...defaultLandingContent };
 let memoryEnquiries: any[] = [...defaultEnquiries];
 let memoryDemoRequests: any[] = [...defaultDemoRequests];
 let memoryBanners: any[] = [...defaultBanners];
+let memoryCertificates: any[] = [...defaultCertificates];
 let memoryActivities: any[] = [];
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
@@ -1405,6 +1408,150 @@ export const clearActivities = async (req: Request, res: Response) => {
 /* =========================================================================
    11. CUSTOM EMAIL SENDER CONTROLLER
    ========================================================================= */
+/* =========================================================================
+   12. CERTIFICATES & GOVERNMENT MSME CREDENTIALS CONTROLLERS
+   ========================================================================= */
+export const getCertificates = async (req: Request, res: Response) => {
+  try {
+    const { isVisible } = req.query;
+    let certificates: any[] = [];
+    if (isDbConnected()) {
+      const filter: any = {};
+      if (isVisible !== undefined) filter.isVisible = isVisible === 'true';
+      certificates = await CMSCertificate.find(filter).sort({ order: 1, createdAt: -1 });
+      if (certificates.length === 0) {
+        certificates = memoryCertificates;
+      }
+    } else {
+      certificates = [...memoryCertificates].sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (isVisible !== undefined) certificates = certificates.filter((c) => String(c.isVisible) === String(isVisible));
+    }
+    res.json({ success: true, count: certificates.length, data: certificates });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const getCertificateById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    let certificate: any = null;
+    if (isDbConnected()) certificate = await CMSCertificate.findOne({ id });
+    if (!certificate) certificate = memoryCertificates.find((c) => c.id === id);
+    if (!certificate) return res.status(404).json({ success: false, error: { message: 'Certificate not found' } });
+    res.json({ success: true, data: certificate });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const createCertificate = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    const id = data.id || `cert_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+
+    let newCert: any;
+    if (isDbConnected()) {
+      const count = await CMSCertificate.countDocuments();
+      const order = data.order !== undefined && !isNaN(Number(data.order)) ? Number(data.order) : count + 1;
+      newCert = await CMSCertificate.create({ ...data, id, order });
+    } else {
+      newCert = {
+        ...data,
+        id,
+        order: data.order !== undefined && !isNaN(Number(data.order)) ? Number(data.order) : memoryCertificates.length + 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      memoryCertificates.push(newCert);
+    }
+
+    await recordActivity('MD Zaved Akhtar', 'added company certificate', newCert.title, 'certificate');
+    broadcastCmsEvent('certificate', newCert);
+    res.status(201).json({ success: true, data: newCert, message: 'Certificate created successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const updateCertificate = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = { ...req.body };
+    if (updates.order !== undefined && updates.order !== null && !isNaN(Number(updates.order))) {
+      updates.order = Number(updates.order);
+    }
+
+    let updatedCert: any = null;
+    if (isDbConnected()) {
+      updatedCert = await CMSCertificate.findOneAndUpdate({ id }, { ...updates, updatedAt: new Date() }, { new: true });
+    }
+
+    const idx = memoryCertificates.findIndex((c) => c.id === id);
+    if (idx !== -1) {
+      memoryCertificates[idx] = { ...memoryCertificates[idx], ...updates, updatedAt: new Date().toISOString() };
+      if (!updatedCert) updatedCert = memoryCertificates[idx];
+    }
+
+    if (!updatedCert) return res.status(404).json({ success: false, error: { message: 'Certificate not found' } });
+
+    await recordActivity('MD Zaved Akhtar', 'updated company certificate', updatedCert.title, 'certificate');
+    broadcastCmsEvent('certificate', updatedCert);
+    res.json({ success: true, data: updatedCert, message: 'Certificate updated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const deleteCertificate = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    let title = id;
+
+    if (isDbConnected()) {
+      const target = await CMSCertificate.findOneAndDelete({ id });
+      if (target) title = target.title;
+    }
+
+    const target = memoryCertificates.find((c) => c.id === id);
+    if (target) title = target.title;
+    memoryCertificates = memoryCertificates.filter((c) => c.id !== id);
+
+    await recordActivity('MD Zaved Akhtar', 'deleted company certificate', title, 'certificate');
+    broadcastCmsEvent('certificate', { id, deleted: true });
+    res.json({ success: true, message: 'Certificate deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+export const reorderCertificates = async (req: Request, res: Response) => {
+  try {
+    const { certificates } = req.body;
+    if (Array.isArray(certificates)) {
+      if (isDbConnected()) {
+        for (let i = 0; i < certificates.length; i++) {
+          const item = certificates[i];
+          const orderNum = item.order !== undefined && !isNaN(Number(item.order)) ? Number(item.order) : i + 1;
+          await CMSCertificate.findOneAndUpdate({ id: item.id }, { order: orderNum });
+        }
+      }
+      memoryCertificates = certificates.map((c, idx) => ({
+        ...c,
+        order: c.order !== undefined && !isNaN(Number(c.order)) ? Number(c.order) : idx + 1,
+      }));
+    }
+    await recordActivity('MD Zaved Akhtar', 'reordered company certificates', 'Certificates Showcase Order', 'certificate');
+    broadcastCmsEvent('certificate', { reordered: true, certificates: memoryCertificates });
+    res.json({ success: true, message: 'Certificates reordered successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: error.message } });
+  }
+};
+
+/* =========================================================================
+   13. CUSTOM EMAIL SENDER CONTROLLER
+   ========================================================================= */
 export const sendCustomEmailHandler = async (req: Request, res: Response) => {
   try {
     const { to, subject, message, senderName } = req.body;
@@ -1418,4 +1565,6 @@ export const sendCustomEmailHandler = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: { message: error.message } });
   }
 };
+
+
 

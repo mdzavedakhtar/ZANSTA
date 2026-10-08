@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { socketService } from '@/services/socket';
 
-export type CmsSyncType = 'project' | 'team' | 'service' | 'demo' | 'review' | 'landing' | 'enquiry' | 'demoRequest' | 'banner' | 'all';
+export type CmsSyncType = 'project' | 'team' | 'service' | 'demo' | 'review' | 'landing' | 'enquiry' | 'demoRequest' | 'banner' | 'certificate' | 'all';
 
 export function useCmsLiveSync(types: CmsSyncType | CmsSyncType[], onUpdate: (detail: { type: string; data?: any }) => void) {
   useEffect(() => {
