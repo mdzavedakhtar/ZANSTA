@@ -9,14 +9,14 @@
     "server"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "dev:client": "npm run dev --prefix client",
-    "dev:server": "npm run dev --prefix server",
-    "build:client": "npm run build --prefix client",
-    "build:server": "npm run build --prefix server",
-    "build": "npm run build:client && npm run build:server",
-    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
-    "vercel-build": "npm run build:client"
+    "dev": "concurrently \"npm --workspace=server run dev\" \"npm --workspace=client run dev\"",
+    "dev:client": "npm --workspace=client run dev",
+    "dev:server": "npm --workspace=server run dev",
+    "build:client": "npm --workspace=client run build",
+    "build:server": "npm --workspace=server run build",
+    "build": "npm --workspace=client run build && npm --workspace=server run build",
+    "install:all": "npm install",
+    "vercel-build": "npm --workspace=client run build"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
