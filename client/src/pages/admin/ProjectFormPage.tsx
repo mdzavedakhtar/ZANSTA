@@ -53,7 +53,7 @@ export const ProjectFormPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -67,13 +67,18 @@ export const ProjectFormPage: React.FC = () => {
     }
 
     setIsSaving(true);
-    if (isEdit && id) {
-      projectService.updateProject(id, formData);
-    } else {
-      projectService.createProject(formData as any);
+    try {
+      if (isEdit && id) {
+        await projectService.updateProject(id, formData);
+      } else {
+        await projectService.createProject(formData as any);
+      }
+      navigate('/admin/projects');
+    } catch (err: any) {
+      setError(err.message || 'Failed to save project');
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    navigate('/admin/projects');
   };
 
   return (
@@ -303,13 +308,13 @@ export const ProjectFormPage: React.FC = () => {
         </Card>
 
         {/* Submit Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Link to="/admin/projects">
-            <Button size="md" variant="ghost">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 w-full">
+          <Link to="/admin/projects" className="w-full sm:w-auto">
+            <Button size="md" variant="ghost" className="w-full sm:w-auto justify-center">
               Cancel
             </Button>
           </Link>
-          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button size="md" variant="glow" type="submit" isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             {isEdit ? 'Update Project' : 'Publish Project'}
           </Button>
         </div>

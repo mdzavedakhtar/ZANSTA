@@ -10,6 +10,10 @@ out/
 
 # Environment Variables
 .env
+.env.*
+*.env
+**/.env
+**/.env.*
 .env.local
 .env.*.local
 

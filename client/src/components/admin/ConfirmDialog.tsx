@@ -62,8 +62,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-white/05">
-              <Button size="sm" variant="ghost" onClick={onClose} disabled={isLoading}>
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-2 border-t border-white/05 w-full">
+              <Button size="sm" variant="ghost" onClick={onClose} disabled={isLoading} className="w-full sm:w-auto justify-center">
                 {cancelLabel}
               </Button>
               <Button
@@ -71,7 +71,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 variant="glow"
                 isLoading={isLoading}
                 onClick={onConfirm}
-                className="bg-[#8B0D1A] hover:bg-[#8B0D1A]/90 text-white border-[#8B0D1A]"
+                className="w-full sm:w-auto justify-center bg-[#8B0D1A] hover:bg-[#8B0D1A]/90 text-white border-[#8B0D1A]"
               >
                 {confirmLabel}
               </Button>

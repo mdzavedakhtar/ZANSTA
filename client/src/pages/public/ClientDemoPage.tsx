@@ -30,22 +30,34 @@ export const ClientDemoPage: React.FC = () => {
     if (!token) return;
     setIsLoading(true);
 
-    const demo = demoService.getDemoByToken(token);
-    if (demo) {
-      setDemoData(demo);
-      demoService.incrementViewCount(token);
-
-      if (demo.projectId) {
-        const proj = projectService.getProjectById(demo.projectId);
+    const initialDemo = demoService.getDemoByToken(token);
+    if (initialDemo) {
+      setDemoData(initialDemo);
+      if (initialDemo.projectId) {
+        const proj = projectService.getProjectById(initialDemo.projectId);
         if (proj) setProjectData(proj);
       }
-
-      // If no passcode required, auto verify
-      if (!demo.passcode || demo.passcode.trim() === '') {
+      if (!initialDemo.passcode || initialDemo.passcode.trim() === '') {
         setIsPasscodeVerified(true);
       }
     }
-    setIsLoading(false);
+
+    demoService.fetchDemoByToken(token).then((demo) => {
+      if (demo) {
+        setDemoData(demo);
+        demoService.incrementViewCount(token);
+        if (demo.projectId) {
+          const proj = projectService.getProjectById(demo.projectId);
+          if (proj) setProjectData(proj);
+        }
+        if (!demo.passcode || demo.passcode.trim() === '') {
+          setIsPasscodeVerified(true);
+        }
+      }
+      setIsLoading(false);
+    }).catch(() => {
+      setIsLoading(false);
+    });
   }, [token]);
 
   const handleVerifyPasscode = (e: React.FormEvent) => {

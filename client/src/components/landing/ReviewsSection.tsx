@@ -15,6 +15,12 @@ export const ReviewsSection: React.FC = () => {
   useEffect(() => {
     const list = reviewService.getReviews({ isVisible: true });
     setReviews(list);
+
+    reviewService.fetchReviews({ isVisible: true }).then((freshList) => {
+      if (freshList && freshList.length > 0) {
+        setReviews(freshList);
+      }
+    });
   }, []);
 
   if (reviews.length === 0) return null;

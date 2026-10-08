@@ -24,40 +24,46 @@ export const ServiceManagerPage: React.FC = () => {
   const [services, setServices] = useState<CMSService[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<CMSService | null>(null);
 
-  const loadServices = () => {
+  const loadServices = async () => {
     setServices(serviceService.getServices());
+    try {
+      const fresh = await serviceService.fetchServices();
+      if (fresh) setServices(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh services:', e);
+    }
   };
 
   useEffect(() => {
     loadServices();
   }, []);
 
-  const handleToggleVisibility = (svc: CMSService) => {
-    serviceService.updateService(svc.id, { isVisible: !svc.isVisible });
+  const handleToggleVisibility = async (svc: CMSService) => {
+    await serviceService.updateService(svc.id, { isVisible: !svc.isVisible });
     loadServices();
   };
 
-  const handleToggleFeatured = (svc: CMSService) => {
-    serviceService.updateService(svc.id, { isFeatured: !svc.isFeatured });
+  const handleToggleFeatured = async (svc: CMSService) => {
+    await serviceService.updateService(svc.id, { isFeatured: !svc.isFeatured });
     loadServices();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    serviceService.deleteService(deleteTarget.id);
+    await serviceService.deleteService(deleteTarget.id);
     setDeleteTarget(null);
     loadServices();
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <Layers className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               AGENCY SERVICES CMS
             </h1>
           </div>
@@ -66,8 +72,8 @@ export const ServiceManagerPage: React.FC = () => {
           </p>
         </div>
 
-        <Link to="/admin/services/new">
-          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />}>
+        <Link to="/admin/services/new" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             Create Service
           </Button>
         </Link>

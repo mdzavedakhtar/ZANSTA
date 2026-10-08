@@ -15,58 +15,6 @@ interface AuthState {
   logout: () => void;
 }
 
-// Known mock accounts for decoupled fallback authentication
-const knownMockUsers: Record<string, User> = {
-  'mdzavedakhtar62@gmail.com': {
-    id: 'user_mock_zaved',
-    name: 'MD Zaved Akhtar',
-    email: 'mdzavedakhtar62@gmail.com',
-    role: 'OWNER',
-    avatar: '/zaved.jpg',
-    bio: 'Lead Architect & Full-Stack Systems Engineer',
-    skills: ['React', 'Next.js', 'Node.js', 'Python', 'Java', 'Generative AI', 'RAG', 'Vector Search'],
-    github: 'https://github.com/mdzavedakhtar',
-    linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
-    isVerified: true,
-  },
-  'rahul@zansta.dev': {
-    id: 'user_mock_rahul',
-    name: 'Rahul Sharma',
-    email: 'rahul@zansta.dev',
-    role: 'ADMIN',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    bio: 'Frontend & Motion Specialist',
-    skills: ['React 18', 'Framer Motion', 'Tailwind'],
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    isVerified: true,
-  },
-  'aman@zansta.dev': {
-    id: 'user_mock_aman',
-    name: 'Aman Deep',
-    email: 'aman@zansta.dev',
-    role: 'MEMBER',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
-    bio: 'Backend & Real-Time Gateway Engineer',
-    skills: ['Node.js', 'Socket.IO', 'Express'],
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    isVerified: true,
-  },
-  'client@acme.com': {
-    id: 'user_mock_client',
-    name: 'Acme Client User',
-    email: 'client@acme.com',
-    role: 'CLIENT',
-    avatar: '',
-    bio: 'Client Stakeholder',
-    skills: ['Client Review'],
-    github: '',
-    linkedin: '',
-    isVerified: true,
-  },
-};
-
 const getInitialUser = (): User | null => {
   try {
     const saved = localStorage.getItem('zansta_user');
@@ -74,20 +22,19 @@ const getInitialUser = (): User | null => {
   } catch (e) {
     console.error('Failed to parse saved user', e);
   }
-  return knownMockUsers['mdzavedakhtar62@gmail.com'];
+  return null;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: getInitialUser(),
-  token: localStorage.getItem('zansta_token') || 'mock_token_dev',
-  isAuthenticated: Boolean(localStorage.getItem('zansta_token') || getInitialUser()),
+  token: localStorage.getItem('zansta_token') || null,
+  isAuthenticated: Boolean(localStorage.getItem('zansta_token') && getInitialUser()),
   isLoading: false,
 
   initAuth: async () => {
     const token = localStorage.getItem('zansta_token');
     if (!token) {
-      const storedUser = getInitialUser();
-      set({ user: storedUser, isAuthenticated: Boolean(storedUser), isLoading: false });
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
       return;
     }
 
@@ -98,25 +45,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem('zansta_user', JSON.stringify(res.user));
         set({ user: res.user, isAuthenticated: true, isLoading: false });
       } else {
-        const storedUser = getInitialUser();
-        set({ user: storedUser, isAuthenticated: Boolean(storedUser), isLoading: false });
+        localStorage.removeItem('zansta_token');
+        localStorage.removeItem('zansta_user');
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
       }
     } catch (error) {
       const storedUser = getInitialUser();
-      set({ user: storedUser, isAuthenticated: Boolean(storedUser), isLoading: false });
+      if (storedUser && token) {
+        set({ user: storedUser, isAuthenticated: true, isLoading: false });
+      } else {
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      }
     }
   },
 
-  login: async (email, password) => {
+  login: async (email: string, password: string) => {
     set({ isLoading: true });
     const cleanEmail = email.trim().toLowerCase();
-
-    // Check custom password if set by owner or user
-    const storedPw = localStorage.getItem(`zansta_pw_${cleanEmail}`);
-    if (storedPw && password !== storedPw) {
-      set({ isLoading: false });
-      throw new Error('Incorrect password. Please enter your valid account password.');
-    }
 
     try {
       const res = await apiRequest<AuthResponse>('/auth/login', {
@@ -127,78 +72,39 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.success && res.token && res.user) {
         localStorage.setItem('zansta_token', res.token);
         localStorage.setItem('zansta_user', JSON.stringify(res.user));
-        if (!storedPw && password) {
-          localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
-        }
         set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
         return;
+      } else {
+        set({ isLoading: false });
+        throw new Error(res.message || 'Login failed. Please check your credentials.');
       }
     } catch (error: any) {
-      // Decoupled / Offline Fallback matching:
-      // Match email against known mock accounts or create member
-      const matchedUser: User = knownMockUsers[cleanEmail] || {
-        id: `user_${Date.now()}`,
-        name: cleanEmail.split('@')[0].toUpperCase(),
-        email: cleanEmail,
-        role: cleanEmail === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : 'MEMBER',
-        avatar: '',
-        bio: 'Workspace Member',
-        skills: ['Developer'],
-        github: '',
-        linkedin: '',
-        isVerified: true,
-      };
-
-      const token = `mock_jwt_${matchedUser.id}`;
-      localStorage.setItem('zansta_token', token);
-      localStorage.setItem('zansta_user', JSON.stringify(matchedUser));
-      if (!storedPw && password) {
-        localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
-      }
-
-      set({ user: matchedUser, token, isAuthenticated: true, isLoading: false });
+      set({ isLoading: false });
+      throw new Error(error.message || 'Invalid email or password. Please verify your credentials.');
     }
   },
 
-  register: async (name, email, password, role = 'MEMBER') => {
+  register: async (name: string, email: string, password: string, role = 'MEMBER') => {
     set({ isLoading: true });
     const cleanEmail = email.trim().toLowerCase();
-    
-    // Prevent registering as OWNER unless authorized owner email
-    const assignedRole: UserRole = cleanEmail === 'mdzavedakhtar62@gmail.com' ? 'OWNER' : (role === 'OWNER' ? 'MEMBER' : (role as UserRole || 'MEMBER'));
 
     try {
       const res = await apiRequest<AuthResponse>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email: cleanEmail, password, role: assignedRole }),
+        body: JSON.stringify({ name, email: cleanEmail, password, role }),
       });
 
       if (res.success && res.token && res.user) {
         localStorage.setItem('zansta_token', res.token);
         localStorage.setItem('zansta_user', JSON.stringify(res.user));
-        localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
         set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
+      } else {
+        set({ isLoading: false });
+        throw new Error(res.message || 'Registration failed');
       }
     } catch (error: any) {
-      const newUser: User = {
-        id: `user_${Date.now()}`,
-        name,
-        email: cleanEmail,
-        role: assignedRole,
-        avatar: '',
-        bio: 'Workspace Member',
-        skills: ['Developer'],
-        github: '',
-        linkedin: '',
-        isVerified: true,
-      };
-
-      const token = `mock_jwt_${newUser.id}`;
-      localStorage.setItem('zansta_token', token);
-      localStorage.setItem('zansta_user', JSON.stringify(newUser));
-      localStorage.setItem(`zansta_pw_${cleanEmail}`, password);
-
-      set({ user: newUser, token, isAuthenticated: true, isLoading: false });
+      set({ isLoading: false });
+      throw new Error(error.message || 'Registration failed. Please try again.');
     }
   },
 
@@ -228,31 +134,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updatePassword: async (currentPassword, newPassword) => {
     set({ isLoading: true });
-    const user = get().user;
-    if (!user) {
-      set({ isLoading: false });
-      throw new Error('User session not found');
-    }
-
-    const cleanEmail = user.email.trim().toLowerCase();
-    const existingPw = localStorage.getItem(`zansta_pw_${cleanEmail}`);
-
-    if (existingPw && currentPassword && currentPassword !== existingPw) {
-      set({ isLoading: false });
-      throw new Error('Current password does not match.');
-    }
-
     try {
       await apiRequest('/auth/profile', {
         method: 'PUT',
-        body: JSON.stringify({ password: newPassword }),
+        body: JSON.stringify({ currentPassword, password: newPassword }),
       });
-    } catch {
-      // Handled in local state
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ isLoading: false });
+      throw new Error(error.message || 'Failed to update password');
     }
-
-    localStorage.setItem(`zansta_pw_${cleanEmail}`, newPassword);
-    set({ isLoading: false });
   },
 
   logout: () => {

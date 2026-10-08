@@ -20,12 +20,12 @@ export const DemoRequestSection: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) return;
 
     setIsSubmitting(true);
-    demoRequestService.createRequest(formData);
+    await demoRequestService.createRequest(formData);
     setIsSubmitting(false);
     setIsSuccess(true);
     setFormData({

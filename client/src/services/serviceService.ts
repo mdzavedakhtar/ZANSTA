@@ -1,16 +1,19 @@
 import { CMSService } from '@/types/cms';
+import { apiRequest } from './api';
 import { activityService } from './activityService';
 
 const STORAGE_KEY = 'zansta_cms_services';
 
-const defaultServices: CMSService[] = [
+export const defaultServices: CMSService[] = [
   {
-    id: 'svc_fullstack',
-    name: 'Full-Stack Development',
-    shortDescription: 'Enterprise Node.js, React, and MongoDB application architectures.',
-    fullDescription: 'Custom web application engineering with real-time WebSocket communication, microservices infrastructure, and responsive modern user interfaces.',
-    iconName: 'Code2',
-    techStack: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'Express'],
+    id: 'svc_frontend_design',
+    name: 'Frontend Design',
+    shortDescription: 'Pixel-perfect 2026 dark UI/UX design systems with fluid Framer Motion animations and magnetic interactions.',
+    fullDescription: 'Custom UI/UX component architectures, high-precision motion choreography, and high-converting modern dark interfaces tailored for modern platforms.',
+    iconName: 'Layout',
+    tag: 'UI / UX',
+    imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+    techStack: ['Framer Motion', 'TailwindCSS', 'React 18', 'Figma'],
     isFeatured: true,
     isVisible: true,
     order: 1,
@@ -18,12 +21,14 @@ const defaultServices: CMSService[] = [
     updatedAt: '2026-01-01T10:00:00.000Z',
   },
   {
-    id: 'svc_ai',
-    name: 'AI & Generative AI',
-    shortDescription: 'Autonomous AI agent workflows, vector search, and LLM integrations.',
-    fullDescription: 'Production-ready AI agent pipelines, custom RAG architecture, vector database indexing, and automated multi-modal task execution systems.',
-    iconName: 'Sparkles',
-    techStack: ['Python', 'FastAPI', 'Pinecone', 'LangChain', 'OpenAI'],
+    id: 'svc_fullstack_dev',
+    name: 'Full Stack Website Development',
+    shortDescription: 'Scalable MERN/Next.js web applications engineered with clean microservices and real-time WebSockets.',
+    fullDescription: 'Complete end-to-end full stack platforms featuring low-latency WebSocket signaling, MongoDB Atlas architectures, and robust RESTful API gateways.',
+    iconName: 'Code2',
+    tag: 'Full Stack',
+    imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop',
+    techStack: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'Express'],
     isFeatured: true,
     isVisible: true,
     order: 2,
@@ -31,12 +36,14 @@ const defaultServices: CMSService[] = [
     updatedAt: '2026-01-02T10:00:00.000Z',
   },
   {
-    id: 'svc_uiux',
-    name: 'UI/UX Engineering',
-    shortDescription: 'Dark-mode aesthetics, custom motion micro-interactions, and 3D web design.',
-    fullDescription: 'Premium agency UI design with Framer Motion transitions, GSAP animations, custom design token libraries, and high-performance WebGL visuals.',
-    iconName: 'Layout',
-    techStack: ['Framer Motion', 'Tailwind CSS', 'Three.js', 'Figma'],
+    id: 'svc_seo_opt',
+    name: 'SEO Design & Optimization',
+    shortDescription: 'High-speed technical SEO architecture, structured metadata schema, and performance optimizations.',
+    fullDescription: 'Core Web Vitals scoring optimization, SSR/SSG rendering, OpenGraph tags, and semantic search indexing to drive top Google rankings.',
+    iconName: 'Search',
+    tag: 'Growth',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    techStack: ['Technical SEO', 'Next.js SSR', 'Schema.org', 'Lighthouse 100'],
     isFeatured: true,
     isVisible: true,
     order: 3,
@@ -44,21 +51,68 @@ const defaultServices: CMSService[] = [
     updatedAt: '2026-01-03T10:00:00.000Z',
   },
   {
-    id: 'svc_saas',
-    name: 'SaaS Development',
-    shortDescription: 'Multi-tenant SaaS products with auth, subscription billing, and telemetry.',
-    fullDescription: 'End-to-end SaaS architecture with RBAC permissions, Stripe/Razorpay billing, usage analytics, and automated deployment pipelines.',
-    iconName: 'Layers',
-    techStack: ['Next.js', 'PostgreSQL', 'Stripe', 'Docker'],
+    id: 'svc_ai_engine',
+    name: 'Generative AI Tools Development',
+    shortDescription: 'Autonomous multi-agent engines, RAG vector database pipelines, and custom AI workflow automation.',
+    fullDescription: 'Custom vector database architectures (Pinecone/Chroma), Gemini/OpenAI tool integrations, and dynamic multi-agent task execution.',
+    iconName: 'Bot',
+    tag: 'AI / ML',
+    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
+    techStack: ['Python', 'Pinecone', 'LangChain', 'OpenAI', 'Gemini'],
     isFeatured: true,
     isVisible: true,
     order: 4,
     createdAt: '2026-01-04T10:00:00.000Z',
     updatedAt: '2026-01-04T10:00:00.000Z',
   },
+  {
+    id: 'svc_analytics_ai',
+    name: 'Data Analytics with Generative AI',
+    shortDescription: 'Real-time telemetry dashboards integrated with custom LLMs for automated business intelligence.',
+    fullDescription: 'Power BI dashboards, automated SQL analytics pipelines, and natural language query interfaces for enterprise decision making.',
+    iconName: 'BarChart3',
+    tag: 'Analytics',
+    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    techStack: ['Power BI', 'Python', 'SQL', 'Pandas', 'DAX'],
+    isFeatured: true,
+    isVisible: true,
+    order: 5,
+    createdAt: '2026-01-05T10:00:00.000Z',
+    updatedAt: '2026-01-05T10:00:00.000Z',
+  },
+  {
+    id: 'svc_app_dev',
+    name: 'App Development',
+    shortDescription: 'Cross-platform iOS & Android mobile applications built with React Native and native module performance.',
+    fullDescription: 'Smooth 60fps mobile architectures, offline storage, push notifications, and biometric authentication for consumer and business apps.',
+    iconName: 'Smartphone',
+    tag: 'Mobile',
+    imageUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop',
+    techStack: ['React Native', 'Expo', 'iOS', 'Android', 'Redux'],
+    isFeatured: true,
+    isVisible: true,
+    order: 6,
+    createdAt: '2026-01-06T10:00:00.000Z',
+    updatedAt: '2026-01-06T10:00:00.000Z',
+  },
 ];
 
 export const serviceService = {
+  // Async fetch from MongoDB API
+  fetchServices: async (): Promise<CMSService[]> => {
+    try {
+      const response = await apiRequest<{ success: boolean; data: CMSService[] }>('/cms/services');
+      if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        return response.data;
+      }
+    } catch (err) {
+      console.warn('[serviceService] Backend API offline or unreachable, using local cache:', err);
+    }
+    return serviceService.getServices();
+  },
+
+  // Synchronous read with local cache
   getServices: (): CMSService[] => {
     let services: CMSService[] = [];
     try {
@@ -77,17 +131,18 @@ export const serviceService = {
     return services;
   },
 
-  getServiceById: (id: string): CMSService | null => {
+  getServiceById: (id: string): CMSService | undefined => {
     const services = serviceService.getServices();
-    return services.find((s) => s.id === id) || null;
+    return services.find((s) => s.id === id);
   },
 
-  createService: (data: Omit<CMSService, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): CMSService => {
+  createService: async (data: Omit<CMSService, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { id?: string; order?: number }): Promise<CMSService> => {
     const services = serviceService.getServices();
+    const id = data.id || `svc_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     const newService: CMSService = {
       ...data,
-      id: `svc_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      order: data.order ?? (services.length + 1),
+      id,
+      order: data.order !== undefined ? data.order : services.length + 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -95,17 +150,27 @@ export const serviceService = {
     const updated = [...services, newService];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     activityService.logActivity('MD Zaved Akhtar', 'created agency service', newService.name, 'service');
+
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSService }>('/cms/services', {
+        method: 'POST',
+        body: JSON.stringify(newService),
+      });
+      if (res.success && res.data) return res.data;
+    } catch (err) {
+      console.warn('[serviceService] Failed to save service to MongoDB, saved locally:', err);
+    }
+
     return newService;
   },
 
-  updateService: (id: string, updates: Partial<CMSService>): CMSService | null => {
+  updateService: async (id: string, updates: Partial<CMSService>): Promise<CMSService | null> => {
     const services = serviceService.getServices();
     const index = services.findIndex((s) => s.id === id);
     if (index === -1) return null;
 
-    const existing = services[index];
     const updatedService: CMSService = {
-      ...existing,
+      ...services[index],
       ...updates,
       updatedAt: new Date().toISOString(),
     };
@@ -113,10 +178,21 @@ export const serviceService = {
     services[index] = updatedService;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
     activityService.logActivity('MD Zaved Akhtar', 'updated agency service', updatedService.name, 'service');
+
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSService }>(`/cms/services/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+      if (res.success && res.data) return res.data;
+    } catch (err) {
+      console.warn('[serviceService] Failed to update service in MongoDB, saved locally:', err);
+    }
+
     return updatedService;
   },
 
-  deleteService: (id: string): boolean => {
+  deleteService: async (id: string): Promise<boolean> => {
     const services = serviceService.getServices();
     const target = services.find((s) => s.id === id);
     if (!target) return false;
@@ -124,6 +200,15 @@ export const serviceService = {
     const filtered = services.filter((s) => s.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target.name, 'service');
+
+    try {
+      await apiRequest(`/cms/services/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.warn('[serviceService] Failed to delete service from MongoDB, deleted locally:', err);
+    }
+
     return true;
   },
 };

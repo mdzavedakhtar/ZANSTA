@@ -85,6 +85,8 @@ export interface CMSService {
   name: string;
   shortDescription: string;
   fullDescription: string;
+  imageUrl?: string;
+  tag?: string;
   iconName: string;
   techStack: string[];
   isFeatured: boolean;

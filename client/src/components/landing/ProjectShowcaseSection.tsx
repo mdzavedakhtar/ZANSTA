@@ -15,6 +15,13 @@ export const ProjectShowcaseSection: React.FC = () => {
   useEffect(() => {
     const list = projectService.getProjects({ isFeatured: true, isVisible: true });
     setProjects(list.length > 0 ? list : projectService.getProjects({ isVisible: true }));
+
+    projectService.fetchProjects({ isVisible: true }).then((freshList) => {
+      if (freshList && freshList.length > 0) {
+        const featured = freshList.filter((p) => p.isFeatured && p.isVisible);
+        setProjects(featured.length > 0 ? featured : freshList.filter((p) => p.isVisible));
+      }
+    });
   }, []);
 
   if (projects.length === 0) return null;

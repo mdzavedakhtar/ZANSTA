@@ -31,12 +31,21 @@ export const DemoManagerPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CMSClientDemo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadDemos = () => {
+  const loadDemos = async () => {
     const list = demoService.getDemos({
       search,
       status: statusFilter,
     });
     setDemos(list);
+    try {
+      const fresh = await demoService.fetchDemos({
+        search,
+        status: statusFilter,
+      });
+      if (fresh) setDemos(fresh);
+    } catch (e) {
+      console.warn('Error fetching fresh demos:', e);
+    }
   };
 
   useEffect(() => {
@@ -50,36 +59,36 @@ export const DemoManagerPage: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleRegenerateToken = (id: string) => {
-    demoService.regenerateToken(id);
+  const handleRegenerateToken = async (id: string) => {
+    await demoService.regenerateToken(id);
     loadDemos();
   };
 
-  const handleToggleStatus = (demo: CMSClientDemo) => {
+  const handleToggleStatus = async (demo: CMSClientDemo) => {
     const nextStatus = demo.status === 'LIVE' ? 'ARCHIVED' : 'LIVE';
-    demoService.updateDemo(demo.id, { status: nextStatus });
+    await demoService.updateDemo(demo.id, { status: nextStatus });
     loadDemos();
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    demoService.deleteDemo(deleteTarget.id);
+    await demoService.deleteDemo(deleteTarget.id);
     setIsDeleting(false);
     setDeleteTarget(null);
     loadDemos();
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <MonitorPlay className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               CLIENT DEMO MANAGEMENT
             </h1>
           </div>
@@ -88,15 +97,15 @@ export const DemoManagerPage: React.FC = () => {
           </p>
         </div>
 
-        <Link to="/admin/demos/new">
-          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />}>
+        <Link to="/admin/demos/new" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center">
             Create Client Demo
           </Button>
         </Link>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
         <div className="relative">
           <Search className="w-4 h-4 text-[#F5F2ED]/35 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input

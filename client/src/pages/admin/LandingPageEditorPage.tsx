@@ -8,10 +8,19 @@ import { Globe, Save, ExternalLink, ShieldCheck, Eye, EyeOff, Sparkles, CheckCir
 export const LandingPageEditorPage: React.FC = () => {
   const [content, setContent] = useState<CMSLandingPageContent>(landingService.getLandingContent());
   const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    landingService.fetchLandingContent().then((fresh) => {
+      if (fresh) setContent(fresh);
+    });
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    landingService.updateLandingContent(content);
+    setIsSaving(true);
+    await landingService.updateLandingContent(content);
+    setIsSaving(false);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
@@ -27,15 +36,15 @@ export const LandingPageEditorPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-16">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-16 w-full max-w-full overflow-x-hidden">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A]">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
               <Globe className="w-4 h-4" />
             </div>
-            <h1 className="text-2xl font-black text-[#F5F2ED] tracking-tight font-display">
+            <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words">
               LANDING PAGE CMS CONTROL
             </h1>
           </div>
@@ -44,9 +53,9 @@ export const LandingPageEditorPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <a href="/" target="_blank" rel="noreferrer">
-            <Button size="sm" variant="outline" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <a href="/" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+            <Button size="sm" variant="outline" rightIcon={<ExternalLink className="w-3.5 h-3.5" />} className="w-full sm:w-auto justify-center">
               Preview Landing Page
             </Button>
           </a>
@@ -241,6 +250,48 @@ export const LandingPageEditorPage: React.FC = () => {
                 type="text"
                 value={content.finalCtaSubtext || ''}
                 onChange={(e) => setContent((prev) => ({ ...prev, finalCtaSubtext: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A]"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* 5. Headquarters Contact Information */}
+        <Card surfaceTier="100" className="p-6 space-y-4 border border-white/10">
+          <h2 className="text-sm font-bold text-[#F5F2ED] font-display uppercase tracking-wider border-b border-white/05 pb-3">
+            5. HEADQUARTERS & CONTACT INFO
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80">Direct Support Email</label>
+              <input
+                type="email"
+                value={content.contactEmail || ''}
+                onChange={(e) => setContent((prev) => ({ ...prev, contactEmail: e.target.value }))}
+                placeholder="zanstacom@gmail.com"
+                className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80">Direct Hotline Numbers</label>
+              <input
+                type="text"
+                value={content.contactPhone || ''}
+                onChange={(e) => setContent((prev) => ({ ...prev, contactPhone: e.target.value }))}
+                placeholder="+91 6202888431, +91 6287786639"
+                className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A]"
+              />
+            </div>
+
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80">Studio & Headquarters Address</label>
+              <input
+                type="text"
+                value={content.contactAddress || ''}
+                onChange={(e) => setContent((prev) => ({ ...prev, contactAddress: e.target.value }))}
+                placeholder="Bhilai, Kohka, Durg, Chhattisgarh 490023"
                 className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] focus:outline-none focus:border-[#8B0D1A]"
               />
             </div>
