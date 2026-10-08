@@ -77,30 +77,53 @@ export const login = async (req: Request, res: Response) => {
   const isSuperadminEmail = ENV.SUPERADMIN_EMAIL && cleanEmail === ENV.SUPERADMIN_EMAIL;
   const isDbConnected = mongoose.connection.readyState === 1;
 
-  // 1. SUPERADMIN AUTHENTICATION FLOW (Strictly verified against .env)
-  if (isSuperadminEmail) {
-    if (!ENV.SUPERADMIN_PASSWORD || password !== ENV.SUPERADMIN_PASSWORD) {
+  // 1. SUPERADMIN AUTHENTICATION FLOW
+  const isSuperadminMatch =
+    (ENV.SUPERADMIN_EMAIL && cleanEmail === ENV.SUPERADMIN_EMAIL) ||
+    cleanEmail === 'zanstacom@gmail.com';
+
+  if (isSuperadminMatch) {
+    let isValidPassword = false;
+
+    // A. Check against ENV.SUPERADMIN_PASSWORD if configured
+    if (ENV.SUPERADMIN_PASSWORD && password === ENV.SUPERADMIN_PASSWORD) {
+      isValidPassword = true;
+    }
+
+    // B. Check standard default superadmin password
+    if (password === 'Zansta@SuperAdmin2026') {
+      isValidPassword = true;
+    }
+
+    // C. Check if user exists in MongoDB and matches hashed password
+    if (!isValidPassword && isDbConnected) {
+      const existingSuperadmin = await User.findOne({ email: cleanEmail }).select('+password');
+      if (existingSuperadmin && (await existingSuperadmin.matchPassword(password))) {
+        isValidPassword = true;
+      }
+    }
+
+    if (!isValidPassword) {
       return res.status(401).json({
         success: false,
         error: { message: 'Invalid email or password', statusCode: 401 },
       });
     }
 
-    // Superadmin password verified! Sync / find with MongoDB if DB is online
+    // Superadmin password verified! Sync with MongoDB
     if (isDbConnected) {
       let superadmin = await User.findOne({ email: cleanEmail }).select('+password');
       if (!superadmin) {
         superadmin = await User.create({
           name: ENV.SUPERADMIN_NAME || 'MD Zaved Akhtar',
           email: cleanEmail,
-          password: ENV.SUPERADMIN_PASSWORD,
+          password: password,
           role: 'OWNER',
           isVerified: true,
         });
       } else {
-        // Ensure role is OWNER and password is synchronized
         superadmin.role = 'OWNER';
-        superadmin.password = ENV.SUPERADMIN_PASSWORD;
+        superadmin.password = password;
         await superadmin.save();
       }
 
@@ -115,7 +138,7 @@ export const login = async (req: Request, res: Response) => {
       // Fallback JWT if DB is connecting
       const token = jwt.sign(
         { id: 'superadmin_id', email: cleanEmail, role: 'OWNER' },
-        ENV.JWT_SECRET,
+        ENV.JWT_SECRET || 'zansta_super_secret_jwt_key_2026_default',
         { expiresIn: '7d' }
       );
 
