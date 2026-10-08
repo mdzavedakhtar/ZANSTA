@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { SEO } from '@/components/shared/SEO';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -33,6 +34,11 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen pt-28 pb-16 flex items-center justify-center relative overflow-hidden">
+      <SEO
+        title="Superadmin Portal Authentication"
+        description="Secure workspace sign in for authorized ZANSTA administrators."
+        keywords="ZANSTA login, superadmin authentication, workspace access"
+      />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-radial-gradient opacity-40 pointer-events-none" />
 
       <Container size="sm" className="relative z-10">

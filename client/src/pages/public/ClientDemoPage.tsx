@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { SEO } from '@/components/shared/SEO';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -157,6 +158,11 @@ export const ClientDemoPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
+      <SEO
+        title={`${demoData.title} — Client Demo Portal`}
+        description={demoData.description || 'Interactive client demo preview environment.'}
+        keywords="client demo, staging preview, ZANSTA platform"
+      />
       {/* Top Header Bar */}
       <header className="border-b border-white/10 bg-[#0E0E0E]/80 backdrop-blur-md px-6 py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

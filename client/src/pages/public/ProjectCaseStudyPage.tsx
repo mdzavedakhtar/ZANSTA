@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { SEO } from '@/components/shared/SEO';
 import { Navbar as FloatingNavbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Card } from '@/components/ui/Card';
@@ -36,17 +37,6 @@ export const ProjectCaseStudyPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, [slug, fetchCaseStudyBySlug]);
 
-  // Set Dynamic SEO Metadata
-  useEffect(() => {
-    if (activeCaseStudy?.seo) {
-      document.title = activeCaseStudy.seo.title;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', activeCaseStudy.seo.description);
-      }
-    }
-  }, [activeCaseStudy]);
-
   if (isLoading || !activeCaseStudy) {
     return (
       <div className="min-h-screen bg-[#050505] text-[#F5F2ED] flex items-center justify-center font-mono text-xs">
@@ -78,6 +68,13 @@ export const ProjectCaseStudyPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#F5F2ED] selection:bg-[#8B0D1A]/30 selection:text-[#F5F2ED]">
+      <SEO
+        title={activeCaseStudy.seo?.title || `${activeCaseStudy.name} — Architecture & Case Study`}
+        description={activeCaseStudy.seo?.description || activeCaseStudy.description || activeCaseStudy.tagline}
+        keywords={`${activeCaseStudy.name}, case study, ${activeCaseStudy.techStack ? activeCaseStudy.techStack.join(', ') : 'software'}, engineering architecture`}
+        ogImage={activeCaseStudy.seo?.openGraphImage || activeCaseStudy.coverUrl}
+        ogType="article"
+      />
       <FloatingNavbar />
 
       {/* Case Study Hero Header */}
