@@ -44,8 +44,8 @@ export const landingService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[landingService] Backend API offline, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return landingService.getLandingContent();
   },
@@ -57,8 +57,8 @@ export const landingService = {
       if (stored) {
         return JSON.parse(stored);
       }
-    } catch (e) {
-      console.error('Failed to parse landing content from localStorage', e);
+    } catch {
+      // Local fallback
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultLandingContent));
     return defaultLandingContent;
@@ -84,8 +84,8 @@ export const landingService = {
         body: JSON.stringify(updates),
       });
       if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[landingService] Failed to save landing content to MongoDB, saved locally:', err);
+    } catch {
+      // Local fallback
     }
 
     return updated;

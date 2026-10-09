@@ -196,4 +196,8 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFoundPage />,
   },
-]);
+], {
+  future: {
+    v7_relativeSplatPath: true,
+  } as any,
+});

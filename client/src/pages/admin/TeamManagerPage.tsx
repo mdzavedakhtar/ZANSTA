@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 import {
   Users,
   UserPlus,
@@ -18,7 +16,6 @@ import {
   Eye,
   EyeOff,
   Star,
-  FileText,
   Github,
   Linkedin,
   Globe,
@@ -32,7 +29,6 @@ export const TeamManagerPage: React.FC = () => {
   const [visibilityFilter, setVisibilityFilter] = useState('ALL');
   const [deleteTarget, setDeleteTarget] = useState<CMSTeamMember | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   const loadTeam = async () => {
     const list = teamService.getTeamMembers({
@@ -47,8 +43,8 @@ export const TeamManagerPage: React.FC = () => {
         isVisible: visibilityFilter === 'ALL' ? undefined : visibilityFilter === 'VISIBLE',
       });
       if (fresh) setMembers(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh team:', e);
+    } catch {
+      // Silent
     }
   };
 
@@ -88,7 +84,7 @@ export const TeamManagerPage: React.FC = () => {
             Core Team & Collective CMS
           </h1>
           <p className="text-xs text-[#F5F2ED]/50 mt-1">
-            Manage engineers, roles, experience, tech stacks, and uploaded resume documents.
+            Manage engineers, roles, experience, tech stacks, and social links.
           </p>
         </div>
 
@@ -208,22 +204,6 @@ export const TeamManagerPage: React.FC = () => {
                     </span>
                   )}
                 </div>
-
-                {/* Resume Status Badge */}
-                {m.resumeUrl ? (
-                  <button
-                    type="button"
-                    onClick={() => setPreviewMember(m)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#8B0D1A]/10 border border-[#8B0D1A]/20 text-[11px] font-mono text-[#ff4d61] hover:bg-[#8B0D1A]/20 transition-colors cursor-pointer text-left"
-                  >
-                    <FileText className="w-3.5 h-3.5 text-[#ff4d61] shrink-0" />
-                    <span className="truncate max-w-[150px]">{m.resumeFileName || 'View Resume PDF'}</span>
-                  </button>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#F5F2ED]/30 italic">
-                    No resume uploaded
-                  </span>
-                )}
               </div>
 
               {/* Footer Actions */}
@@ -237,6 +217,11 @@ export const TeamManagerPage: React.FC = () => {
                   {m.linkedin && (
                     <a href={m.linkedin} target="_blank" rel="noreferrer" className="text-[#F5F2ED]/40 hover:text-white p-1">
                       <Linkedin className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  {m.portfolio && (
+                    <a href={m.portfolio} target="_blank" rel="noreferrer" className="text-[#F5F2ED]/40 hover:text-white p-1">
+                      <Globe className="w-3.5 h-3.5" />
                     </a>
                   )}
                 </div>
@@ -271,18 +256,6 @@ export const TeamManagerPage: React.FC = () => {
         onClose={() => setDeleteTarget(null)}
         isLoading={isDeleting}
       />
-
-      {/* In-App Resume Preview Modal */}
-      {previewMember && (
-        <ResumePreviewModal
-          isOpen={!!previewMember}
-          onClose={() => setPreviewMember(null)}
-          resumeUrl={previewMember.resumeUrl}
-          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
-          memberName={previewMember.name}
-          memberRole={previewMember.role}
-        />
-      )}
     </div>
   );
 };

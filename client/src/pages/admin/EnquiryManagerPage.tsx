@@ -16,8 +16,8 @@ export const EnquiryManagerPage: React.FC = () => {
     try {
       const fresh = await enquiryService.fetchEnquiries();
       if (fresh) setEnquiries(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh enquiries:', e);
+    } catch {
+      // Silent
     }
   };
 

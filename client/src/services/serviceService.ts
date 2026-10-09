@@ -106,8 +106,8 @@ export const serviceService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[serviceService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return serviceService.getServices();
   },
@@ -147,8 +147,8 @@ export const serviceService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
-    } catch (err) {
-      console.warn('[serviceService] Could not fetch service by ID from server:', err);
+    } catch {
+      // Silent
     }
     return serviceService.getServiceById(id) || null;
   },
@@ -174,8 +174,7 @@ export const serviceService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'created agency service', saved.name, 'service');
       return saved;
-    } catch (err) {
-      console.warn('[serviceService] Failed to save service to MongoDB, saved locally:', err);
+    } catch {
       const updated = [...services, newService];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'created agency service (offline)', newService.name, 'service');
@@ -207,8 +206,7 @@ export const serviceService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated agency service', saved.name || 'Service', 'service');
       return saved;
-    } catch (err) {
-      console.warn('[serviceService] Failed to update service in MongoDB, updated locally:', err);
+    } catch {
       if (index !== -1) {
         services[index] = updatedService;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
@@ -226,8 +224,8 @@ export const serviceService = {
       await apiRequest(`/cms/services/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[serviceService] Failed to delete service from MongoDB, deleted locally:', err);
+    } catch {
+      // Silent
     }
 
     const filtered = services.filter((s) => s.id !== id);
@@ -250,8 +248,8 @@ export const serviceService = {
         method: 'PUT',
         body: JSON.stringify({ services: updated }),
       });
-    } catch (err) {
-      console.warn('[serviceService] Failed to sync services order to MongoDB:', err);
+    } catch {
+      // Silent
     }
   },
 };

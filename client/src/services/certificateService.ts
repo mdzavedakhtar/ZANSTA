@@ -83,8 +83,8 @@ export const certificateService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[certificateService] Backend API offline, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return certificateService.getCertificates(filters);
   },
@@ -99,8 +99,7 @@ export const certificateService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCertificates));
         certs = defaultCertificates;
       }
-    } catch (e) {
-      console.error('Failed to parse certificates from localStorage', e);
+    } catch {
       certs = defaultCertificates;
     }
 
@@ -141,8 +140,7 @@ export const certificateService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'added company certificate', saved.title, 'certificate');
       return saved;
-    } catch (err) {
-      console.warn('[certificateService] Failed to save certificate to MongoDB, saved locally:', err);
+    } catch {
       const updated = [...certs, newCert];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'added company certificate (offline)', newCert.title, 'certificate');
@@ -171,8 +169,7 @@ export const certificateService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated company certificate', saved.title, 'certificate');
       return saved;
-    } catch (err) {
-      console.warn('[certificateService] Failed to update certificate on server, saved locally:', err);
+    } catch {
       const updatedList = certs.map((c) => (c.id === id ? updatedCert : c));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated company certificate (offline)', updatedCert.title, 'certificate');
@@ -187,8 +184,8 @@ export const certificateService = {
 
     try {
       await apiRequest(`/cms/certificates/${id}`, { method: 'DELETE' });
-    } catch (err) {
-      console.warn('[certificateService] Failed to delete certificate from server:', err);
+    } catch {
+      // Local fallback
     }
 
     const filtered = certs.filter((c) => c.id !== id);
@@ -204,8 +201,8 @@ export const certificateService = {
         method: 'PUT',
         body: JSON.stringify({ certificates: reordered }),
       });
-    } catch (err) {
-      console.warn('[certificateService] Failed to persist certificate reordering to server, saving locally:', err);
+    } catch {
+      // Local fallback
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
     activityService.logActivity('MD Zaved Akhtar', 'reordered company certificates', 'Certificates Order', 'certificate');

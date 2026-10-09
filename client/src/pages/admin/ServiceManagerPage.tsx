@@ -29,8 +29,8 @@ export const ServiceManagerPage: React.FC = () => {
     try {
       const fresh = await serviceService.fetchServices();
       if (fresh) setServices(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh services:', e);
+    } catch {
+      // Silent
     }
   };
 

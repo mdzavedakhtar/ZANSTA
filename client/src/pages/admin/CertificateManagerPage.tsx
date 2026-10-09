@@ -30,8 +30,8 @@ export const CertificateManagerPage: React.FC = () => {
     try {
       const fresh = await certificateService.fetchCertificates();
       if (fresh) setCertificates(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh certificates:', e);
+    } catch {
+      // Silent
     }
   };
 

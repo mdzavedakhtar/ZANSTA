@@ -90,8 +90,8 @@ export const usePublicProjectStore = create<PublicProjectStore>((set) => ({
         set({ publicProjects: mapped, isLoading: false });
         return;
       }
-    } catch (err: any) {
-      console.warn('CMS Projects fetch failed, trying fallback:', err);
+    } catch {
+      // Fallback
     }
 
     try {
@@ -223,8 +223,8 @@ export const usePublicProjectStore = create<PublicProjectStore>((set) => ({
         set({ activeCaseStudy: mappedCaseStudy, isLoading: false });
         return;
       }
-    } catch (err: any) {
-      console.warn('CMS Project Case Study fetch failed:', err);
+    } catch {
+      // Silent fallback
     }
 
     try {

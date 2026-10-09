@@ -78,8 +78,8 @@ export const DashboardPage: React.FC = () => {
       }
       if (svcs) setServices(svcs);
       if (bans) setBanners(bans);
-    } catch (e) {
-      console.warn('Dashboard live refresh error:', e);
+    } catch {
+      // Silent
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,6 @@ export const DashboardPage: React.FC = () => {
 
   // Real-time live sync hook - updates instantly when any CMS data changes on any device
   useCmsLiveSync('all', () => {
-    console.log('[DashboardPage] Live CMS sync triggered, refreshing data...');
     loadData();
   });
 

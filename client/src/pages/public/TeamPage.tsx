@@ -5,14 +5,12 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { FadeIn } from '@/components/motion/FadeIn';
-import { Github, Linkedin, FileText, Briefcase } from 'lucide-react';
+import { Github, Linkedin, Globe, Briefcase } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 
 export const TeamPage: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
-  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   useEffect(() => {
     setMembers(teamService.getTeamMembers({ isVisible: true }));
@@ -89,34 +87,27 @@ export const TeamPage: React.FC = () => {
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
+                  {member.portfolio && (
+                    <a
+                      href={member.portfolio}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="Portfolio"
+                    >
+                      <Globe className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
 
-                {member.resumeUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setPreviewMember(member)}
-                    className="text-xs font-mono text-[#ff4d61] hover:text-white bg-[#8B0D1A]/15 hover:bg-[#8B0D1A]/30 border border-[#8B0D1A]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
-                  >
-                    <FileText className="w-3.5 h-3.5" /> View Resume
-                  </button>
-                )}
+                <span className="text-[10px] font-mono text-[#F5F2ED]/40 uppercase tracking-wider">
+                  ZANSTA Core
+                </span>
               </div>
             </Card>
           ))}
         </div>
       </Container>
-
-      {/* In-App Resume Preview Modal */}
-      {previewMember && (
-        <ResumePreviewModal
-          isOpen={!!previewMember}
-          onClose={() => setPreviewMember(null)}
-          resumeUrl={previewMember.resumeUrl}
-          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
-          memberName={previewMember.name}
-          memberRole={previewMember.role}
-        />
-      )}
     </div>
   );
 };

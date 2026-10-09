@@ -117,8 +117,8 @@ export const projectService = {
         }
         return response.data;
       }
-    } catch (err) {
-      console.warn('[projectService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return projectService.getProjects(filters);
   },
@@ -181,8 +181,8 @@ export const projectService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
-    } catch (err) {
-      console.warn('[projectService] Could not fetch project by ID from server:', err);
+    } catch {
+      // Gracefully fallback to local storage
     }
     return projectService.getProjectById(id);
   },
@@ -216,8 +216,7 @@ export const projectService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
       activityService.logActivity('MD Zaved Akhtar', 'created project', saved.name, 'project');
       return saved;
-    } catch (err) {
-      console.warn('[projectService] Failed to save project to MongoDB directly, stored locally:', err);
+    } catch {
       const updatedProjects = [...projects, newProject];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
       activityService.logActivity('MD Zaved Akhtar', 'created project (offline)', newProject.name, 'project');
@@ -248,8 +247,7 @@ export const projectService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated project', saved.name || 'Project', 'project');
       return saved;
-    } catch (err) {
-      console.warn('[projectService] Failed to update project in MongoDB, updated locally:', err);
+    } catch {
       if (index !== -1) {
         projects[index] = updatedProject;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
@@ -267,8 +265,8 @@ export const projectService = {
       await apiRequest(`/cms/projects/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[projectService] Failed to delete project in MongoDB, deleted locally:', err);
+    } catch {
+      // Local fallback
     }
 
     const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
@@ -291,8 +289,8 @@ export const projectService = {
         method: 'PUT',
         body: JSON.stringify({ projects: updated }),
       });
-    } catch (err) {
-      console.warn('[projectService] Failed to sync project order to MongoDB:', err);
+    } catch {
+      // Local fallback
     }
   },
 };

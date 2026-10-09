@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Container } from '../ui/Container';
 import { Avatar } from '../ui/Avatar';
 import { ScrollReveal } from '../motion/ScrollReveal';
-import { Github, Linkedin, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Github, Linkedin, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
 import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
-import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 
 export const TeamShowcaseSection: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [previewMember, setPreviewMember] = useState<CMSTeamMember | null>(null);
 
   const loadTeam = () => {
     const list = teamService.getTeamMembers({ isVisible: true });
@@ -126,7 +124,7 @@ export const TeamShowcaseSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom Social & Resume */}
+                {/* Bottom Social & Branding */}
                 <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
                     {m.github && (
@@ -151,21 +149,22 @@ export const TeamShowcaseSection: React.FC = () => {
                         <Linkedin className="w-4 h-4" />
                       </a>
                     )}
+                    {m.portfolio && (
+                      <a
+                        href={m.portfolio}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                        aria-label="Portfolio"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
 
-                  {m.resumeUrl ? (
-                    <button
-                      type="button"
-                      onClick={() => setPreviewMember(m)}
-                      className="text-xs font-mono text-[#ff4d61] hover:text-white bg-[#8B0D1A]/15 hover:bg-[#8B0D1A]/30 border border-[#8B0D1A]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
-                    >
-                      <FileText className="w-3.5 h-3.5" /> View Resume
-                    </button>
-                  ) : (
-                    <div className="text-[10px] font-mono text-zinc-400">
-                      ZANSTA Engineer
-                    </div>
-                  )}
+                  <div className="text-[11px] font-mono font-medium text-zinc-500 tracking-wider uppercase">
+                    ZANSTA Core
+                  </div>
                 </div>
               </div>
             </div>
@@ -190,18 +189,6 @@ export const TeamShowcaseSection: React.FC = () => {
           </div>
         )}
       </Container>
-
-      {/* In-App Resume Preview Modal */}
-      {previewMember && (
-        <ResumePreviewModal
-          isOpen={!!previewMember}
-          onClose={() => setPreviewMember(null)}
-          resumeUrl={previewMember.resumeUrl}
-          fileName={previewMember.resumeFileName || `${previewMember.name}_Resume.pdf`}
-          memberName={previewMember.name}
-          memberRole={previewMember.role}
-        />
-      )}
     </section>
   );
 };

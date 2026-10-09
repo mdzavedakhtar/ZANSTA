@@ -14,8 +14,8 @@ export const activityService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[activityService] Backend API offline, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return activityService.getActivities();
   },
@@ -27,8 +27,8 @@ export const activityService = {
       if (stored) {
         return JSON.parse(stored);
       }
-    } catch (e) {
-      console.error('Failed to parse activity log from localStorage', e);
+    } catch {
+      // Fallback
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultActivities));
     return defaultActivities;
@@ -59,8 +59,8 @@ export const activityService = {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     try {
       await apiRequest('/cms/activities', { method: 'DELETE' });
-    } catch (err) {
-      console.warn('[activityService] Failed to clear activities on server:', err);
+    } catch {
+      // Silent
     }
   },
 };

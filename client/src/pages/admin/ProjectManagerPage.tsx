@@ -48,8 +48,8 @@ export const ProjectManagerPage: React.FC = () => {
         category: categoryFilter,
       });
       if (fresh) setProjects(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh projects:', e);
+    } catch {
+      // Silent
     }
   };
 

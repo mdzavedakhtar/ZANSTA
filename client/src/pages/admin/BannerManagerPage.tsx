@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { bannerService } from '@/services/bannerService';
@@ -17,9 +16,8 @@ import {
   Sparkles,
   ArrowUp,
   ArrowDown,
-  ExternalLink,
   Flame,
-  Radio,
+  Zap,
 } from 'lucide-react';
 
 export const BannerManagerPage: React.FC = () => {
@@ -31,8 +29,8 @@ export const BannerManagerPage: React.FC = () => {
     try {
       const fresh = await bannerService.fetchBanners();
       if (fresh) setBanners(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh banners:', e);
+    } catch {
+      // Silent
     }
   };
 
@@ -75,23 +73,23 @@ export const BannerManagerPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 w-full">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#E11D48] shrink-0">
               <Megaphone className="w-4 h-4" />
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-[#F5F2ED] tracking-tight font-display break-words flex items-center gap-2">
               PROMO OFFERS & POSTER BANNERS CMS
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-[10px] font-mono">
-                5s AUTO-SLIDER
+              <span className="px-2 py-0.5 rounded-full bg-[#8B0D1A]/20 text-[#F5F2ED] border border-[#8B0D1A]/40 text-[10px] font-mono">
+                NAVBAR MODAL
               </span>
             </h1>
           </div>
           <p className="text-xs text-[#F5F2ED]/55 font-sans">
-            Upload and manage landscape promotional poster images, discounts, and announcements displayed in the top navbar carousel.
+            Upload and manage promotional poster images, discounts, and announcements displayed in the navbar advertisement popup.
           </p>
         </div>
 
         <Link to="/admin/banners/new" className="w-full sm:w-auto shrink-0">
-          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center bg-cyan-500 text-black hover:bg-cyan-400">
+          <Button size="sm" variant="glow" leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto justify-center bg-[#8B0D1A] text-white hover:bg-[#A01020]">
             + Add Poster Banner
           </Button>
         </Link>
@@ -121,7 +119,8 @@ export const BannerManagerPage: React.FC = () => {
                   </span>
                 )}
                 {b.discountText && (
-                  <span className="px-2 py-0.5 rounded-md bg-cyan-400 text-black font-mono text-[10px] font-extrabold shadow">
+                  <span className="px-2 py-0.5 rounded-md bg-[#8B0D1A] text-white font-mono text-[10px] font-extrabold shadow border border-red-400/30">
+                    <Zap className="w-3 h-3 inline mr-0.5" />
                     {b.discountText}
                   </span>
                 )}
@@ -162,15 +161,15 @@ export const BannerManagerPage: React.FC = () => {
                   size="sm"
                   variant="ghost"
                   onClick={() => handleToggleVisibility(b)}
-                  className={`text-xs ${b.isVisible ? 'text-emerald-400' : 'text-zinc-500'}`}
+                  className={`text-xs ${b.isVisible ? 'text-[#E11D48]' : 'text-zinc-500'}`}
                 >
-                  {b.isVisible ? <Eye className="w-3.5 h-3.5 mr-1 text-emerald-400" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
+                  {b.isVisible ? <Eye className="w-3.5 h-3.5 mr-1 text-[#E11D48]" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
                   {b.isVisible ? 'Visible' : 'Hidden'}
                 </Button>
 
                 <Link to={`/admin/banners/${b.id}/edit`}>
                   <Button size="sm" variant="outline" className="text-xs">
-                    <Edit className="w-3.5 h-3.5 mr-1 text-cyan-400" />
+                    <Edit className="w-3.5 h-3.5 mr-1 text-[#E11D48]" />
                     Edit
                   </Button>
                 </Link>
@@ -192,7 +191,7 @@ export const BannerManagerPage: React.FC = () => {
       <ConfirmDialog
         isOpen={!!deleteTarget}
         title="Delete Promo Banner"
-        description={`Are you sure you want to delete banner "${deleteTarget?.title}"? This will remove it from the top navbar advertisement carousel.`}
+        description={`Are you sure you want to delete banner "${deleteTarget?.title}"? This will remove it from the navbar advertisement modal.`}
         confirmLabel="Delete Banner"
         onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteTarget(null)}

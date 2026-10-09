@@ -15,8 +15,8 @@ export const demoRequestService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[demoRequestService] Backend API offline, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return demoRequestService.getRequests();
   },

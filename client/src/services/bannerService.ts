@@ -65,8 +65,8 @@ export const bannerService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[bannerService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return bannerService.getBanners(filters);
   },
@@ -81,8 +81,7 @@ export const bannerService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultBanners));
         banners = defaultBanners;
       }
-    } catch (e) {
-      console.error('Failed to parse banners from localStorage', e);
+    } catch {
       banners = defaultBanners;
     }
 
@@ -123,8 +122,7 @@ export const bannerService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'created promo banner', saved.title, 'banner');
       return saved;
-    } catch (err) {
-      console.warn('[bannerService] Failed to save banner to MongoDB directly, stored locally:', err);
+    } catch {
       const updated = [...banners, newBanner];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'created promo banner (offline)', newBanner.title, 'banner');
@@ -153,8 +151,7 @@ export const bannerService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated promo banner', saved.title, 'banner');
       return saved;
-    } catch (err) {
-      console.warn('[bannerService] Failed to update banner on server, updated locally:', err);
+    } catch {
       const updatedList = banners.map((b) => (b.id === id ? updatedBanner : b));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated promo banner (offline)', updatedBanner.title, 'banner');
@@ -169,8 +166,8 @@ export const bannerService = {
 
     try {
       await apiRequest(`/cms/banners/${id}`, { method: 'DELETE' });
-    } catch (err) {
-      console.warn('[bannerService] Failed to delete banner from server:', err);
+    } catch {
+      // Silent
     }
 
     const filtered = banners.filter((b) => b.id !== id);
@@ -186,8 +183,8 @@ export const bannerService = {
         method: 'PUT',
         body: JSON.stringify({ banners: reordered }),
       });
-    } catch (err) {
-      console.warn('[bannerService] Failed to persist banner reordering to server, saving locally:', err);
+    } catch {
+      // Silent
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
     activityService.logActivity('MD Zaved Akhtar', 'reordered promo banners', 'Banners Order', 'banner');

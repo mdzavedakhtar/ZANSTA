@@ -66,8 +66,8 @@ export const demoService = {
         }
         return response.data;
       }
-    } catch (err) {
-      console.warn('[demoService] Backend API offline, using local cache:', err);
+    } catch {
+      // Offline fallback
     }
     return demoService.getDemos(filters);
   },
@@ -83,8 +83,7 @@ export const demoService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDemos));
         demos = defaultDemos;
       }
-    } catch (e) {
-      console.error('Failed to parse client demos from localStorage', e);
+    } catch {
       demos = defaultDemos;
     }
 
@@ -120,8 +119,8 @@ export const demoService = {
     try {
       const res = await apiRequest<{ success: boolean; data: CMSClientDemo }>(`/cms/demos/${token}`);
       if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[demoService] Failed to fetch demo by token from server:', err);
+    } catch {
+      // Silent fallback
     }
     return demoService.getDemoByToken(token);
   },
@@ -167,8 +166,8 @@ export const demoService = {
         body: JSON.stringify(newDemo),
       });
       if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[demoService] Failed to save demo in MongoDB, saved locally:', err);
+    } catch {
+      // Local fallback
     }
 
     return newDemo;
@@ -195,8 +194,8 @@ export const demoService = {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-    } catch (err) {
-      console.warn('[demoService] Failed to update demo in MongoDB, updated locally:', err);
+    } catch {
+      // Local fallback
     }
 
     return updatedDemo;
@@ -218,8 +217,8 @@ export const demoService = {
         method: 'POST',
       });
       if (res.success && res.token) return res.token;
-    } catch (err) {
-      console.warn('[demoService] Failed to regenerate token on server:', err);
+    } catch {
+      // Local fallback
     }
 
     return newToken;
@@ -238,8 +237,8 @@ export const demoService = {
       await apiRequest(`/cms/demos/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[demoService] Failed to delete demo on server, deleted locally:', err);
+    } catch {
+      // Local fallback
     }
 
     return true;

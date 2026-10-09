@@ -56,8 +56,8 @@ export const teamService = {
         }
         return response.data;
       }
-    } catch (err) {
-      console.warn('[teamService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return teamService.getTeamMembers(filters);
   },
@@ -113,8 +113,8 @@ export const teamService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
-    } catch (err) {
-      console.warn('[teamService] Could not fetch member by ID from server:', err);
+    } catch {
+      // Silent
     }
     return teamService.getMemberById(id);
   },
@@ -140,8 +140,7 @@ export const teamService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'added team member', saved.name, 'team');
       return saved;
-    } catch (err) {
-      console.warn('[teamService] Failed to create team member in MongoDB, saved locally:', err);
+    } catch {
       const updated = [...members, newMember];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       activityService.logActivity('MD Zaved Akhtar', 'added team member (offline)', newMember.name, 'team');
@@ -173,8 +172,7 @@ export const teamService = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       activityService.logActivity('MD Zaved Akhtar', 'updated team member', saved.name || 'Member', 'team');
       return saved;
-    } catch (err) {
-      console.warn('[teamService] Failed to update team member in MongoDB, updated locally:', err);
+    } catch {
       if (index !== -1) {
         members[index] = updatedMember;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
@@ -192,8 +190,8 @@ export const teamService = {
       await apiRequest(`/cms/team/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[teamService] Failed to delete team member in MongoDB, deleted locally:', err);
+    } catch {
+      // Silent
     }
 
     const filtered = members.filter((m) => m.id !== id);
@@ -216,8 +214,8 @@ export const teamService = {
         method: 'PUT',
         body: JSON.stringify({ members: updated }),
       });
-    } catch (err) {
-      console.warn('[teamService] Failed to sync team order to MongoDB:', err);
+    } catch {
+      // Silent
     }
   },
 };
