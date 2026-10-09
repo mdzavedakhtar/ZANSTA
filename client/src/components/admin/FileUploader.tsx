@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { FileText, Upload, X, Eye, Download, CheckCircle2 } from 'lucide-react';
+import { FileText, Upload, X, Eye, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ResumePreviewModal } from '@/components/shared/ResumePreviewModal';
 
 interface FileUploaderProps {
   value?: string;
@@ -18,11 +19,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   onChange,
   label = 'Resume / Document File',
   helperText = 'PDF, DOC, DOCX up to 10MB',
-  accept = '.pdf,.doc,.docx,application/pdf,application/msword',
+  accept = '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   className,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleFile = (file: File) => {
     setError(null);
@@ -47,7 +49,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       {value ? (
         <div className="p-3 rounded-xl bg-[#0E0E0E] border border-white/10 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#8B0D1A] shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-[#8B0D1A]/15 border border-[#8B0D1A]/30 flex items-center justify-center text-[#ff4d61] shrink-0">
               <FileText className="w-5 h-5" />
             </div>
             <div className="overflow-hidden">
@@ -59,20 +61,19 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <a
-              href={value}
-              target="_blank"
-              rel="noreferrer"
-              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs flex items-center gap-1"
-              title="View Resume"
+            <button
+              type="button"
+              onClick={() => setIsPreviewOpen(true)}
+              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+              title="View Resume Preview"
             >
               <Eye className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">View</span>
-            </a>
+            </button>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs"
+              className="p-2 rounded-lg bg-white/5 text-[#F5F2ED]/80 hover:text-[#F5F2ED] hover:bg-white/10 transition-colors text-xs cursor-pointer"
               title="Replace File"
             >
               Replace
@@ -80,7 +81,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             <button
               type="button"
               onClick={() => onChange('', '')}
-              className="p-2 rounded-lg bg-[#8B0D1A]/20 text-[#8B0D1A] hover:bg-[#8B0D1A]/40 transition-colors"
+              className="p-2 rounded-lg bg-[#8B0D1A]/20 text-[#ff4d61] hover:bg-[#8B0D1A]/40 transition-colors cursor-pointer"
               title="Remove File"
             >
               <X className="w-3.5 h-3.5" />
@@ -102,7 +103,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
       )}
 
-      {error && <p className="text-[11px] font-mono text-[#8B0D1A]">{error}</p>}
+      {error && <p className="text-[11px] font-mono text-[#ff4d61]">{error}</p>}
 
       <input
         ref={fileInputRef}
@@ -115,6 +116,16 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         }}
         className="hidden"
       />
+
+      {/* In-App Resume Preview Modal */}
+      {isPreviewOpen && value && (
+        <ResumePreviewModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          resumeUrl={value}
+          fileName={fileName || 'Resume_Document.pdf'}
+        />
+      )}
     </div>
   );
 };

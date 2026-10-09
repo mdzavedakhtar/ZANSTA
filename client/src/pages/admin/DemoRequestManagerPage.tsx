@@ -17,8 +17,8 @@ export const DemoRequestManagerPage: React.FC = () => {
     try {
       const fresh = await demoRequestService.fetchRequests();
       if (fresh) setRequests(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh demo requests:', e);
+    } catch {
+      // Silent
     }
   };
 

@@ -15,8 +15,8 @@ export const enquiryService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[enquiryService] Backend API offline, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return enquiryService.getEnquiries();
   },
@@ -32,8 +32,7 @@ export const enquiryService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultEnquiries));
         enquiries = defaultEnquiries;
       }
-    } catch (e) {
-      console.error('Failed to parse contact enquiries from localStorage', e);
+    } catch {
       enquiries = defaultEnquiries;
     }
     enquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -60,8 +59,8 @@ export const enquiryService = {
         body: JSON.stringify(newEnquiry),
       });
       if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[enquiryService] Failed to submit enquiry to MongoDB, saved locally:', err);
+    } catch {
+      // Local fallback
     }
 
     return newEnquiry;
@@ -81,8 +80,8 @@ export const enquiryService = {
         method: 'PUT',
         body: JSON.stringify({ status }),
       });
-    } catch (err) {
-      console.warn('[enquiryService] Failed to update enquiry status in MongoDB:', err);
+    } catch {
+      // Local fallback
     }
 
     return enquiries[index];
@@ -101,8 +100,8 @@ export const enquiryService = {
       await apiRequest(`/cms/enquiries/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[enquiryService] Failed to delete enquiry on server:', err);
+    } catch {
+      // Local fallback
     }
 
     return true;

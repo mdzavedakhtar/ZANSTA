@@ -17,7 +17,7 @@ export const ProjectsPage: React.FC = () => {
     setProjects(list);
 
     projectService.fetchProjects({ isVisible: true }).then((freshList) => {
-      if (freshList && freshList.length > 0) {
+      if (Array.isArray(freshList)) {
         setProjects(freshList);
       }
     });

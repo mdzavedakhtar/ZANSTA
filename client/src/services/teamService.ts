@@ -1,6 +1,7 @@
 import { CMSTeamMember } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { generateZavedResumePdfBase64 } from '@/utils/generateZavedResume';
 
 const STORAGE_KEY = 'zansta_cms_team';
 
@@ -21,61 +22,13 @@ export const defaultTeamMembers: CMSTeamMember[] = [
     github: 'https://github.com/mdzavedakhtar',
     linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
     portfolio: 'https://github.com/mdzavedakhtar',
-    resumeUrl: '',
+    resumeUrl: generateZavedResumePdfBase64(),
     resumeFileName: 'MD_Zaved_Akhtar_Resume.pdf',
     isFeatured: true,
     isVisible: true,
     order: 1,
     createdAt: '2026-01-01T10:00:00.000Z',
     updatedAt: '2026-02-10T12:00:00.000Z',
-  },
-  {
-    id: 'team_rahul',
-    name: 'Rahul Sharma',
-    role: 'Frontend & Motion Specialist',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    bio: 'Crafting 2026-level web aesthetics, custom magnetic cursors, and fluid Framer Motion animations.',
-    fullBio:
-      'UI/UX Design Engineer dedicated to pixel-perfect micro-interactions, responsive design systems, and cutting-edge 3D WebGL user interfaces.',
-    techStack: ['React 18', 'Framer Motion', 'GSAP', 'Tailwind CSS', 'UI/UX Architecture', 'Three.js'],
-    experienceYears: '4+',
-    experienceSummary: 'Design systems engineer crafting high-impact agency showcase experiences.',
-    location: 'Bangalore, India',
-    email: 'rahul@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Rahul_Sharma_Frontend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 2,
-    createdAt: '2026-01-05T11:00:00.000Z',
-    updatedAt: '2026-02-12T15:20:00.000Z',
-  },
-  {
-    id: 'team_aman',
-    name: 'Aman Deep',
-    role: 'Backend & Real-Time Gateway Engineer',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
-    bio: 'Engineering Socket.IO streaming event topologies, WebRTC signaling mesh, and secure JWT auth.',
-    fullBio:
-      'Infrastructure developer focusing on low-latency Socket.IO event gateways, Redis caching, microservices security, and CI/CD pipelines.',
-    techStack: ['Node.js', 'Socket.IO', 'Express', 'Docker', 'Security Standards', 'Redis', 'PostgreSQL'],
-    experienceYears: '3+',
-    experienceSummary: 'Backend engineer specializing in streaming WebRTC signaling and API gateways.',
-    location: 'Chandigarh, India',
-    email: 'aman@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Aman_Deep_Backend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 3,
-    createdAt: '2026-01-12T09:30:00.000Z',
-    updatedAt: '2026-02-18T10:15:00.000Z',
   },
 ];
 
@@ -97,26 +50,14 @@ export const teamService = {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await apiRequest<{ success: boolean; data: CMSTeamMember[] }>(`/cms/team${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        // Update local storage cache with live backend data
+        // Cleanly store exact server data without reviving deleted members
         if (!filters || Object.keys(filters).length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-        } else {
-          // Merge fetched members into existing storage
-          try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            const current: CMSTeamMember[] = stored ? JSON.parse(stored) : [];
-            const mergedMap = new Map<string, CMSTeamMember>();
-            current.forEach((m) => mergedMap.set(m.id, m));
-            response.data.forEach((m) => mergedMap.set(m.id, m));
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
-          } catch {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-          }
         }
         return response.data;
       }
-    } catch (err) {
-      console.warn('[teamService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return teamService.getTeamMembers(filters);
   },
@@ -126,7 +67,7 @@ export const teamService = {
     let members: CMSTeamMember[] = [];
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+      if (stored !== null) {
         members = JSON.parse(stored);
       } else {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTeamMembers));
@@ -161,6 +102,23 @@ export const teamService = {
     return members.find((m) => m.id === id) || null;
   },
 
+  fetchMemberById: async (id: string): Promise<CMSTeamMember | null> => {
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>(`/cms/team/${id}`);
+      if (res.success && res.data) {
+        const members = teamService.getTeamMembers();
+        const updated = members.some((m) => m.id === id)
+          ? members.map((m) => (m.id === id ? res.data : m))
+          : [...members, res.data];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return res.data;
+      }
+    } catch {
+      // Silent
+    }
+    return teamService.getMemberById(id);
+  },
+
   createMember: async (data: Omit<CMSTeamMember, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { order?: number }): Promise<CMSTeamMember> => {
     const members = teamService.getTeamMembers();
     const id = `team_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
@@ -172,68 +130,73 @@ export const teamService = {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = [...members, newMember];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'added team member', newMember.name, 'team');
-
     try {
       const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>('/cms/team', {
         method: 'POST',
         body: JSON.stringify(newMember),
       });
-      if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[teamService] Failed to create team member in MongoDB, saved locally:', err);
+      const saved = res.data || newMember;
+      const updated = [...members.filter((m) => m.id !== id && m.id !== saved.id), saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'added team member', saved.name, 'team');
+      return saved;
+    } catch {
+      const updated = [...members, newMember];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'added team member (offline)', newMember.name, 'team');
+      return newMember;
     }
-
-    return newMember;
   },
 
   updateMember: async (id: string, updates: Partial<CMSTeamMember>): Promise<CMSTeamMember | null> => {
     const members = teamService.getTeamMembers();
     const index = members.findIndex((m) => m.id === id);
-    if (index === -1) return null;
+    const existing = index !== -1 ? members[index] : ({} as CMSTeamMember);
 
-    const existing = members[index];
     const updatedMember: CMSTeamMember = {
       ...existing,
       ...updates,
+      id,
       updatedAt: new Date().toISOString(),
     };
 
-    members[index] = updatedMember;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
-    activityService.logActivity('MD Zaved Akhtar', 'updated team member', updatedMember.name, 'team');
-
     try {
-      await apiRequest(`/cms/team/${id}`, {
+      const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>(`/cms/team/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-    } catch (err) {
-      console.warn('[teamService] Failed to update team member in MongoDB, updated locally:', err);
+      const saved = res.data || updatedMember;
+      const updatedList = members.some((m) => m.id === id)
+        ? members.map((m) => (m.id === id ? saved : m))
+        : [...members, saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      activityService.logActivity('MD Zaved Akhtar', 'updated team member', saved.name || 'Member', 'team');
+      return saved;
+    } catch {
+      if (index !== -1) {
+        members[index] = updatedMember;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated team member (offline)', updatedMember.name || 'Member', 'team');
+      return updatedMember;
     }
-
-    return updatedMember;
   },
 
   deleteMember: async (id: string): Promise<boolean> => {
     const members = teamService.getTeamMembers();
     const target = members.find((m) => m.id === id);
-    if (!target) return false;
-
-    const filtered = members.filter((m) => m.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted team member', target.name, 'team');
 
     try {
       await apiRequest(`/cms/team/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[teamService] Failed to delete team member in MongoDB, deleted locally:', err);
+    } catch {
+      // Silent
     }
 
+    const filtered = members.filter((m) => m.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    activityService.logActivity('MD Zaved Akhtar', 'deleted team member', target?.name || id, 'team');
     return true;
   },
 
@@ -251,8 +214,8 @@ export const teamService = {
         method: 'PUT',
         body: JSON.stringify({ members: updated }),
       });
-    } catch (err) {
-      console.warn('[teamService] Failed to sync team order to MongoDB:', err);
+    } catch {
+      // Silent
     }
   },
 };

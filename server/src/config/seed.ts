@@ -7,6 +7,7 @@ import { CMSLandingContent } from '../models/CMSLandingContent.js';
 import { ContactEnquiry } from '../models/ContactEnquiry.js';
 import { DemoRequest } from '../models/DemoRequest.js';
 import { CMSActivityLog } from '../models/CMSActivityLog.js';
+import { generateZavedResumePdfBase64 } from '../utils/generateZavedResume.js';
 
 export const defaultProjects = [
   {
@@ -103,55 +104,11 @@ export const defaultTeamMembers = [
     github: 'https://github.com/mdzavedakhtar',
     linkedin: 'https://www.linkedin.com/in/md-zaved-akhtar-22013828b',
     portfolio: 'https://github.com/mdzavedakhtar',
-    resumeUrl: '',
+    resumeUrl: generateZavedResumePdfBase64(),
     resumeFileName: 'MD_Zaved_Akhtar_Resume.pdf',
     isFeatured: true,
     isVisible: true,
     order: 1,
-  },
-  {
-    id: 'team_rahul',
-    name: 'Rahul Sharma',
-    role: 'Frontend & Motion Specialist',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    bio: 'Crafting 2026-level web aesthetics, custom magnetic cursors, and fluid Framer Motion animations.',
-    fullBio:
-      'UI/UX Design Engineer dedicated to pixel-perfect micro-interactions, responsive design systems, and cutting-edge 3D WebGL user interfaces.',
-    techStack: ['React 18', 'Framer Motion', 'GSAP', 'Tailwind CSS', 'UI/UX Architecture', 'Three.js'],
-    experienceYears: '4+',
-    experienceSummary: 'Design systems engineer crafting high-impact agency showcase experiences.',
-    location: 'Bangalore, India',
-    email: 'rahul@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Rahul_Sharma_Frontend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 2,
-  },
-  {
-    id: 'team_aman',
-    name: 'Aman Deep',
-    role: 'Backend & Real-Time Gateway Engineer',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
-    bio: 'Engineering Socket.IO streaming event topologies, WebRTC signaling mesh, and secure JWT auth.',
-    fullBio:
-      'Infrastructure developer focusing on low-latency Socket.IO event gateways, Redis caching, microservices security, and CI/CD pipelines.',
-    techStack: ['Node.js', 'Socket.IO', 'Express', 'Docker', 'Security Standards', 'Redis', 'PostgreSQL'],
-    experienceYears: '3+',
-    experienceSummary: 'Backend engineer specializing in streaming WebRTC signaling and API gateways.',
-    location: 'Chandigarh, India',
-    email: 'aman@zansta.dev',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com',
-    portfolio: 'https://zansta.dev',
-    resumeUrl: '',
-    resumeFileName: 'Aman_Deep_Backend_Resume.pdf',
-    isFeatured: true,
-    isVisible: true,
-    order: 3,
   },
 ];
 
@@ -353,6 +310,63 @@ export const defaultLandingContent = {
 export const defaultEnquiries: any[] = [];
 export const defaultDemoRequests: any[] = [];
 
+import { CMSCertificate } from '../models/CMSCertificate.js';
+
+export const defaultCertificates = [
+  {
+    id: 'cert_msme_udyam',
+    title: 'MSME UDYAM REGISTRATION VERIFIED',
+    issuer: 'Ministry of Micro, Small & Medium Enterprises, Govt. of India',
+    certificateNumber: 'UDYAM-CG-02-0018924',
+    badgeText: '🇮🇳 GOVT. OF INDIA VERIFIED',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/84/Government_of_India_logo.svg',
+    verificationUrl: 'https://udyamregistration.gov.in',
+    issuedDate: '2024-03-15',
+    description: 'Officially registered and recognized Enterprise by the Government of India for Software Design, Development, and Digital Systems.',
+    isVisible: true,
+    order: 1,
+  },
+  {
+    id: 'cert_startup_india',
+    title: 'STARTUP INDIA RECOGNITION',
+    issuer: 'Department for Promotion of Industry and Internal Trade (DPIIT)',
+    certificateNumber: 'DPIIT-RECOGNIZED-ENTERPRISE',
+    badgeText: '🚀 DPIIT RECOGNIZED',
+    logoUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=300&auto=format&fit=crop',
+    verificationUrl: 'https://www.startupindia.gov.in',
+    issuedDate: '2024-05-10',
+    description: 'Recognized by DPIIT as an innovative technology and software development startup entity.',
+    isVisible: true,
+    order: 2,
+  },
+  {
+    id: 'cert_iso_9001',
+    title: 'ISO 9001:2015 QUALITY MANAGEMENT',
+    issuer: 'International Organization for Standardization',
+    certificateNumber: 'ISO-9001:2015-QMS-VALIDATED',
+    badgeText: '⭐ ISO 9001:2015 CERTIFIED',
+    logoUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=300&auto=format&fit=crop',
+    verificationUrl: '',
+    issuedDate: '2025-01-20',
+    description: 'Certified Quality Management System for reliable architecture delivery and software engineering security standards.',
+    isVisible: true,
+    order: 3,
+  },
+  {
+    id: 'cert_ssl_encryption',
+    title: '256-BIT SSL ENTERPRISE ENCRYPTED',
+    issuer: 'Cloudflare & Let\'s Encrypt Trust Network',
+    certificateNumber: 'TLS-1.3-HIGH-GRADE-SECURITY',
+    badgeText: '🔒 256-BIT ENCRYPTION',
+    logoUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=300&auto=format&fit=crop',
+    verificationUrl: '',
+    issuedDate: '2026-01-01',
+    description: 'Strict TLS 1.3 cryptographic transport and end-to-end payload encryption for user data safety.',
+    isVisible: true,
+    order: 4,
+  },
+];
+
 export const seedCMSData = async () => {
   try {
     const projectCount = await CMSProject.countDocuments();
@@ -362,6 +376,8 @@ export const seedCMSData = async () => {
     }
 
     const teamCount = await CMSTeamMember.countDocuments();
+    // Clean up any deleted placeholder members
+    await CMSTeamMember.deleteMany({ id: { $in: ['team_rahul', 'team_aman'] } });
     if (teamCount === 0) {
       console.log('[Seed] Seeding initial Team Members into MongoDB...');
       await CMSTeamMember.insertMany(defaultTeamMembers);
@@ -397,9 +413,16 @@ export const seedCMSData = async () => {
       await CMSLandingContent.create(defaultLandingContent);
     }
 
+    const certificateCount = await CMSCertificate.countDocuments();
+    if (certificateCount === 0) {
+      console.log('[Seed] Seeding initial Government MSME & Trust Certificates into MongoDB...');
+      await CMSCertificate.insertMany(defaultCertificates);
+    }
+
     console.log('[Seed] ✅ MongoDB collections verified & ready for Superadmin CMS!');
   } catch (error) {
     console.error('[Seed Error] Failed to seed CMS initial data:', error);
   }
 };
+
 

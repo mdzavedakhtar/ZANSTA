@@ -109,10 +109,10 @@ export const NexoraExperience: React.FC<NexoraExperienceProps> = ({ children }) 
 
       {/* Main Landing Page Content Overlay with Seamless Cross-Fade */}
       <div
-        className="relative z-10 transition-opacity duration-700 ease-out"
+        className="relative z-10 transition-opacity duration-500 ease-out"
         style={{
-          opacity: introFinished ? 1 : Math.max(0, (introProgress - 0.75) / 0.25),
-          pointerEvents: introProgress < 0.85 ? 'none' : 'auto',
+          opacity: introFinished ? 1 : Math.max(0.6, introProgress),
+          pointerEvents: 'auto',
         }}
       >
         {children}

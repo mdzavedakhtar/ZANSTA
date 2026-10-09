@@ -1,47 +1,96 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from '../ui/Container';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
 import { Avatar } from '../ui/Avatar';
 import { ScrollReveal } from '../motion/ScrollReveal';
-import { Github, Linkedin, FileText } from 'lucide-react';
+import { Github, Linkedin, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 
 export const TeamShowcaseSection: React.FC = () => {
   const [members, setMembers] = useState<CMSTeamMember[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
+  const loadTeam = () => {
     const list = teamService.getTeamMembers({ isVisible: true });
     setMembers(list);
 
     teamService.fetchTeamMembers({ isVisible: true }).then((freshList) => {
-      if (freshList && freshList.length > 0) {
+      if (Array.isArray(freshList)) {
         setMembers(freshList);
       }
     });
+  };
+
+  useEffect(() => {
+    loadTeam();
   }, []);
+
+  useCmsLiveSync('team', () => {
+    loadTeam();
+  });
 
   if (members.length === 0) return null;
 
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % members.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + members.length) % members.length);
+  };
+
+  const visibleMembers = members.length > 3
+    ? [
+        members[currentIndex % members.length],
+        members[(currentIndex + 1) % members.length],
+        members[(currentIndex + 2) % members.length],
+      ]
+    : members;
+
   return (
-    <section id="team" className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative">
+    <section id="team" className="py-28 lg:py-36 bg-[#050508] border-b border-white/[0.08] relative overflow-hidden">
       <Container size="xl">
-        <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4 mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
-            ENGINEERING COLLECTIVE
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
-            MEET THE BUILDERS BEHIND ZANSTA
-          </h2>
-          <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
-            Engineers and motion architects dedicated to building serious software tools.
-          </p>
-        </ScrollReveal>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <ScrollReveal className="space-y-4 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-zinc-300 uppercase tracking-wider">
+              ENGINEERING COLLECTIVE
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight font-display text-white">
+              MEET THE BUILDERS BEHIND ZANSTA
+            </h2>
+            <p className="text-zinc-400 text-sm sm:text-base font-sans leading-relaxed">
+              Engineers and motion architects dedicated to building serious software tools.
+            </p>
+          </ScrollReveal>
+
+          {/* Slider Controls if > 3 members */}
+          {members.length > 3 && (
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-xs font-mono text-zinc-400 mr-2">
+                ({currentIndex + 1}/{members.length})
+              </span>
+              <button
+                onClick={handlePrev}
+                className="w-10 h-10 rounded-full bg-white/05 hover:bg-white/15 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+                aria-label="Previous Engineers"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-10 h-10 rounded-full bg-white/05 hover:bg-white/15 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95"
+                aria-label="Next Engineers"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {members.map((m, idx) => (
-            <ScrollReveal key={m.id} delay={idx * 0.15}>
+          {visibleMembers.map((m, idx) => (
+            <div key={`${m.id}-${currentIndex}-${idx}`} className="transition-all duration-500 ease-out">
               <div className="group relative space-y-6 h-full flex flex-col justify-between bg-[#0c0d12] border border-white/[0.08] hover:border-white/20 p-6 md:p-8 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 {/* Background Ambient Glow */}
                 <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#3b0764]/20 via-[#8B0D1A]/10 to-transparent blur-2xl pointer-events-none" />
@@ -56,7 +105,7 @@ export const TeamShowcaseSection: React.FC = () => {
                       <h3 className="text-lg font-semibold text-white font-display group-hover:text-white transition-colors">
                         {m.name}
                       </h3>
-                      <p className="text-xs font-mono text-[#8B0D1A] mt-0.5">{m.role}</p>
+                      <p className="text-xs font-mono text-[#ff4d61] mt-0.5">{m.role}</p>
                       {m.experienceYears && (
                         <p className="text-[10px] font-mono text-zinc-400 mt-0.5">{m.experienceYears} Experience</p>
                       )}
@@ -75,7 +124,7 @@ export const TeamShowcaseSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom Social & Resume */}
+                {/* Bottom Social & Branding */}
                 <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
                     {m.github && (
@@ -100,27 +149,45 @@ export const TeamShowcaseSection: React.FC = () => {
                         <Linkedin className="w-4 h-4" />
                       </a>
                     )}
+                    {m.portfolio && (
+                      <a
+                        href={m.portfolio}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                        aria-label="Portfolio"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
 
-                  {m.resumeUrl ? (
-                    <a
-                      href={m.resumeUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1.5"
-                    >
-                      <FileText className="w-3.5 h-3.5" /> Resume PDF
-                    </a>
-                  ) : (
-                    <div className="text-[10px] font-mono text-zinc-400">
-                      ZANSTA Engineer
-                    </div>
-                  )}
+                  <div className="text-[11px] font-mono font-medium text-zinc-500 tracking-wider uppercase">
+                    ZANSTA Core
+                  </div>
                 </div>
               </div>
-            </ScrollReveal>
+            </div>
           ))}
         </div>
+
+        {/* Pagination Dots if > 3 */}
+        {members.length > 3 && (
+          <div className="flex items-center justify-center gap-2 pt-10">
+            {members.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                aria-label={`Jump to team member ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  i === currentIndex % members.length
+                    ? 'w-8 bg-[#8B0D1A]'
+                    : 'w-2 bg-white/20 hover:bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </Container>
     </section>
   );

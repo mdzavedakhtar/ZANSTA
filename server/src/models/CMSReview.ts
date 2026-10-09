@@ -35,4 +35,8 @@ const CMSReviewSchema = new Schema<ICMSReview>(
   { timestamps: true }
 );
 
+CMSReviewSchema.index({ order: 1, createdAt: -1 });
+CMSReviewSchema.index({ isVisible: 1, isFeatured: 1 });
+CMSReviewSchema.index({ rating: -1 });
+
 export const CMSReview = mongoose.model<ICMSReview>('CMSReview', CMSReviewSchema);

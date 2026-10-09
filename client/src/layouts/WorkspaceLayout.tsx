@@ -23,18 +23,18 @@ export const WorkspaceLayout: React.FC = () => {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-[#050505] text-[#F5F2ED] flex selection:bg-[#8B0D1A]/20 selection:text-[#8B0D1A] relative overflow-x-hidden w-full max-w-full">
+      <div className="h-screen overflow-hidden bg-[#050505] text-[#F5F2ED] flex selection:bg-[#8B0D1A]/20 selection:text-[#8B0D1A] relative w-full max-w-full">
         <CustomCursor />
         <Sidebar
           mobileOpen={mobileMenuOpen}
           onCloseMobile={() => setMobileMenuOpen(false)}
         />
-        <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden w-full">
           <Topbar
             onOpenCommandPalette={() => setCommandPaletteOpen(true)}
             onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
           />
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto overflow-y-auto overflow-x-hidden">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto overflow-y-auto overflow-x-hidden custom-scrollbar">
             <Outlet />
           </main>
         </div>

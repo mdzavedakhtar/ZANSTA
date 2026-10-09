@@ -20,17 +20,27 @@ export const ProductStatementSection: React.FC = () => {
   const [projectNames, setProjectNames] = useState<string[]>([]);
 
   useEffect(() => {
-    const list = projectService.getProjects({ isVisible: true });
-    const names = list.map((p) => p.name.toUpperCase());
-    if (names.length > 0) {
-      let repeated = [...names];
-      while (repeated.length < 9) {
-        repeated = [...repeated, ...names];
+    const updateNames = (list: any[]) => {
+      const names = list.map((p) => p.name.toUpperCase());
+      if (names.length > 0) {
+        let repeated = [...names];
+        while (repeated.length < 9) {
+          repeated = [...repeated, ...names];
+        }
+        setProjectNames(repeated);
+      } else {
+        setProjectNames(['CARESPRINT', 'NEUROSTACK', 'INSIGHT IQ']);
       }
-      setProjectNames(repeated);
-    } else {
-      setProjectNames(['CARESPRINT', 'NEUROSTACK', 'INSIGHT IQ']);
-    }
+    };
+
+    const initialList = projectService.getProjects({ isVisible: true });
+    updateNames(initialList);
+
+    projectService.fetchProjects({ isVisible: true }).then((freshList) => {
+      if (Array.isArray(freshList)) {
+        updateNames(freshList);
+      }
+    });
   }, []);
 
   return (

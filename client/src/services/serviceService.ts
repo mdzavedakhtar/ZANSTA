@@ -102,12 +102,12 @@ export const serviceService = {
   fetchServices: async (): Promise<CMSService[]> => {
     try {
       const response = await apiRequest<{ success: boolean; data: CMSService[] }>('/cms/services');
-      if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+      if (response.success && Array.isArray(response.data)) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
-    } catch (err) {
-      console.warn('[serviceService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return serviceService.getServices();
   },
@@ -136,79 +136,120 @@ export const serviceService = {
     return services.find((s) => s.id === id);
   },
 
+  fetchServiceById: async (id: string): Promise<CMSService | null> => {
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSService }>(`/cms/services/${id}`);
+      if (res.success && res.data) {
+        const services = serviceService.getServices();
+        const updated = services.some((s) => s.id === id)
+          ? services.map((s) => (s.id === id ? res.data : s))
+          : [...services, res.data];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return res.data;
+      }
+    } catch {
+      // Silent
+    }
+    return serviceService.getServiceById(id) || null;
+  },
+
   createService: async (data: Omit<CMSService, 'id' | 'createdAt' | 'updatedAt' | 'order'> & { id?: string; order?: number }): Promise<CMSService> => {
     const services = serviceService.getServices();
     const id = data.id || `svc_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     const newService: CMSService = {
       ...data,
       id,
-      order: data.order !== undefined ? data.order : services.length + 1,
+      order: data.order ?? (services.length + 1),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
-    const updated = [...services, newService];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'created agency service', newService.name, 'service');
 
     try {
       const res = await apiRequest<{ success: boolean; data: CMSService }>('/cms/services', {
         method: 'POST',
         body: JSON.stringify(newService),
       });
-      if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[serviceService] Failed to save service to MongoDB, saved locally:', err);
+      const saved = res.data || newService;
+      const updated = [...services.filter((s) => s.id !== id && s.id !== saved.id), saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'created agency service', saved.name, 'service');
+      return saved;
+    } catch {
+      const updated = [...services, newService];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'created agency service (offline)', newService.name, 'service');
+      return newService;
     }
-
-    return newService;
   },
 
   updateService: async (id: string, updates: Partial<CMSService>): Promise<CMSService | null> => {
     const services = serviceService.getServices();
     const index = services.findIndex((s) => s.id === id);
-    if (index === -1) return null;
+    const existing = index !== -1 ? services[index] : ({} as CMSService);
 
     const updatedService: CMSService = {
-      ...services[index],
+      ...existing,
       ...updates,
+      id,
       updatedAt: new Date().toISOString(),
     };
-
-    services[index] = updatedService;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
-    activityService.logActivity('MD Zaved Akhtar', 'updated agency service', updatedService.name, 'service');
 
     try {
       const res = await apiRequest<{ success: boolean; data: CMSService }>(`/cms/services/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      if (res.success && res.data) return res.data;
-    } catch (err) {
-      console.warn('[serviceService] Failed to update service in MongoDB, saved locally:', err);
+      const saved = res.data || updatedService;
+      const updatedList = services.some((s) => s.id === id)
+        ? services.map((s) => (s.id === id ? saved : s))
+        : [...services, saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      activityService.logActivity('MD Zaved Akhtar', 'updated agency service', saved.name || 'Service', 'service');
+      return saved;
+    } catch {
+      if (index !== -1) {
+        services[index] = updatedService;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated agency service (offline)', updatedService.name || 'Service', 'service');
+      return updatedService;
     }
-
-    return updatedService;
   },
 
   deleteService: async (id: string): Promise<boolean> => {
     const services = serviceService.getServices();
     const target = services.find((s) => s.id === id);
-    if (!target) return false;
-
-    const filtered = services.filter((s) => s.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target.name, 'service');
 
     try {
       await apiRequest(`/cms/services/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[serviceService] Failed to delete service from MongoDB, deleted locally:', err);
+    } catch {
+      // Silent
     }
 
+    const filtered = services.filter((s) => s.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target?.name || id, 'service');
     return true;
+  },
+
+  reorderServices: async (reorderedServices: CMSService[]): Promise<void> => {
+    const updated = reorderedServices.map((s, idx) => ({
+      ...s,
+      order: idx + 1,
+      updatedAt: new Date().toISOString(),
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    activityService.logActivity('MD Zaved Akhtar', 'reordered services', 'Services Showcase Order', 'service');
+
+    try {
+      await apiRequest('/cms/services/reorder', {
+        method: 'PUT',
+        body: JSON.stringify({ services: updated }),
+      });
+    } catch {
+      // Silent
+    }
   },
 };

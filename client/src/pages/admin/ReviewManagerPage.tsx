@@ -30,8 +30,8 @@ export const ReviewManagerPage: React.FC = () => {
     try {
       const fresh = await reviewService.fetchReviews();
       if (fresh) setReviews(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh reviews:', e);
+    } catch {
+      // Silent
     }
   };
 

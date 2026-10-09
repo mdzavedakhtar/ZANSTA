@@ -22,6 +22,7 @@ export const ServiceFormPage: React.FC = () => {
     techStack: ['React', 'Node.js'],
     isFeatured: true,
     isVisible: true,
+    order: 1,
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -31,14 +32,17 @@ export const ServiceFormPage: React.FC = () => {
     if (isEdit && id) {
       const existing = serviceService.getServiceById(id);
       if (existing) {
-        setFormData(existing);
+        setFormData({ ...existing, order: existing.order || 1 });
       } else {
         serviceService.fetchServices().then((list) => {
           const found = list.find((s) => s.id === id);
-          if (found) setFormData(found);
+          if (found) setFormData({ ...found, order: found.order || 1 });
           else setError('Service not found.');
         });
       }
+    } else {
+      const all = serviceService.getServices();
+      setFormData((prev) => ({ ...prev, order: all.length + 1 }));
     }
   }, [id, isEdit]);
 
@@ -53,10 +57,14 @@ export const ServiceFormPage: React.FC = () => {
 
     setIsSaving(true);
     try {
+      const payload = {
+        ...formData,
+        order: Number(formData.order) || 1,
+      };
       if (isEdit && id) {
-        await serviceService.updateService(id, formData);
+        await serviceService.updateService(id, payload);
       } else {
-        await serviceService.createService(formData as any);
+        await serviceService.createService(payload as any);
       }
       navigate('/admin/services');
     } catch (err: any) {
@@ -81,7 +89,7 @@ export const ServiceFormPage: React.FC = () => {
               {isEdit ? 'EDIT AGENCY SERVICE' : 'CREATE AGENCY SERVICE'}
             </h1>
             <p className="text-xs text-[#F5F2ED]/55 font-sans">
-              Configure ZANSTA agency capability offerings with custom frame images.
+              Configure ZANSTA agency capability offerings with custom sequence order and frame images.
             </p>
           </div>
         </div>
@@ -98,7 +106,7 @@ export const ServiceFormPage: React.FC = () => {
         {/* Service Core Info */}
         <Card surfaceTier="100" className="p-6 space-y-6 border border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2 space-y-1.5">
+            <div className="space-y-1.5 md:col-span-1">
               <label className="text-xs font-mono text-[#F5F2ED]/80">Service Title / Name *</label>
               <input
                 type="text"
@@ -118,6 +126,22 @@ export const ServiceFormPage: React.FC = () => {
                 onChange={(e) => setFormData((prev) => ({ ...prev, tag: e.target.value }))}
                 placeholder="e.g. UI / UX, Full Stack, AI / ML"
                 className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-white/30"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80 flex items-center justify-between">
+                <span>Display Sequence Order *</span>
+                <span className="text-[10px] text-zinc-400">(1 = 1st, 2 = 2nd)</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={formData.order ?? 1}
+                onChange={(e) => setFormData((prev) => ({ ...prev, order: Math.max(1, parseInt(e.target.value, 10) || 1) }))}
+                placeholder="1"
+                className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] font-mono focus:outline-none focus:border-white/30"
               />
             </div>
           </div>

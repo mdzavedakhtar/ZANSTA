@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { projectService } from '@/services/projectService';
 import { CMSProject } from '@/types/cms';
+import { useCmsLiveSync } from '@/hooks/useCmsLiveSync';
 import {
   ExternalLink,
   Github,
@@ -20,18 +21,25 @@ export const PublicProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<CMSProject[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
-  useEffect(() => {
+  const loadProjects = () => {
     const list = projectService.getProjects({ isVisible: true });
     setProjects(list);
 
     projectService.fetchProjects({ isVisible: true }).then((freshList) => {
-      if (freshList && freshList.length > 0) {
+      if (Array.isArray(freshList)) {
         setProjects(freshList);
       }
     });
+  };
 
+  useEffect(() => {
+    loadProjects();
     window.scrollTo(0, 0);
   }, []);
+
+  useCmsLiveSync('project', () => {
+    loadProjects();
+  });
 
   const categories = ['ALL', 'WEB APP', 'AI / ML', 'MOBILE', 'SAAS', 'CLIENT PROJECT'];
 

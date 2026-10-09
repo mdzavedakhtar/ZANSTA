@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { FadeIn } from '@/components/motion/FadeIn';
-import { Github, Linkedin, FileText, Briefcase } from 'lucide-react';
+import { Github, Linkedin, Globe, Briefcase } from 'lucide-react';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
 
@@ -15,7 +15,7 @@ export const TeamPage: React.FC = () => {
   useEffect(() => {
     setMembers(teamService.getTeamMembers({ isVisible: true }));
     teamService.fetchTeamMembers({ isVisible: true }).then((fresh) => {
-      if (fresh && fresh.length > 0) setMembers(fresh);
+      if (Array.isArray(fresh)) setMembers(fresh);
     });
   }, []);
 
@@ -70,7 +70,8 @@ export const TeamPage: React.FC = () => {
                       href={member.github}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="GitHub"
                     >
                       <Github className="w-4 h-4" />
                     </a>
@@ -80,23 +81,28 @@ export const TeamPage: React.FC = () => {
                       href={member.linkedin}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="LinkedIn"
                     >
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
+                  {member.portfolio && (
+                    <a
+                      href={member.portfolio}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#F5F2ED]/55 hover:text-[#F5F2ED] p-1.5 rounded-lg bg-white/5 transition-colors"
+                      aria-label="Portfolio"
+                    >
+                      <Globe className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
 
-                {member.resumeUrl && (
-                  <a
-                    href={member.resumeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-mono text-[#8B0D1A] hover:underline flex items-center gap-1"
-                  >
-                    <FileText className="w-3.5 h-3.5" /> View Resume
-                  </a>
-                )}
+                <span className="text-[10px] font-mono text-[#F5F2ED]/40 uppercase tracking-wider">
+                  ZANSTA Core
+                </span>
               </div>
             </Card>
           ))}

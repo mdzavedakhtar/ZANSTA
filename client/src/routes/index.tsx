@@ -51,10 +51,13 @@ import { ServiceManagerPage } from '@/pages/admin/ServiceManagerPage';
 import { ServiceFormPage } from '@/pages/admin/ServiceFormPage';
 import { ReviewManagerPage } from '@/pages/admin/ReviewManagerPage';
 import { ReviewFormPage } from '@/pages/admin/ReviewFormPage';
+import { BannerManagerPage } from '@/pages/admin/BannerManagerPage';
+import { BannerFormPage } from '@/pages/admin/BannerFormPage';
+import { CertificateManagerPage } from '@/pages/admin/CertificateManagerPage';
+import { CertificateFormPage } from '@/pages/admin/CertificateFormPage';
 import { DemoRequestManagerPage } from '@/pages/admin/DemoRequestManagerPage';
 import { EnquiryManagerPage } from '@/pages/admin/EnquiryManagerPage';
 import { LandingPageEditorPage } from '@/pages/admin/LandingPageEditorPage';
-import { AdminActivityPage } from '@/pages/admin/AdminActivityPage';
 
 // Project Workspace Sub-routes
 import { ProjectOverviewPage } from '@/pages/workspace/ProjectOverviewPage';
@@ -148,18 +151,26 @@ export const router = createBrowserRouter([
       { path: 'admin/reviews/new', element: <ReviewFormPage /> },
       { path: 'admin/reviews/:id/edit', element: <ReviewFormPage /> },
 
+      // Admin Banners & Offers CRUD
+      { path: 'admin/banners', element: <BannerManagerPage /> },
+      { path: 'admin/banners/new', element: <BannerFormPage /> },
+      { path: 'admin/banners/:id/edit', element: <BannerFormPage /> },
+
+      // Admin Certificates & MSME Verified CMS
+      { path: 'admin/certificates', element: <CertificateManagerPage /> },
+      { path: 'admin/certificates/new', element: <CertificateFormPage /> },
+      { path: 'admin/certificates/:id/edit', element: <CertificateFormPage /> },
+
       // Admin Leads & Enquiries
       { path: 'admin/demo-requests', element: <DemoRequestManagerPage /> },
       { path: 'admin/enquiries', element: <EnquiryManagerPage /> },
 
-      // Admin Landing Page & Activity CMS
+      // Admin Landing Page CMS
       { path: 'admin/landing', element: <LandingPageEditorPage /> },
-      { path: 'admin/activity', element: <AdminActivityPage /> },
 
       // Legacy Workspace Navigation Compatibility
       { path: 'workspace/team', element: <TeamManagerPage /> },
       { path: 'workspace/projects', element: <ProjectManagerPage /> },
-      { path: 'workspace/activity', element: <AdminActivityPage /> },
       { path: 'workspace/files', element: <WorkspaceFilesPage /> },
       { path: 'settings', element: <WorkspaceSettingsPage /> },
       { path: 'notifications', element: <WorkspaceNotificationsPage /> },
@@ -185,4 +196,8 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFoundPage />,
   },
-]);
+], {
+  future: {
+    v7_relativeSplatPath: true,
+  } as any,
+});

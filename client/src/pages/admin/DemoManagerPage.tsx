@@ -43,8 +43,8 @@ export const DemoManagerPage: React.FC = () => {
         status: statusFilter,
       });
       if (fresh) setDemos(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh demos:', e);
+    } catch {
+      // Silent
     }
   };
 

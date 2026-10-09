@@ -29,6 +29,7 @@ export const ProjectFormPage: React.FC = () => {
     isClientProject: false,
     isFeatured: true,
     isVisible: true,
+    order: 1,
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -38,10 +39,19 @@ export const ProjectFormPage: React.FC = () => {
     if (isEdit && id) {
       const existing = projectService.getProjectById(id);
       if (existing) {
-        setFormData(existing);
-      } else {
-        setError('Project not found.');
+        setFormData({ ...existing, order: existing.order || 1 });
       }
+      projectService.fetchProjectById(id).then((fresh) => {
+        if (fresh) {
+          setFormData({ ...fresh, order: fresh.order || 1 });
+          setError(null);
+        } else if (!existing) {
+          setError('Project not found.');
+        }
+      });
+    } else {
+      const all = projectService.getProjects();
+      setFormData((prev) => ({ ...prev, order: all.length + 1 }));
     }
   }, [id, isEdit]);
 
@@ -68,10 +78,14 @@ export const ProjectFormPage: React.FC = () => {
 
     setIsSaving(true);
     try {
+      const payload = {
+        ...formData,
+        order: Number(formData.order) || 1,
+      };
       if (isEdit && id) {
-        await projectService.updateProject(id, formData);
+        await projectService.updateProject(id, payload);
       } else {
-        await projectService.createProject(formData as any);
+        await projectService.createProject(payload as any);
       }
       navigate('/admin/projects');
     } catch (err: any) {
@@ -97,7 +111,7 @@ export const ProjectFormPage: React.FC = () => {
               {isEdit ? 'EDIT PROJECT' : 'CREATE NEW PROJECT'}
             </h1>
             <p className="text-xs text-[#F5F2ED]/55 font-sans">
-              {isEdit ? 'Update project details, showcase images, and visibility.' : 'Add a new project to your ZANSTA admin showcase.'}
+              {isEdit ? 'Update project details, showcase images, sequence order, and visibility.' : 'Add a new project to your ZANSTA admin showcase with custom sequence position.'}
             </p>
           </div>
         </div>
@@ -113,12 +127,13 @@ export const ProjectFormPage: React.FC = () => {
       {/* Form Content */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card surfaceTier="100" className="p-6 space-y-6 border border-white/10">
-          <h2 className="text-sm font-bold text-[#F5F2ED] font-display uppercase tracking-wider border-b border-white/05 pb-3">
-            Primary Overview
+          <h2 className="text-sm font-bold text-[#F5F2ED] font-display uppercase tracking-wider border-b border-white/05 pb-3 flex items-center justify-between">
+            <span>Primary Overview</span>
+            <span className="text-[11px] font-mono text-[#8B0D1A] font-normal">Sequence Position #{formData.order || 1}</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1.5 md:col-span-1">
               <label className="text-xs font-mono text-[#F5F2ED]/80">Project Name *</label>
               <input
                 type="text"
@@ -138,6 +153,22 @@ export const ProjectFormPage: React.FC = () => {
                 onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
                 placeholder="caresprint"
                 className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] font-mono placeholder:text-[#F5F2ED]/30 focus:outline-none focus:border-[#8B0D1A]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-[#F5F2ED]/80 flex items-center justify-between">
+                <span>Display Sequence Order *</span>
+                <span className="text-[10px] text-zinc-400">(1 = 1st, 2 = 2nd)</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={formData.order ?? 1}
+                onChange={(e) => setFormData((prev) => ({ ...prev, order: Math.max(1, parseInt(e.target.value, 10) || 1) }))}
+                placeholder="1"
+                className="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xl text-xs text-[#F5F2ED] font-mono focus:outline-none focus:border-[#8B0D1A]"
               />
             </div>
           </div>

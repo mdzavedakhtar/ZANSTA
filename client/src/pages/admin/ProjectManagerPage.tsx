@@ -48,8 +48,8 @@ export const ProjectManagerPage: React.FC = () => {
         category: categoryFilter,
       });
       if (fresh) setProjects(fresh);
-    } catch (e) {
-      console.warn('Error fetching fresh projects:', e);
+    } catch {
+      // Silent
     }
   };
 
@@ -76,6 +76,20 @@ export const ProjectManagerPage: React.FC = () => {
     loadProjects();
   };
 
+  const handleMoveOrder = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= projects.length) return;
+
+    const newProjects = [...projects];
+    const temp = newProjects[index];
+    newProjects[index] = newProjects[targetIndex];
+    newProjects[targetIndex] = temp;
+
+    setProjects(newProjects);
+    await projectService.reorderProjects(newProjects);
+    loadProjects();
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
       {/* Top Header & Actions */}
@@ -90,7 +104,7 @@ export const ProjectManagerPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs text-[#F5F2ED]/55 font-sans">
-            Manage portfolio showcase projects, status, featured states, tech stack, and landing page visibility.
+            Manage portfolio showcase projects, display order sequence (1, 2, 3, 4...), status, featured states, tech stack, and landing page visibility.
           </p>
         </div>
 
@@ -155,7 +169,7 @@ export const ProjectManagerPage: React.FC = () => {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((p) => (
+          {projects.map((p, idx) => (
             <Card
               key={p.id}
               surfaceTier="100"
@@ -170,7 +184,10 @@ export const ProjectManagerPage: React.FC = () => {
                     alt={p.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                  <div className="absolute top-2 left-2 flex items-center gap-1.5 flex-wrap">
+                    <span className="px-2 py-0.5 rounded-md bg-[#8B0D1A] text-white font-mono text-[10px] font-bold shadow">
+                      #{p.order !== undefined ? p.order : idx + 1}
+                    </span>
                     <Badge variant={p.status === 'LIVE' || p.status === 'COMPLETED' ? 'active' : 'crimson'} size="sm">
                       {p.status}
                     </Badge>
@@ -206,9 +223,29 @@ export const ProjectManagerPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-extrabold text-[#F5F2ED] font-display group-hover:text-[#8B0D1A] transition-colors">
-                    {p.name}
-                  </h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-lg font-extrabold text-[#F5F2ED] font-display group-hover:text-[#8B0D1A] transition-colors truncate">
+                      {p.name}
+                    </h3>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => handleMoveOrder(idx, 'up')}
+                        disabled={idx === 0}
+                        title="Move Up in Sequence"
+                        className="p-1 rounded bg-white/05 hover:bg-white/15 disabled:opacity-20 text-white text-[10px] font-mono transition-colors"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleMoveOrder(idx, 'down')}
+                        disabled={idx === projects.length - 1}
+                        title="Move Down in Sequence"
+                        className="p-1 rounded bg-white/05 hover:bg-white/15 disabled:opacity-20 text-white text-[10px] font-mono transition-colors"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  </div>
                   {p.clientName && (
                     <p className="text-[11px] font-mono text-[#8B0D1A] mt-0.5">
                       Client: {p.clientName}

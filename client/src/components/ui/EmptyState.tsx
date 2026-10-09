@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { Inbox, Plus } from 'lucide-react';

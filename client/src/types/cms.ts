@@ -177,11 +177,44 @@ export interface CMSLandingPageContent {
   updatedAt: string;
 }
 
+export interface CMSBanner {
+  id: string;
+  title: string;
+  subtitle?: string;
+  discountText?: string;
+  badgeText?: string;
+  imageUrl: string;
+  targetUrl?: string;
+  ctaText?: string;
+  isVisible: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CMSCertificate {
+  id: string;
+  title: string;
+  issuer: string;
+  certificateNumber: string;
+  badgeText?: string;
+  logoUrl: string;
+  verificationUrl?: string;
+  issuedDate?: string;
+  description?: string;
+  isVisible: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ActivityLogItem {
   id: string;
   timestamp: string;
   user: string;
   action: string;
   target: string;
-  type: 'project' | 'team' | 'demo' | 'service' | 'review' | 'request' | 'enquiry' | 'landing';
+  type: 'project' | 'team' | 'demo' | 'service' | 'review' | 'request' | 'enquiry' | 'landing' | 'banner' | 'certificate';
 }
+
+

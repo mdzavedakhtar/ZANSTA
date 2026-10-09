@@ -112,24 +112,13 @@ export const projectService = {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await apiRequest<{ success: boolean; data: CMSProject[] }>(`/cms/projects${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        if (!filters || Object.keys(filters).length === 0) {
+        if (!filters || Object.keys(filters).length === 0 || (Object.keys(filters).length === 1 && filters.isVisible !== undefined)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-        } else {
-          try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            const current: CMSProject[] = stored ? JSON.parse(stored) : [];
-            const mergedMap = new Map<string, CMSProject>();
-            current.forEach((p) => mergedMap.set(p.id, p));
-            response.data.forEach((p) => mergedMap.set(p.id, p));
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
-          } catch {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-          }
         }
         return response.data;
       }
-    } catch (err) {
-      console.warn('[projectService] Backend API offline or unreachable, using local cache:', err);
+    } catch {
+      // Silently fall back to local cache
     }
     return projectService.getProjects(filters);
   },
@@ -181,6 +170,23 @@ export const projectService = {
     return projects.find((p) => p.id === id || p.slug === id) || null;
   },
 
+  fetchProjectById: async (id: string): Promise<CMSProject | null> => {
+    try {
+      const res = await apiRequest<{ success: boolean; data: CMSProject }>(`/cms/projects/${id}`);
+      if (res.success && res.data) {
+        const projects = projectService.getProjects();
+        const updated = projects.some((p) => p.id === id || p.slug === id)
+          ? projects.map((p) => (p.id === id || p.slug === id ? res.data : p))
+          : [...projects, res.data];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return res.data;
+      }
+    } catch {
+      // Gracefully fallback to local storage
+    }
+    return projectService.getProjectById(id);
+  },
+
   getProjectBySlug: (slug: string): CMSProject | null => {
     const projects = projectService.getProjects();
     return projects.find((p) => p.slug === slug || p.id === slug) || null;
@@ -200,74 +206,72 @@ export const projectService = {
       updatedAt: new Date().toISOString(),
     };
 
-    // Update local cache immediately
-    const updatedProjects = [...projects, newProject];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
-    activityService.logActivity('MD Zaved Akhtar', 'created project', newProject.name, 'project');
-
-    // Sync to MongoDB server
     try {
       const res = await apiRequest<{ success: boolean; data: CMSProject }>('/cms/projects', {
         method: 'POST',
         body: JSON.stringify(newProject),
       });
-      if (res.success && res.data) {
-        return res.data;
-      }
-    } catch (err) {
-      console.warn('[projectService] Failed to save project to MongoDB directly, stored locally:', err);
+      const saved = res.data || newProject;
+      const updatedProjects = [...projects.filter((p) => p.id !== id && p.id !== saved.id && p.slug !== saved.slug), saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
+      activityService.logActivity('MD Zaved Akhtar', 'created project', saved.name, 'project');
+      return saved;
+    } catch {
+      const updatedProjects = [...projects, newProject];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
+      activityService.logActivity('MD Zaved Akhtar', 'created project (offline)', newProject.name, 'project');
+      return newProject;
     }
-
-    return newProject;
   },
 
   updateProject: async (id: string, updates: Partial<CMSProject>): Promise<CMSProject | null> => {
     const projects = projectService.getProjects();
     const index = projects.findIndex((p) => p.id === id || p.slug === id);
-    if (index === -1) return null;
+    const existing = index !== -1 ? projects[index] : ({} as CMSProject);
 
-    const existing = projects[index];
     const updatedProject: CMSProject = {
       ...existing,
       ...updates,
       updatedAt: new Date().toISOString(),
     };
 
-    projects[index] = updatedProject;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-    activityService.logActivity('MD Zaved Akhtar', 'updated project', updatedProject.name, 'project');
-
-    // Sync to MongoDB server
     try {
-      await apiRequest(`/cms/projects/${id}`, {
+      const res = await apiRequest<{ success: boolean; data: CMSProject }>(`/cms/projects/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-    } catch (err) {
-      console.warn('[projectService] Failed to update project in MongoDB, updated locally:', err);
+      const saved = res.data || updatedProject;
+      const updatedList = projects.some((p) => p.id === id || p.slug === id)
+        ? projects.map((p) => (p.id === id || p.slug === id ? saved : p))
+        : [...projects, saved];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      activityService.logActivity('MD Zaved Akhtar', 'updated project', saved.name || 'Project', 'project');
+      return saved;
+    } catch {
+      if (index !== -1) {
+        projects[index] = updatedProject;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated project (offline)', updatedProject.name || 'Project', 'project');
+      return updatedProject;
     }
-
-    return updatedProject;
   },
 
   deleteProject: async (id: string): Promise<boolean> => {
     const projects = projectService.getProjects();
     const target = projects.find((p) => p.id === id || p.slug === id);
-    if (!target) return false;
 
-    const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted project', target.name, 'project');
-
-    // Sync to MongoDB server
     try {
       await apiRequest(`/cms/projects/${id}`, {
         method: 'DELETE',
       });
-    } catch (err) {
-      console.warn('[projectService] Failed to delete project in MongoDB, deleted locally:', err);
+    } catch {
+      // Local fallback
     }
 
+    const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    activityService.logActivity('MD Zaved Akhtar', 'deleted project', target?.name || id, 'project');
     return true;
   },
 
@@ -285,8 +289,8 @@ export const projectService = {
         method: 'PUT',
         body: JSON.stringify({ projects: updated }),
       });
-    } catch (err) {
-      console.warn('[projectService] Failed to sync project order to MongoDB:', err);
+    } catch {
+      // Local fallback
     }
   },
 };

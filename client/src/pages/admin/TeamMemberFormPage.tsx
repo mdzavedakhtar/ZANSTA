@@ -3,11 +3,10 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MediaUploader } from '@/components/admin/MediaUploader';
-import { FileUploader } from '@/components/admin/FileUploader';
 import { TechStackInput } from '@/components/admin/TechStackInput';
 import { teamService } from '@/services/teamService';
 import { CMSTeamMember } from '@/types/cms';
-import { ArrowLeft, Save, Users, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, AlertCircle } from 'lucide-react';
 
 export const TeamMemberFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,8 +27,6 @@ export const TeamMemberFormPage: React.FC = () => {
     github: '',
     linkedin: '',
     portfolio: '',
-    resumeUrl: '',
-    resumeFileName: '',
     isFeatured: true,
     isVisible: true,
   });
@@ -42,9 +39,15 @@ export const TeamMemberFormPage: React.FC = () => {
       const existing = teamService.getMemberById(id);
       if (existing) {
         setFormData(existing);
-      } else {
-        setError('Team member not found.');
       }
+      teamService.fetchMemberById(id).then((fresh) => {
+        if (fresh) {
+          setFormData(fresh);
+          setError(null);
+        } else if (!existing) {
+          setError('Team member not found.');
+        }
+      });
     }
   }, [id, isEdit]);
 
@@ -92,7 +95,7 @@ export const TeamMemberFormPage: React.FC = () => {
               {isEdit ? 'EDIT TEAM MEMBER' : 'ADD TEAM MEMBER'}
             </h1>
             <p className="text-xs text-[#F5F2ED]/55 font-sans">
-              {isEdit ? 'Update member photo, tech stack, experience summary, and resume.' : 'Add a new builder profile to your ZANSTA collective.'}
+              {isEdit ? 'Update member photo, tech stack, and experience summary.' : 'Add a new builder profile to your ZANSTA collective.'}
             </p>
           </div>
         </div>
@@ -213,20 +216,11 @@ export const TeamMemberFormPage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Resume & Social Links */}
+        {/* Social Profiles */}
         <Card surfaceTier="100" className="p-6 space-y-6 border border-white/10">
           <h2 className="text-sm font-bold text-[#F5F2ED] font-display uppercase tracking-wider border-b border-white/05 pb-3">
-            Resume PDF & Social Profiles
+            Social Profiles & Links
           </h2>
-
-          <FileUploader
-            label="Team Member Resume Document (PDF / DOC)"
-            value={formData.resumeUrl || ''}
-            fileName={formData.resumeFileName || ''}
-            onChange={(url, name) =>
-              setFormData((prev) => ({ ...prev, resumeUrl: url, resumeFileName: name }))
-            }
-          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">

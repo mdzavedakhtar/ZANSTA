@@ -29,4 +29,9 @@ const ContactEnquirySchema = new Schema<IContactEnquiry>(
   { timestamps: true }
 );
 
+ContactEnquirySchema.index({ createdAt: -1 });
+ContactEnquirySchema.index({ status: 1, createdAt: -1 });
+ContactEnquirySchema.index({ email: 1 });
+ContactEnquirySchema.index({ name: 'text', email: 'text', company: 'text', message: 'text' });
+
 export const ContactEnquiry = mongoose.model<IContactEnquiry>('ContactEnquiry', ContactEnquirySchema);

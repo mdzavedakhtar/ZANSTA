@@ -17,6 +17,7 @@ import {
   createService,
   updateService,
   deleteService,
+  reorderServices,
   getDemos,
   getDemoByTokenOrId,
   createDemo,
@@ -29,6 +30,19 @@ import {
   createReview,
   updateReview,
   deleteReview,
+  reorderReviews,
+  getBanners,
+  getBannerById,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  reorderBanners,
+  getCertificates,
+  getCertificateById,
+  createCertificate,
+  updateCertificate,
+  deleteCertificate,
+  reorderCertificates,
   getLandingContent,
   updateLandingContent,
   getEnquiries,
@@ -67,6 +81,7 @@ router.delete('/team/:id', deleteTeamMember);
 router.get('/services', getServices);
 router.get('/services/:id', getServiceById);
 router.post('/services', createService);
+router.put('/services/reorder', reorderServices);
 router.put('/services/:id', updateService);
 router.delete('/services/:id', deleteService);
 
@@ -83,8 +98,25 @@ router.delete('/demos/:id', deleteDemo);
 router.get('/reviews', getReviews);
 router.get('/reviews/:id', getReviewById);
 router.post('/reviews', createReview);
+router.put('/reviews/reorder', reorderReviews);
 router.put('/reviews/:id', updateReview);
 router.delete('/reviews/:id', deleteReview);
+
+// Banners & Offers CMS Routes
+router.get('/banners', getBanners);
+router.get('/banners/:id', getBannerById);
+router.post('/banners', createBanner);
+router.put('/banners/reorder', reorderBanners);
+router.put('/banners/:id', updateBanner);
+router.delete('/banners/:id', deleteBanner);
+
+// Company & Government MSME Certificates Routes
+router.get('/certificates', getCertificates);
+router.get('/certificates/:id', getCertificateById);
+router.post('/certificates', createCertificate);
+router.put('/certificates/reorder', reorderCertificates);
+router.put('/certificates/:id', updateCertificate);
+router.delete('/certificates/:id', deleteCertificate);
 
 // Landing Page CMS Routes
 router.get('/landing', getLandingContent);
@@ -111,3 +143,4 @@ router.delete('/activities', clearActivities);
 router.post('/send-email', sendCustomEmailHandler);
 
 export default router;
+

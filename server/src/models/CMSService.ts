@@ -33,4 +33,8 @@ const CMSServiceSchema = new Schema<ICMSService>(
   { timestamps: true }
 );
 
+CMSServiceSchema.index({ order: 1, createdAt: -1 });
+CMSServiceSchema.index({ isVisible: 1, isFeatured: 1 });
+CMSServiceSchema.index({ name: 'text', shortDescription: 'text', fullDescription: 'text' });
+
 export const CMSService = mongoose.model<ICMSService>('CMSService', CMSServiceSchema);
