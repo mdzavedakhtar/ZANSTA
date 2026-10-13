@@ -1,6 +1,7 @@
 import { DemoRequest, DemoRequestStatus } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_demo_requests';
 
@@ -12,7 +13,7 @@ export const demoRequestService = {
     try {
       const response = await apiRequest<{ success: boolean; data: DemoRequest[] }>('/cms/demo-requests');
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -25,15 +26,15 @@ export const demoRequestService = {
   getRequests: (): DemoRequest[] => {
     let requests: DemoRequest[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         requests = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRequests));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRequests));
         requests = defaultRequests;
       }
     } catch (e) {
-      console.error('Failed to parse demo requests from localStorage', e);
+      console.error('Failed to parse demo requests from storage', e);
       requests = defaultRequests;
     }
     requests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -50,21 +51,27 @@ export const demoRequestService = {
       createdAt: new Date().toISOString(),
     };
 
-    const updated = [newRequest, ...requests];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity(newRequest.name, 'submitted demo request', newRequest.company || newRequest.email, 'request');
-
+    let resultRequest = newRequest;
     try {
       const res = await apiRequest<{ success: boolean; data: DemoRequest }>('/cms/demo-requests', {
         method: 'POST',
         body: JSON.stringify(newRequest),
       });
-      if (res.success && res.data) return res.data;
+      if (res.success && res.data) resultRequest = res.data;
+      activityService.logActivity(resultRequest.name, 'submitted demo request', resultRequest.company || resultRequest.email, 'request');
     } catch (err) {
       console.warn('[demoRequestService] Failed to submit demo request to MongoDB, saved locally:', err);
+      activityService.logActivity(newRequest.name, 'submitted demo request (offline)', newRequest.company || newRequest.email, 'request');
     }
 
-    return newRequest;
+    try {
+      const updated = [resultRequest, ...requests];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultRequest;
   },
 
   updateStatus: async (id: string, status: DemoRequestStatus): Promise<DemoRequest | null> => {
@@ -73,8 +80,12 @@ export const demoRequestService = {
     if (index === -1) return null;
 
     requests[index].status = status;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
-    activityService.logActivity('MD Zaved Akhtar', `updated demo request status to ${status}`, requests[index].name, 'request');
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
+      activityService.logActivity('MD Zaved Akhtar', `updated demo request status to ${status}`, requests[index].name, 'request');
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
 
     try {
       await apiRequest(`/cms/demo-requests/${id}/status`, {
@@ -93,9 +104,13 @@ export const demoRequestService = {
     const target = requests.find((r) => r.id === id);
     if (!target) return false;
 
-    const filtered = requests.filter((r) => r.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted demo request', target.name, 'request');
+    try {
+      const filtered = requests.filter((r) => r.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted demo request', target.name, 'request');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
 
     try {
       await apiRequest(`/cms/demo-requests/${id}`, {

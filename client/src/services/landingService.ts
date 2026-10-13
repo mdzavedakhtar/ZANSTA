@@ -1,6 +1,7 @@
 import { CMSLandingPageContent } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_landing';
 
@@ -41,7 +42,7 @@ export const landingService = {
     try {
       const response = await apiRequest<{ success: boolean; data: CMSLandingPageContent }>('/cms/landing');
       if (response.success && response.data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -53,14 +54,14 @@ export const landingService = {
   // Synchronous read with local cache
   getLandingContent: (): CMSLandingPageContent => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
     } catch {
       // Local fallback
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultLandingContent));
+    safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultLandingContent));
     return defaultLandingContent;
   },
 
@@ -75,8 +76,13 @@ export const landingService = {
       },
       updatedAt: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'updated landing page CMS content', 'Landing Page CMS', 'landing');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'updated landing page CMS content', 'Landing Page CMS', 'landing');
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
 
     try {
       const res = await apiRequest<{ success: boolean; data: CMSLandingPageContent }>('/cms/landing', {

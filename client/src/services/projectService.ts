@@ -1,6 +1,7 @@
 import { CMSProject } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_projects';
 
@@ -113,7 +114,7 @@ export const projectService = {
       const response = await apiRequest<{ success: boolean; data: CMSProject[] }>(`/cms/projects${queryString}`);
       if (response.success && Array.isArray(response.data)) {
         if (!filters || Object.keys(filters).length === 0 || (Object.keys(filters).length === 1 && filters.isVisible !== undefined)) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         }
         return response.data;
       }
@@ -127,15 +128,15 @@ export const projectService = {
   getProjects: (filters?: ProjectFilterOptions): CMSProject[] => {
     let projects: CMSProject[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         projects = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultProjects));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultProjects));
         projects = defaultProjects;
       }
     } catch (e) {
-      console.error('Failed to parse projects from localStorage', e);
+      console.error('Failed to parse projects from storage', e);
       projects = defaultProjects;
     }
 
@@ -178,7 +179,7 @@ export const projectService = {
         const updated = projects.some((p) => p.id === id || p.slug === id)
           ? projects.map((p) => (p.id === id || p.slug === id ? res.data : p))
           : [...projects, res.data];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
     } catch {
@@ -206,22 +207,29 @@ export const projectService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultProject = newProject;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSProject }>('/cms/projects', {
         method: 'POST',
         body: JSON.stringify(newProject),
       });
-      const saved = res.data || newProject;
-      const updatedProjects = [...projects.filter((p) => p.id !== id && p.id !== saved.id && p.slug !== saved.slug), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
-      activityService.logActivity('MD Zaved Akhtar', 'created project', saved.name, 'project');
-      return saved;
-    } catch {
-      const updatedProjects = [...projects, newProject];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
+      if (res.data) {
+        resultProject = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'created project', resultProject.name, 'project');
+    } catch (apiErr) {
+      console.warn('Backend API create failed, saving to local cache:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'created project (offline)', newProject.name, 'project');
-      return newProject;
     }
+
+    try {
+      const updatedProjects = [...projects.filter((p) => p.id !== id && p.id !== resultProject.id && p.slug !== resultProject.slug), resultProject];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProjects));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultProject;
   },
 
   updateProject: async (id: string, updates: Partial<CMSProject>): Promise<CMSProject | null> => {
@@ -235,26 +243,31 @@ export const projectService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultProject = updatedProject;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSProject }>(`/cms/projects/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedProject;
-      const updatedList = projects.some((p) => p.id === id || p.slug === id)
-        ? projects.map((p) => (p.id === id || p.slug === id ? saved : p))
-        : [...projects, saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated project', saved.name || 'Project', 'project');
-      return saved;
-    } catch {
-      if (index !== -1) {
-        projects[index] = updatedProject;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      if (res.data) {
+        resultProject = res.data;
       }
+      activityService.logActivity('MD Zaved Akhtar', 'updated project', resultProject.name || 'Project', 'project');
+    } catch (apiErr) {
+      console.warn('Backend API update failed, saving to local cache:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated project (offline)', updatedProject.name || 'Project', 'project');
-      return updatedProject;
     }
+
+    try {
+      const updatedList = projects.some((p) => p.id === id || p.slug === id)
+        ? projects.map((p) => (p.id === id || p.slug === id ? resultProject : p))
+        : [...projects, resultProject];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultProject;
   },
 
   deleteProject: async (id: string): Promise<boolean> => {
@@ -269,9 +282,13 @@ export const projectService = {
       // Local fallback
     }
 
-    const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted project', target?.name || id, 'project');
+    try {
+      const filtered = projects.filter((p) => p.id !== id && p.slug !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted project', target?.name || id, 'project');
+    } catch (storageErr) {
+      console.warn('safeStorage delete cache skipped:', storageErr);
+    }
     return true;
   },
 
@@ -281,8 +298,13 @@ export const projectService = {
       order: idx + 1,
       updatedAt: new Date().toISOString(),
     }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'reordered projects', 'Project Showcase Order', 'project');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'reordered projects', 'Project Showcase Order', 'project');
+    } catch (storageErr) {
+      console.warn('safeStorage reorder cache skipped:', storageErr);
+    }
 
     try {
       await apiRequest('/cms/projects/reorder', {

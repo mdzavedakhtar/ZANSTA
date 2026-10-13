@@ -1,6 +1,7 @@
 import { CMSBanner } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_banners';
 
@@ -62,7 +63,7 @@ export const bannerService = {
 
       const response = await apiRequest<{ success: boolean; data: CMSBanner[] }>(`/cms/banners${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -74,11 +75,11 @@ export const bannerService = {
   getBanners: (filters?: BannerFilterOptions): CMSBanner[] => {
     let banners: CMSBanner[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         banners = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultBanners));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultBanners));
         banners = defaultBanners;
       }
     } catch {
@@ -112,22 +113,29 @@ export const bannerService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultBanner = newBanner;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSBanner }>('/cms/banners', {
         method: 'POST',
         body: JSON.stringify(newBanner),
       });
-      const saved = res.data || newBanner;
-      const updated = [...banners.filter((b) => b.id !== id && b.id !== saved.id), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      activityService.logActivity('MD Zaved Akhtar', 'created promo banner', saved.title, 'banner');
-      return saved;
-    } catch {
-      const updated = [...banners, newBanner];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      if (res.data) {
+        resultBanner = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'created promo banner', resultBanner.title, 'banner');
+    } catch (apiErr) {
+      console.warn('Backend API create banner failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'created promo banner (offline)', newBanner.title, 'banner');
-      return newBanner;
     }
+
+    try {
+      const updated = [...banners.filter((b) => b.id !== id && b.id !== resultBanner.id), resultBanner];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage banner cache write skipped:', storageErr);
+    }
+
+    return resultBanner;
   },
 
   updateBanner: async (id: string, updates: Partial<CMSBanner>): Promise<CMSBanner | null> => {
@@ -141,22 +149,29 @@ export const bannerService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultBanner = updatedBanner;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSBanner }>(`/cms/banners/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedBanner;
-      const updatedList = banners.map((b) => (b.id === id ? saved : b));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated promo banner', saved.title, 'banner');
-      return saved;
-    } catch {
-      const updatedList = banners.map((b) => (b.id === id ? updatedBanner : b));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      if (res.data) {
+        resultBanner = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated promo banner', resultBanner.title, 'banner');
+    } catch (apiErr) {
+      console.warn('Backend API update banner failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated promo banner (offline)', updatedBanner.title, 'banner');
-      return updatedBanner;
     }
+
+    try {
+      const updatedList = banners.map((b) => (b.id === id ? resultBanner : b));
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage banner cache write skipped:', storageErr);
+    }
+
+    return resultBanner;
   },
 
   deleteBanner: async (id: string): Promise<boolean> => {
@@ -170,9 +185,13 @@ export const bannerService = {
       // Silent
     }
 
-    const filtered = banners.filter((b) => b.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted promo banner', title, 'banner');
+    try {
+      const filtered = banners.filter((b) => b.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted promo banner', title, 'banner');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
     return true;
   },
 
@@ -186,8 +205,13 @@ export const bannerService = {
     } catch {
       // Silent
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
-    activityService.logActivity('MD Zaved Akhtar', 'reordered promo banners', 'Banners Order', 'banner');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
+      activityService.logActivity('MD Zaved Akhtar', 'reordered promo banners', 'Banners Order', 'banner');
+    } catch (storageErr) {
+      console.warn('safeStorage reorder skipped:', storageErr);
+    }
     return reordered;
   },
 };

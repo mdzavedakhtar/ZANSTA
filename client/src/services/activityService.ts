@@ -1,5 +1,6 @@
 import { ActivityLogItem } from '@/types/cms';
 import { apiRequest } from './api';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_activity_log';
 
@@ -11,7 +12,7 @@ export const activityService = {
     try {
       const response = await apiRequest<{ success: boolean; data: ActivityLogItem[] }>('/cms/activities');
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -23,14 +24,14 @@ export const activityService = {
   // Synchronous read with local cache
   getActivities: (): ActivityLogItem[] => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored);
       }
     } catch {
       // Fallback
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultActivities));
+    safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultActivities));
     return defaultActivities;
   },
 
@@ -45,7 +46,11 @@ export const activityService = {
       type,
     };
     const updated = [newItem, ...activities].slice(0, 50);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // Ignore
+    }
 
     apiRequest('/cms/activities', {
       method: 'POST',
@@ -56,7 +61,7 @@ export const activityService = {
   },
 
   clearActivities: async (): Promise<void> => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    safeStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     try {
       await apiRequest('/cms/activities', { method: 'DELETE' });
     } catch {

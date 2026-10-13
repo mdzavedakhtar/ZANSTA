@@ -1,6 +1,7 @@
 import { CMSClientDemo } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_demos';
 
@@ -62,7 +63,7 @@ export const demoService = {
       const response = await apiRequest<{ success: boolean; data: CMSClientDemo[] }>(`/cms/demos${queryString}`);
       if (response.success && Array.isArray(response.data)) {
         if (!filters || Object.keys(filters).length === 0) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         }
         return response.data;
       }
@@ -76,11 +77,11 @@ export const demoService = {
   getDemos: (filters?: DemoFilterOptions): CMSClientDemo[] => {
     let demos: CMSClientDemo[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         demos = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDemos));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDemos));
         demos = defaultDemos;
       }
     } catch {
@@ -137,7 +138,7 @@ export const demoService = {
     const index = demos.findIndex((d) => d.token === token || d.id === token);
     if (index !== -1) {
       demos[index].viewCount = (demos[index].viewCount || 0) + 1;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
     }
     apiRequest(`/cms/demos/${token}/view`, { method: 'POST' }).catch(() => {});
   },
@@ -156,21 +157,26 @@ export const demoService = {
       updatedAt: new Date().toISOString(),
     };
 
-    const updated = [newDemo, ...demos];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'created client demo', newDemo.title, 'demo');
-
+    let resultDemo = newDemo;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSClientDemo }>('/cms/demos', {
         method: 'POST',
         body: JSON.stringify(newDemo),
       });
-      if (res.success && res.data) return res.data;
+      if (res.success && res.data) resultDemo = res.data;
+      activityService.logActivity('MD Zaved Akhtar', 'created client demo', resultDemo.title, 'demo');
     } catch {
-      // Local fallback
+      activityService.logActivity('MD Zaved Akhtar', 'created client demo (offline)', newDemo.title, 'demo');
     }
 
-    return newDemo;
+    try {
+      const updated = [resultDemo, ...demos];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultDemo;
   },
 
   updateDemo: async (id: string, updates: Partial<CMSClientDemo>): Promise<CMSClientDemo | null> => {
@@ -185,20 +191,26 @@ export const demoService = {
       updatedAt: new Date().toISOString(),
     };
 
-    demos[index] = updatedDemo;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
-    activityService.logActivity('MD Zaved Akhtar', 'updated client demo', updatedDemo.title, 'demo');
-
+    let resultDemo = updatedDemo;
     try {
-      await apiRequest(`/cms/demos/${id}`, {
+      const res = await apiRequest<{ success: boolean; data: CMSClientDemo }>(`/cms/demos/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
+      if (res?.data) resultDemo = res.data;
+      activityService.logActivity('MD Zaved Akhtar', 'updated client demo', resultDemo.title, 'demo');
     } catch {
-      // Local fallback
+      activityService.logActivity('MD Zaved Akhtar', 'updated client demo (offline)', updatedDemo.title, 'demo');
     }
 
-    return updatedDemo;
+    try {
+      demos[index] = resultDemo;
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultDemo;
   },
 
   regenerateToken: async (id: string): Promise<string | null> => {
@@ -209,8 +221,13 @@ export const demoService = {
     const newToken = `${demos[index].title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-6)}`;
     demos[index].token = newToken;
     demos[index].updatedAt = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
-    activityService.logActivity('MD Zaved Akhtar', 'regenerated demo security token', demos[index].title, 'demo');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(demos));
+      activityService.logActivity('MD Zaved Akhtar', 'regenerated demo security token', demos[index].title, 'demo');
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
 
     try {
       const res = await apiRequest<{ success: boolean; token: string }>(`/cms/demos/${id}/regenerate-token`, {
@@ -229,9 +246,13 @@ export const demoService = {
     const target = demos.find((d) => d.id === id || d.token === id);
     if (!target) return false;
 
-    const filtered = demos.filter((d) => d.id !== id && d.token !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted client demo', target.title, 'demo');
+    try {
+      const filtered = demos.filter((d) => d.id !== id && d.token !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted client demo', target.title, 'demo');
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
 
     try {
       await apiRequest(`/cms/demos/${id}`, {
