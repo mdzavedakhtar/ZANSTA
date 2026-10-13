@@ -2,6 +2,7 @@ import { CMSTeamMember } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
 import { generateZavedResumePdfBase64 } from '@/utils/generateZavedResume';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_team';
 
@@ -52,7 +53,7 @@ export const teamService = {
       if (response.success && Array.isArray(response.data)) {
         // Cleanly store exact server data without reviving deleted members
         if (!filters || Object.keys(filters).length === 0) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         }
         return response.data;
       }
@@ -66,15 +67,15 @@ export const teamService = {
   getTeamMembers: (filters?: TeamFilterOptions): CMSTeamMember[] => {
     let members: CMSTeamMember[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored !== null) {
         members = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTeamMembers));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTeamMembers));
         members = defaultTeamMembers;
       }
     } catch (e) {
-      console.error('Failed to parse team members from localStorage', e);
+      console.error('Failed to parse team members from storage', e);
       members = defaultTeamMembers;
     }
 
@@ -110,7 +111,7 @@ export const teamService = {
         const updated = members.some((m) => m.id === id)
           ? members.map((m) => (m.id === id ? res.data : m))
           : [...members, res.data];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
     } catch {
@@ -130,22 +131,29 @@ export const teamService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultMember = newMember;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>('/cms/team', {
         method: 'POST',
         body: JSON.stringify(newMember),
       });
-      const saved = res.data || newMember;
-      const updated = [...members.filter((m) => m.id !== id && m.id !== saved.id), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      activityService.logActivity('MD Zaved Akhtar', 'added team member', saved.name, 'team');
-      return saved;
-    } catch {
-      const updated = [...members, newMember];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      if (res.data) {
+        resultMember = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'added team member', resultMember.name, 'team');
+    } catch (apiErr) {
+      console.warn('Backend API create failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'added team member (offline)', newMember.name, 'team');
-      return newMember;
     }
+
+    try {
+      const updated = [...members.filter((m) => m.id !== id && m.id !== resultMember.id), resultMember];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultMember;
   },
 
   updateMember: async (id: string, updates: Partial<CMSTeamMember>): Promise<CMSTeamMember | null> => {
@@ -160,26 +168,31 @@ export const teamService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultMember = updatedMember;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSTeamMember }>(`/cms/team/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedMember;
-      const updatedList = members.some((m) => m.id === id)
-        ? members.map((m) => (m.id === id ? saved : m))
-        : [...members, saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated team member', saved.name || 'Member', 'team');
-      return saved;
-    } catch {
-      if (index !== -1) {
-        members[index] = updatedMember;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+      if (res.data) {
+        resultMember = res.data;
       }
+      activityService.logActivity('MD Zaved Akhtar', 'updated team member', resultMember.name || 'Member', 'team');
+    } catch (apiErr) {
+      console.warn('Backend API update failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated team member (offline)', updatedMember.name || 'Member', 'team');
-      return updatedMember;
     }
+
+    try {
+      const updatedList = members.some((m) => m.id === id)
+        ? members.map((m) => (m.id === id ? resultMember : m))
+        : [...members, resultMember];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultMember;
   },
 
   deleteMember: async (id: string): Promise<boolean> => {
@@ -194,9 +207,13 @@ export const teamService = {
       // Silent
     }
 
-    const filtered = members.filter((m) => m.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted team member', target?.name || id, 'team');
+    try {
+      const filtered = members.filter((m) => m.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted team member', target?.name || id, 'team');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
     return true;
   },
 
@@ -206,8 +223,13 @@ export const teamService = {
       order: idx + 1,
       updatedAt: new Date().toISOString(),
     }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'reordered team members', 'Team Showcase Order', 'team');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'reordered team members', 'Team Showcase Order', 'team');
+    } catch (storageErr) {
+      console.warn('safeStorage reorder skipped:', storageErr);
+    }
 
     try {
       await apiRequest('/cms/team/reorder', {

@@ -1,6 +1,7 @@
 import { CMSReview } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_reviews';
 
@@ -104,19 +105,19 @@ export const reviewService = {
       const response = await apiRequest<{ success: boolean; data: CMSReview[] }>(`/cms/reviews${queryString}`);
       if (response.success && Array.isArray(response.data)) {
         if (!filters || Object.keys(filters).length === 0) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+          safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         } else {
           try {
-            const stored = localStorage.getItem(STORAGE_KEY);
+            const stored = safeStorage.getItem(STORAGE_KEY);
             const current: CMSReview[] = stored ? JSON.parse(stored) : [];
             const mergedMap = new Map<string, CMSReview>();
             response.data.forEach((r) => mergedMap.set(r.id, r));
             current.forEach((r) => {
               if (!mergedMap.has(r.id)) mergedMap.set(r.id, r);
             });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
+            safeStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mergedMap.values())));
           } catch {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+            safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
           }
         }
         return response.data;
@@ -131,11 +132,11 @@ export const reviewService = {
   getReviews: (filters?: { isFeatured?: boolean; isVisible?: boolean }): CMSReview[] => {
     let reviews: CMSReview[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         reviews = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultReviews));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultReviews));
         reviews = defaultReviews;
       }
     } catch {
@@ -166,7 +167,7 @@ export const reviewService = {
         const updated = reviews.some((r) => r.id === id)
           ? reviews.map((r) => (r.id === id ? res.data : r))
           : [...reviews, res.data];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
     } catch {
@@ -186,22 +187,29 @@ export const reviewService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultReview = newReview;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSReview }>('/cms/reviews', {
         method: 'POST',
         body: JSON.stringify(newReview),
       });
-      const saved = res.data || newReview;
-      const updated = [...reviews.filter((r) => r.id !== id && r.id !== saved.id), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      activityService.logActivity('MD Zaved Akhtar', 'added client review', `${saved.clientName} (${saved.companyName})`, 'review');
-      return saved;
-    } catch {
-      const updated = [...reviews, newReview];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      if (res.data) {
+        resultReview = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'added client review', `${resultReview.clientName} (${resultReview.companyName})`, 'review');
+    } catch (apiErr) {
+      console.warn('Backend API create review failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'added client review (offline)', `${newReview.clientName} (${newReview.companyName})`, 'review');
-      return newReview;
     }
+
+    try {
+      const updated = [...reviews.filter((r) => r.id !== id && r.id !== resultReview.id), resultReview];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultReview;
   },
 
   updateReview: async (id: string, updates: Partial<CMSReview>): Promise<CMSReview | null> => {
@@ -216,26 +224,31 @@ export const reviewService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultReview = updatedReview;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSReview }>(`/cms/reviews/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedReview;
-      const updatedList = reviews.some((r) => r.id === id)
-        ? reviews.map((r) => (r.id === id ? saved : r))
-        : [...reviews, saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated client review', saved.clientName || 'Review', 'review');
-      return saved;
-    } catch {
-      if (index !== -1) {
-        reviews[index] = updatedReview;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+      if (res.data) {
+        resultReview = res.data;
       }
+      activityService.logActivity('MD Zaved Akhtar', 'updated client review', resultReview.clientName || 'Review', 'review');
+    } catch (apiErr) {
+      console.warn('Backend API update review failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated client review (offline)', updatedReview.clientName || 'Review', 'review');
-      return updatedReview;
     }
+
+    try {
+      const updatedList = reviews.some((r) => r.id === id)
+        ? reviews.map((r) => (r.id === id ? resultReview : r))
+        : [...reviews, resultReview];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultReview;
   },
 
   deleteReview: async (id: string): Promise<boolean> => {
@@ -250,9 +263,13 @@ export const reviewService = {
       // Silent
     }
 
-    const filtered = reviews.filter((r) => r.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted client review', target?.clientName || id, 'review');
+    try {
+      const filtered = reviews.filter((r) => r.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted client review', target?.clientName || id, 'review');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
     return true;
   },
 };

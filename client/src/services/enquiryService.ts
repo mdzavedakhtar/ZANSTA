@@ -1,6 +1,7 @@
 import { ContactEnquiry, EnquiryStatus } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_enquiries';
 
@@ -12,7 +13,7 @@ export const enquiryService = {
     try {
       const response = await apiRequest<{ success: boolean; data: ContactEnquiry[] }>('/cms/enquiries');
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -25,11 +26,11 @@ export const enquiryService = {
   getEnquiries: (): ContactEnquiry[] => {
     let enquiries: ContactEnquiry[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         enquiries = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultEnquiries));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultEnquiries));
         enquiries = defaultEnquiries;
       }
     } catch {
@@ -49,21 +50,26 @@ export const enquiryService = {
       createdAt: new Date().toISOString(),
     };
 
-    const updated = [newEnquiry, ...enquiries];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity(newEnquiry.name, 'submitted project contact enquiry', newEnquiry.company || newEnquiry.email, 'enquiry');
-
+    let resultEnquiry = newEnquiry;
     try {
       const res = await apiRequest<{ success: boolean; data: ContactEnquiry }>('/cms/enquiries', {
         method: 'POST',
         body: JSON.stringify(newEnquiry),
       });
-      if (res.success && res.data) return res.data;
+      if (res.success && res.data) resultEnquiry = res.data;
+      activityService.logActivity(resultEnquiry.name, 'submitted project contact enquiry', resultEnquiry.company || resultEnquiry.email, 'enquiry');
     } catch {
-      // Local fallback
+      activityService.logActivity(newEnquiry.name, 'submitted project contact enquiry (offline)', newEnquiry.company || newEnquiry.email, 'enquiry');
     }
 
-    return newEnquiry;
+    try {
+      const updated = [resultEnquiry, ...enquiries];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultEnquiry;
   },
 
   updateStatus: async (id: string, status: EnquiryStatus): Promise<ContactEnquiry | null> => {
@@ -72,8 +78,12 @@ export const enquiryService = {
     if (index === -1) return null;
 
     enquiries[index].status = status;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(enquiries));
-    activityService.logActivity('MD Zaved Akhtar', `updated enquiry status to ${status}`, enquiries[index].name, 'enquiry');
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(enquiries));
+      activityService.logActivity('MD Zaved Akhtar', `updated enquiry status to ${status}`, enquiries[index].name, 'enquiry');
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
 
     try {
       await apiRequest(`/cms/enquiries/${id}/status`, {
@@ -92,9 +102,13 @@ export const enquiryService = {
     const target = enquiries.find((e) => e.id === id);
     if (!target) return false;
 
-    const filtered = enquiries.filter((e) => e.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted contact enquiry', target.name, 'enquiry');
+    try {
+      const filtered = enquiries.filter((e) => e.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted contact enquiry', target.name, 'enquiry');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
 
     try {
       await apiRequest(`/cms/enquiries/${id}`, {

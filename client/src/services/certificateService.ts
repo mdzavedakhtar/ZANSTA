@@ -1,6 +1,7 @@
 import { CMSCertificate } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_certificates';
 
@@ -80,7 +81,7 @@ export const certificateService = {
 
       const response = await apiRequest<{ success: boolean; data: CMSCertificate[] }>(`/cms/certificates${queryString}`);
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -92,11 +93,11 @@ export const certificateService = {
   getCertificates: (filters?: CertificateFilterOptions): CMSCertificate[] => {
     let certs: CMSCertificate[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored !== null) {
         certs = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCertificates));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultCertificates));
         certs = defaultCertificates;
       }
     } catch {
@@ -130,22 +131,29 @@ export const certificateService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultCert = newCert;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSCertificate }>('/cms/certificates', {
         method: 'POST',
         body: JSON.stringify(newCert),
       });
-      const saved = res.data || newCert;
-      const updated = [...certs.filter((c) => c.id !== id && c.id !== saved.id), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      activityService.logActivity('MD Zaved Akhtar', 'added company certificate', saved.title, 'certificate');
-      return saved;
-    } catch {
-      const updated = [...certs, newCert];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      if (res.data) {
+        resultCert = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'added company certificate', resultCert.title, 'certificate');
+    } catch (apiErr) {
+      console.warn('Backend API create certificate failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'added company certificate (offline)', newCert.title, 'certificate');
-      return newCert;
     }
+
+    try {
+      const updated = [...certs.filter((c) => c.id !== id && c.id !== resultCert.id), resultCert];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cert cache write skipped:', storageErr);
+    }
+
+    return resultCert;
   },
 
   updateCertificate: async (id: string, updates: Partial<CMSCertificate>): Promise<CMSCertificate | null> => {
@@ -159,22 +167,29 @@ export const certificateService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultCert = updatedCert;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSCertificate }>(`/cms/certificates/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedCert;
-      const updatedList = certs.map((c) => (c.id === id ? saved : c));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated company certificate', saved.title, 'certificate');
-      return saved;
-    } catch {
-      const updatedList = certs.map((c) => (c.id === id ? updatedCert : c));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      if (res.data) {
+        resultCert = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'updated company certificate', resultCert.title, 'certificate');
+    } catch (apiErr) {
+      console.warn('Backend API update certificate failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated company certificate (offline)', updatedCert.title, 'certificate');
-      return updatedCert;
     }
+
+    try {
+      const updatedList = certs.map((c) => (c.id === id ? resultCert : c));
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage cert cache write skipped:', storageErr);
+    }
+
+    return resultCert;
   },
 
   deleteCertificate: async (id: string): Promise<boolean> => {
@@ -188,9 +203,13 @@ export const certificateService = {
       // Local fallback
     }
 
-    const filtered = certs.filter((c) => c.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted company certificate', title, 'certificate');
+    try {
+      const filtered = certs.filter((c) => c.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted company certificate', title, 'certificate');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
     return true;
   },
 
@@ -204,8 +223,13 @@ export const certificateService = {
     } catch {
       // Local fallback
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
-    activityService.logActivity('MD Zaved Akhtar', 'reordered company certificates', 'Certificates Order', 'certificate');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
+      activityService.logActivity('MD Zaved Akhtar', 'reordered company certificates', 'Certificates Order', 'certificate');
+    } catch (storageErr) {
+      console.warn('safeStorage reorder skipped:', storageErr);
+    }
     return reordered;
   },
 };

@@ -1,6 +1,7 @@
 import { CMSService } from '@/types/cms';
 import { apiRequest } from './api';
 import { activityService } from './activityService';
+import { safeStorage } from '@/lib/safeStorage';
 
 const STORAGE_KEY = 'zansta_cms_services';
 
@@ -103,7 +104,7 @@ export const serviceService = {
     try {
       const response = await apiRequest<{ success: boolean; data: CMSService[] }>('/cms/services');
       if (response.success && Array.isArray(response.data)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
         return response.data;
       }
     } catch {
@@ -116,15 +117,15 @@ export const serviceService = {
   getServices: (): CMSService[] => {
     let services: CMSService[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = safeStorage.getItem(STORAGE_KEY);
       if (stored) {
         services = JSON.parse(stored);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultServices));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(defaultServices));
         services = defaultServices;
       }
     } catch (e) {
-      console.error('Failed to parse services from localStorage', e);
+      console.error('Failed to parse services from storage', e);
       services = defaultServices;
     }
     services.sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -144,7 +145,7 @@ export const serviceService = {
         const updated = services.some((s) => s.id === id)
           ? services.map((s) => (s.id === id ? res.data : s))
           : [...services, res.data];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         return res.data;
       }
     } catch {
@@ -164,22 +165,29 @@ export const serviceService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultService = newService;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSService }>('/cms/services', {
         method: 'POST',
         body: JSON.stringify(newService),
       });
-      const saved = res.data || newService;
-      const updated = [...services.filter((s) => s.id !== id && s.id !== saved.id), saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      activityService.logActivity('MD Zaved Akhtar', 'created agency service', saved.name, 'service');
-      return saved;
-    } catch {
-      const updated = [...services, newService];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      if (res.data) {
+        resultService = res.data;
+      }
+      activityService.logActivity('MD Zaved Akhtar', 'created agency service', resultService.name, 'service');
+    } catch (apiErr) {
+      console.warn('Backend API create service failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'created agency service (offline)', newService.name, 'service');
-      return newService;
     }
+
+    try {
+      const updated = [...services.filter((s) => s.id !== id && s.id !== resultService.id), resultService];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultService;
   },
 
   updateService: async (id: string, updates: Partial<CMSService>): Promise<CMSService | null> => {
@@ -194,26 +202,31 @@ export const serviceService = {
       updatedAt: new Date().toISOString(),
     };
 
+    let resultService = updatedService;
     try {
       const res = await apiRequest<{ success: boolean; data: CMSService }>(`/cms/services/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
-      const saved = res.data || updatedService;
-      const updatedList = services.some((s) => s.id === id)
-        ? services.map((s) => (s.id === id ? saved : s))
-        : [...services, saved];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      activityService.logActivity('MD Zaved Akhtar', 'updated agency service', saved.name || 'Service', 'service');
-      return saved;
-    } catch {
-      if (index !== -1) {
-        services[index] = updatedService;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
+      if (res.data) {
+        resultService = res.data;
       }
+      activityService.logActivity('MD Zaved Akhtar', 'updated agency service', resultService.name || 'Service', 'service');
+    } catch (apiErr) {
+      console.warn('Backend API update service failed, saving locally:', apiErr);
       activityService.logActivity('MD Zaved Akhtar', 'updated agency service (offline)', updatedService.name || 'Service', 'service');
-      return updatedService;
     }
+
+    try {
+      const updatedList = services.some((s) => s.id === id)
+        ? services.map((s) => (s.id === id ? resultService : s))
+        : [...services, resultService];
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    } catch (storageErr) {
+      console.warn('safeStorage cache write skipped:', storageErr);
+    }
+
+    return resultService;
   },
 
   deleteService: async (id: string): Promise<boolean> => {
@@ -228,9 +241,13 @@ export const serviceService = {
       // Silent
     }
 
-    const filtered = services.filter((s) => s.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target?.name || id, 'service');
+    try {
+      const filtered = services.filter((s) => s.id !== id);
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      activityService.logActivity('MD Zaved Akhtar', 'deleted agency service', target?.name || id, 'service');
+    } catch (storageErr) {
+      console.warn('safeStorage delete skipped:', storageErr);
+    }
     return true;
   },
 
@@ -240,8 +257,13 @@ export const serviceService = {
       order: idx + 1,
       updatedAt: new Date().toISOString(),
     }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    activityService.logActivity('MD Zaved Akhtar', 'reordered services', 'Services Showcase Order', 'service');
+
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      activityService.logActivity('MD Zaved Akhtar', 'reordered services', 'Services Showcase Order', 'service');
+    } catch (storageErr) {
+      console.warn('safeStorage reorder skipped:', storageErr);
+    }
 
     try {
       await apiRequest('/cms/services/reorder', {
